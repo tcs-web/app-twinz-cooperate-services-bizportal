@@ -188,7 +188,7 @@ const CONTACT = {email:'twinz.cooperate.services@gmail.com',thabo:'068 254 7352'
 
 let currentRole = 'CEO'; let currentTab = 0; let currentShareLink = ''; let invoiceItems = []; let deferredPrompt;
 
-// ========== FIREBASE LOAD - ADDED ==========
+// ========== FIREBASE LOAD - FIXED ==========
 const defaultCategories = [
   {id:'diagnostics', name:'Vehicle Diagnostics',desc:'All Brand Diagnostics Software. JLR, VW, AUDI, BENZ, BMW, TOYOTA, ISUZU, FORD, MAZDA, NISSAN + more',features:['Full System Scan','DTC Clear','Service Reset','DPF Regen','EPB','SAS','Key Programming','Twinz Master Scanner V25'],price:'From R450', outOfStock:false, products:[]},
   {id:'internet', name:'Wireless Internet',desc:'Unlimited Fibre, LTE, Installation, Business WiFi, Router Sales, 24/7 Support',features:['Unlimited Data','Fast Installation','Business Packages'],price:'From R350/month', outOfStock:false, products:[]},
@@ -198,36 +198,60 @@ const defaultCategories = [
   {id:'workshop', name:'Workshop Partnerships',desc:'Supply parts to garages and workshops nationwide',features:['Fleet diagnostics','Bulk pricing','Nationwide SA'],price:'Contact for Rates', outOfStock:false, products:[]},
   {id:'food', name:'Food Supply',desc:'Wholesale food supply for businesses, restaurants and events',features:['Bulk Orders','Fresh Produce','Nationwide Delivery','Custom Quotes'],price:'Quote on Request', outOfStock:false, products:[]}
 ];
-onValue(categoriesRef, (snapshot) => {
-  const data = snapshot.val();
-  CATEGORIES = data? Object.values(data) : defaultCategories;
-  if(!data) set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c])));
-  if(document.getElementById('app').style.display==='block'){ renderTabs(); renderContent(); }
-  if(document.getElementById('clientView').style.display==='block'){ renderClientNav(); renderClient(); }
-});
+
 function saveToFirebase(){
   const data = {};
   CATEGORIES.forEach(c => data[c.id] = c);
   set(categoriesRef, data);
 }
-// ========== END FIREBASE LOAD ==========
 
+// Force load categories on start - ONLY 1 LISTENER
+onValue(categoriesRef, (snapshot) => {
+  const data = snapshot.val();
+  CATEGORIES = data? Object.values(data) : defaultCategories;
+  if(!data) set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c])));
+  
+  // Auto re-render if we're already in app or client view
+  if(document.getElementById('app').style.display==='block'){ renderTabs(); renderContent(); }
+  if(document.getElementById('clientView').style.display==='block'){ renderClientNav(); renderClient(); }
+});
+// ========== END FIREBASE LOAD ==========
 function login(role){
-  // ========== FIREBASE LOGIN - ADDED ==========
   const emails = {CEO: 'ceo@twinz.co.za', Manager: 'manager@twinz.co.za', Sales: 'sales@twinz.co.za', Reception: 'reception@twinz.co.za'};
   const password = prompt(`Enter password for ${role}:`);
   if(!password) return;
+
+  // Show loading
+  document.getElementById('loginScreen').innerHTML = '<h2>Logging in...</h2>';
+
   signInWithEmailAndPassword(auth, emails[role], password)
-.then(() => {
+ .then(() => {
     currentRole = role;
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
     document.getElementById('roleBadge').className='role-badge '+role;
     document.getElementById('roleBadge').innerText=role;
-    renderTabs(); renderContent();
+
+    // WAIT FOR CATEGORIES TO LOAD
+    const waitForData = setInterval(() => {
+      if(CATEGORIES.length > 0){
+        clearInterval(waitForData);
+        renderTabs(); 
+        renderContent();
+      }
+    }, 100); // check every 100ms
   })
-.catch(err => alert('Login failed: ' + err.message));
-  // ========== END FIREBASE LOGIN ==========
+ .catch(err => {
+    alert('Login failed: ' + err.message);
+    document.getElementById('loginScreen').innerHTML = `<h2>Admin Login</h2><p style="color:var(--muted)">Select Role to Continue</p>
+    <div style="max-width:400px;margin:20px auto">
+      <button class="btn" onclick="login('CEO')">Login as CEO - Full Access</button>
+      <button class="btn" onclick="login('Manager')">Login as Manager</button>
+      <button class="btn" onclick="login('Sales')">Login as Sales</button>
+      <button class="btn" onclick="login('Reception')">Login as Reception</button>
+      <button class="btn secondary" onclick="enterClientMode()">Enter as Client</button>
+    </div>`;
+  });
 }
 
 function logout(){
