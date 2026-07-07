@@ -205,11 +205,18 @@ function saveToFirebase(){
   set(categoriesRef, data);
 }
 
-// Force load categories on start - ONLY 1 LISTENER
+// Force load categories on start - WITH SEEDING
 onValue(categoriesRef, (snapshot) => {
   const data = snapshot.val();
-  CATEGORIES = data? Object.values(data) : defaultCategories;
-  if(!data) set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c])));
+  
+  if(!data){
+    // FIRST TIME: SEED DATABASE WITH DEFAULT 7 CATEGORIES
+    console.log("Seeding database with default categories...");
+    set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c])));
+    CATEGORIES = defaultCategories;
+  } else {
+    CATEGORIES = Object.values(data);
+  }
   
   // Auto re-render if we're already in app or client view
   if(document.getElementById('app').style.display==='block'){ renderTabs(); renderContent(); }
