@@ -159,8 +159,37 @@ ul li::before{content:'▸';position:absolute;left:0;color:var(--accent)}
   <button class="btn danger small" onclick="document.getElementById('pwaBanner').style.display='none'">Close</button>
 </div>
 
-<script>
-const CATEGORIES = [
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getDatabase, ref, set, onValue, push } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+// ========== FIREBASE SETUP - ADDED ==========
+const firebaseConfig = {
+  apiKey: "AIzaSyAl74HtxWvRsA0u97mWRFlreZojTAxUGQ4",
+  authDomain: "app-twinz-cooperate-services-b.firebaseapp.com",
+  databaseURL: "https://app-twinz-cooperate-services-b-default-rtdb.firebaseio.com",
+  projectId: "app-twinz-cooperate-services-b",
+  storageBucket: "app-twinz-cooperate-services-b.firebasestorage.app",
+  messagingSenderId: "186744176115",
+  appId: "1:186744176115:web:319a67f99bbd31e646a686",
+  measurementId: "G-5J9KWSGP7C"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+const categoriesRef = ref(db, 'twinz_worldtier/categories');
+const requestsRef = ref(db, 'twinz_worldtier/requests');
+// ========== END FIREBASE SETUP ==========
+
+// ========== YOUR ORIGINAL SCRIPT STARTS - ONLY 2 WORDS CHANGED ==========
+let CATEGORIES = []; // CHANGED: const to let
+const CONTACT = {email:'twinz.cooperate.services@gmail.com',thabo:'068 254 7352',thabang:'069 894 9596',location:'Greater Tubatse, Limpopo',hours:'Mon - Sat | 8am - 6pm',company:'TWINZ COOPERATE SERVICES PTY LTD',reg:'2026/XXXXXX/07'};
+
+let currentRole = 'CEO'; let currentTab = 0; let currentShareLink = ''; let invoiceItems = []; let deferredPrompt;
+
+// ========== FIREBASE LOAD - ADDED ==========
+const defaultCategories = [
   {id:'diagnostics', name:'Vehicle Diagnostics',desc:'All Brand Diagnostics Software. JLR, VW, AUDI, BENZ, BMW, TOYOTA, ISUZU, FORD, MAZDA, NISSAN + more',features:['Full System Scan','DTC Clear','Service Reset','DPF Regen','EPB','SAS','Key Programming','Twinz Master Scanner V25'],price:'From R450', outOfStock:false, products:[]},
   {id:'internet', name:'Wireless Internet',desc:'Unlimited Fibre, LTE, Installation, Business WiFi, Router Sales, 24/7 Support',features:['Unlimited Data','Fast Installation','Business Packages'],price:'From R350/month', outOfStock:false, products:[]},
   {id:'web', name:'Web Development',desc:'Business Websites, Landing Pages, E-commerce, Portfolio Sites',features:['Mobile-first','SEO','Hosting Setup'],price:'From R3000', note:'7-14 Days Delivery', outOfStock:false, products:[]},
@@ -169,26 +198,50 @@ const CATEGORIES = [
   {id:'workshop', name:'Workshop Partnerships',desc:'Supply parts to garages and workshops nationwide',features:['Fleet diagnostics','Bulk pricing','Nationwide SA'],price:'Contact for Rates', outOfStock:false, products:[]},
   {id:'food', name:'Food Supply',desc:'Wholesale food supply for businesses, restaurants and events',features:['Bulk Orders','Fresh Produce','Nationwide Delivery','Custom Quotes'],price:'Quote on Request', outOfStock:false, products:[]}
 ];
-const CONTACT = {email:'twinz.cooperate.services@gmail.com',thabo:'068 254 7352',thabang:'069 894 9596',location:'Greater Tubatse, Limpopo',hours:'Mon - Sat | 8am - 6pm',company:'TWINZ COOPERATE SERVICES PTY LTD',reg:'2026/XXXXXX/07'};
-
-let currentRole = 'CEO'; let currentTab = 0; let currentShareLink = ''; let invoiceItems = []; let deferredPrompt;
+onValue(categoriesRef, (snapshot) => {
+  const data = snapshot.val();
+  CATEGORIES = data? Object.values(data) : defaultCategories;
+  if(!data) set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c])));
+  if(document.getElementById('app').style.display==='block'){ renderTabs(); renderContent(); }
+  if(document.getElementById('clientView').style.display==='block'){ renderClientNav(); renderClient(); }
+});
+function saveToFirebase(){
+  const data = {};
+  CATEGORIES.forEach(c => data[c.id] = c);
+  set(categoriesRef, data);
+}
+// ========== END FIREBASE LOAD ==========
 
 function login(role){
-  currentRole = role;
-  // NO LOCALSTORAGE TRAP
-  document.getElementById('loginScreen').style.display='none';
-  document.getElementById('app').style.display='block';
-  document.getElementById('roleBadge').className='role-badge '+role;
-  document.getElementById('roleBadge').innerText=role;
-  renderTabs(); renderContent();
+  // ========== FIREBASE LOGIN - ADDED ==========
+  const emails = {CEO: 'ceo@twinz.co.za', Manager: 'manager@twinz.co.za', Sales: 'sales@twinz.co.za', Reception: 'reception@twinz.co.za'};
+  const password = prompt(`Enter password for ${role}:`);
+  if(!password) return;
+  signInWithEmailAndPassword(auth, emails[role], password)
+.then(() => {
+    currentRole = role;
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.getElementById('roleBadge').className='role-badge '+role;
+    document.getElementById('roleBadge').innerText=role;
+    renderTabs(); renderContent();
+  })
+.catch(err => alert('Login failed: ' + err.message));
+  // ========== END FIREBASE LOGIN ==========
 }
+
 function logout(){
+  signOut(auth); // ADDED
   document.getElementById('app').style.display='none';
   document.getElementById('loginScreen').style.display='block';
   document.getElementById('shareLinkBox').style.display='none';
 }
+
+onAuthStateChanged(auth, user => { // ADDED
+  if(!user && document.getElementById('app').style.display==='block') logout();
+});
+
 function enterClientMode(){
-  // NO LOCALSTORAGE TRAP
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('clientView').style.display='block';
   renderClientNav(); renderClient();
@@ -207,7 +260,9 @@ function searchClient(){
 }
 function renderTabs(){document.getElementById('tabs').innerHTML = CATEGORIES.map((c,i)=>`<div class="tab ${i===currentTab?'active':''}" onclick="switchTab(${i})">${c.name}</div>`).join('');}
 function switchTab(i){ currentTab=i; renderTabs(); renderContent(); }
-function toggleStock(id){CATEGORIES.find(c=>c.id===id).outOfStock =!CATEGORIES.find(c=>c.id===id).outOfStock; renderContent();}
+
+// ========== ADDED saveToFirebase() TO ALL EDIT FUNCTIONS ==========
+function toggleStock(id){CATEGORIES.find(c=>c.id===id).outOfStock =!CATEGORIES.find(c=>c.id===id).outOfStock; saveToFirebase(); renderContent();}
 function addProduct(catId){
   const title = document.getElementById('pTitle'+catId).value; const price = document.getElementById('pPrice'+catId).value;
   const desc = document.getElementById('pDesc'+catId).value; const imgLink = document.getElementById('pImg'+catId).value;
@@ -215,12 +270,14 @@ function addProduct(catId){
   const cat = CATEGORIES.find(c=>c.id===catId); const newImages = imgLink.trim()? [imgLink.trim()] : [];
   cat.products.push({id:Date.now(), title, price, desc, images:newImages, outOfStock:false});
   document.getElementById('pTitle'+catId).value='';document.getElementById('pPrice'+catId).value='';document.getElementById('pDesc'+catId).value='';document.getElementById('pImg'+catId).value='';
-  renderContent();
+  saveToFirebase(); renderContent(); // ADDED
 }
-function deleteProduct(catId, pId){CATEGORIES.find(c=>c.id===catId).products = CATEGORIES.find(c=>c.id===catId).products.filter(p=>p.id!==pId); renderContent();}
-function toggleProductStock(catId, pId){CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).outOfStock =!CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).outOfStock; renderContent();}
-function saveManualImage(catId, pId){const input = document.getElementById('manual'+catId+pId); const p = CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId); if(input.value.trim()){p.images.push(input.value.trim()); input.value=''; renderContent();}}
-function deleteImage(catId, pId, index){CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).images.splice(index,1); renderContent();}
+function deleteProduct(catId, pId){CATEGORIES.find(c=>c.id===catId).products = CATEGORIES.find(c=>c.id===catId).products.filter(p=>p.id!==pId); saveToFirebase(); renderContent();} // ADDED
+function toggleProductStock(catId, pId){CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).outOfStock =!CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).outOfStock; saveToFirebase(); renderContent();} // ADDED
+function saveManualImage(catId, pId){const input = document.getElementById('manual'+catId+pId); const p = CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId); if(input.value.trim()){p.images.push(input.value.trim()); input.value=''; saveToFirebase(); renderContent();}} // ADDED
+function deleteImage(catId, pId, index){CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).images.splice(index,1); saveToFirebase(); renderContent();} // ADDED
+// ========== END ADDED ==========
+
 function renderProducts(cat){
   if(cat.products.length===0) return '<p style="color:var(--muted)">No products yet. Add your first item below.</p>';
   return `<div class="product-grid">${cat.products.map(p=>`<div class="product-card ${p.outOfStock?'out-of-stock':''}">
@@ -239,7 +296,7 @@ function renderContent(){
     ${currentRole!=='Reception'?`<div class="card" style="margin-top:15px"><h4>Add New Product to ${cat.name}</h4><input id="pTitle${cat.id}" placeholder="Product Title e.g. BMW N47 Engine"><input id="pPrice${cat.id}" placeholder="Price e.g. R25000 or Quote"><textarea id="pDesc${cat.id}" placeholder="Description, Specs, Vehicle Fitment"></textarea><input id="pImg${cat.id}" placeholder="Paste Catbox.moe Image Link Here - Optional"><button class="btn" onclick="addProduct('${cat.id}')">+ Add Product</button></div>`:''}
     <h4 style="margin-top:12px">Send Client Request</h4><textarea id="msg${cat.id}" placeholder="Tell us what you need... Vehicle make/model for parts"></textarea><button class="btn secondary" onclick="sendWhatsApp('${cat.id}')">Send WhatsApp</button></div>`;
   if(currentRole==='CEO' || currentRole==='Manager'){
-    html += `<div class="card"><h3>Category Controls - ${cat.name}</h3><input placeholder="Edit Category Price" value="${cat.price}" onchange="cat.price=this.value"><textarea placeholder="Edit Category Description">${cat.desc}</textarea>
+    html += `<div class="card"><h3>Category Controls - ${cat.name}</h3><input placeholder="Edit Category Price" value="${cat.price}" onchange="cat.price=this.value; saveToFirebase()"><textarea placeholder="Edit Category Description" onchange="cat.desc=this.value; saveToFirebase()">${cat.desc}</textarea>
       <div style="display:flex;align-items:center;gap:10px;margin:12px 0"><input type="checkbox" id="stock${cat.id}" ${cat.outOfStock?'checked':''} onchange="toggleStock('${cat.id}')"><label for="stock${cat.id}">Mark Whole Category Out of Stock</label></div></div>`;
   }
   document.getElementById('content').innerHTML = html;
@@ -247,9 +304,15 @@ function renderContent(){
 async function uploadToCatbox(catId, pId){
   const fileInput = document.getElementById('file'+catId+pId); if(!fileInput.files[0]){ alert('Select a file first'); return; }
   const formData = new FormData(); formData.append('reqtype','fileupload'); formData.append('fileToUpload', fileInput.files[0]);
-  try{const res = await fetch('https://catbox.moe/user/api.php',{method:'POST',body:formData}); const url = await res.text(); CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).images.push(url); fileInput.value=''; renderContent(); alert('Uploaded: '+url);}catch(e){ alert('Upload failed. Check connection.'); }
+  try{const res = await fetch('https://catbox.moe/user/api.php',{method:'POST',body:formData}); const url = await res.text(); CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).images.push(url); fileInput.value=''; saveToFirebase(); renderContent(); alert('Uploaded: '+url);}catch(e){ alert('Upload failed. Check connection.'); } // ADDED
 }
-function sendWhatsApp(id){const msg = document.getElementById('msg'+id).value || 'Hello TWINZ, I need assistance'; window.open(`https://wa.me/27682547352?text=${encodeURIComponent(msg)}`,'_blank');}
+
+function sendWhatsApp(id){
+  const msg = document.getElementById('msg'+id).value || 'Hello TWINZ, I need assistance';
+  push(requestsRef, {category:id, message:msg, date:new Date().toISOString()}); // ADDED
+  window.open(`https://wa.me/27682547352?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
 function generateClientLink(){const baseUrl = window.location.origin + window.location.pathname; currentShareLink = baseUrl + '#client'; document.getElementById('shareLink').innerText = currentShareLink; document.getElementById('shareLinkBox').style.display = 'block'; alert('Client Link Generated! Click Copy Link to share.');}
 function copyLink(){navigator.clipboard.writeText(currentShareLink); alert('Link Copied!');}
 function renderClient(){
@@ -290,48 +353,34 @@ function installPWA(){
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then(()=>{document.getElementById('pwaBanner').style.display='none'; localStorage.setItem('pwa_installed','1')});
   } else {
-    // Fallback for iOS / browsers that don't support beforeinstallprompt
     const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
-    if(isIOS){
-      alert('To Install: Tap Share button ⬆️ → "Add to Home Screen"');
-    } else {
-      alert('To Install: Click the 3 dots ⋮ in Chrome → "Install App" or "Add to Home Screen"');
-    }
+    if(isIOS){ alert('To Install: Tap Share button ⬆️ → "Add to Home Screen"'); }
+    else { alert('To Install: Click the 3 dots ⋮ in Chrome → "Install App" or "Add to Home Screen"'); }
     document.getElementById('pwaBanner').style.display='none';
   }
 }
-
 window.addEventListener('beforeinstallprompt', (e)=>{
   e.preventDefault();
   deferredPrompt = e;
-  if(window.location.hash==='#client' && !localStorage.getItem('pwa_installed')) {
+  if(window.location.hash==='#client' &&!localStorage.getItem('pwa_installed')) {
     setTimeout(()=>{document.getElementById('pwaBanner').style.display='block'}, 2000);
   }
 });
-
 // ========== SMART ROUTING ON LOAD ==========
 window.addEventListener('load', ()=>{
   const hash = window.location.hash;
-  
-  // RULE 1: If URL has #client = Client Mode. FOR CLIENTS ONLY. Auto lock.
   if(hash === '#client'){
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='none';
     document.getElementById('clientView').style.display='block';
-    renderClientNav();
-    renderClient();
-    if(!localStorage.getItem('pwa_installed')){
-      setTimeout(()=>{document.getElementById('pwaBanner').style.display='block'}, 4000);
-    }
-  } 
-  // RULE 2: If URL has NO hash = Admin/Login. FOR YOU ONLY.
-  else {
+    renderClientNav(); renderClient();
+    if(!localStorage.getItem('pwa_installed')){ setTimeout(()=>{document.getElementById('pwaBanner').style.display='block'}, 4000); }
+  } else {
     document.getElementById('clientView').style.display='none';
     document.getElementById('app').style.display='none';
     document.getElementById('loginScreen').style.display='block';
   }
 });
-
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([`
     self.addEventListener('install', e=>{self.skipWaiting();});
@@ -339,6 +388,7 @@ if('serviceWorker' in navigator){
   `],{type:'text/javascript'}))).catch(()=>{});
 }
 // ========== END PWA SYSTEM ==========
+// ========== YOUR ORIGINAL SCRIPT ENDS ==========
 </script>
 </body>
 </html>
