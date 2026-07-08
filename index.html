@@ -180,11 +180,10 @@ const auth = getAuth(app);
 const categoriesRef = ref(db, 'twinz_worldtier/categories');
 const requestsRef = ref(db, 'twinz_worldtier/requests');
 
-let CATEGORIES = []; // CHANGED FROM CONST TO LET
+let CATEGORIES = [];
 const CONTACT = {email:'twinz.cooperate.services@gmail.com',thabo:'068 254 7352',thabang:'069 894 9596',location:'Greater Tubatse, Limpopo',hours:'Mon - Sat | 8am - 6pm',company:'TWINZ COOPERATE SERVICES PTY LTD',reg:'2026/XXXXXX/07'};
 let currentRole = 'CEO'; let currentTab = 0; let currentShareLink = ''; let invoiceItems = []; let deferredPrompt;
 
-// ========== MISSING INFO FROM OLD CODE: DEFAULT DATA ==========
 const defaultCategories = [
   {id:'diagnostics', name:'Vehicle Diagnostics',desc:'All Brand Diagnostics Software. JLR, VW, AUDI, BENZ, BMW, TOYOTA, ISUZU, FORD, MAZDA, NISSAN + more',features:['Full System Scan','DTC Clear','Service Reset','DPF Regen','EPB','SAS','Key Programming','Twinz Master Scanner V25'],price:'From R450', outOfStock:false, products:[]},
   {id:'internet', name:'Wireless Internet',desc:'Unlimited Fibre, LTE, Installation, Business WiFi, Router Sales, 24/7 Support',features:['Unlimited Data','Fast Installation','Business Packages'],price:'From R350/month', outOfStock:false, products:[]},
@@ -195,49 +194,33 @@ const defaultCategories = [
   {id:'food', name:'Food Supply',desc:'Wholesale food supply for businesses, restaurants and events',features:['Bulk Orders','Fresh Produce','Nationwide Delivery','Custom Quotes'],price:'Quote on Request', outOfStock:false, products:[]}
 ];
 
-function saveToFirebase(){
-  const data = {};
-  CATEGORIES.forEach(c => data[c.id] = c);
-  set(categoriesRef, data);
-}
+function saveToFirebase(){ const data = {}; CATEGORIES.forEach(c => data[c.id] = c); set(categoriesRef, data); }
 
-// Load from Firebase + Auto Seed with old data if empty
 onValue(categoriesRef, (snapshot) => {
   const data = snapshot.val();
   if(!data){
-    console.log("Seeding database with your 7 categories...");
     set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c])));
     CATEGORIES = defaultCategories;
-  } else {
-    CATEGORIES = Object.values(data);
-  }
+  } else { CATEGORIES = Object.values(data); }
   if(document.getElementById('app').style.display==='block'){ renderTabs(); renderContent(); }
   if(document.getElementById('clientView').style.display==='block'){ renderClientNav(); renderClient(); }
 });
-// ========== END FIREBASE LOAD ==========
 
 function login(role){
   const emails = {CEO: 'ceo@twinz.co.za', Manager: 'manager@twinz.co.za', Sales: 'sales@twinz.co.za', Reception: 'reception@twinz.co.za'};
   const password = prompt(`Enter password for ${role}:`);
   if(!password) return;
-  document.getElementById('loginScreen').innerHTML = '<h2>Logging in...</h2>';
+  alert('Logging in as ' + role + '...');
   signInWithEmailAndPassword(auth, emails[role], password)
-.then(() => {
+ .then(() => {
     currentRole = role;
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
     document.getElementById('roleBadge').className='role-badge '+role;
     document.getElementById('roleBadge').innerText=role;
-    // WAIT FOR FIREBASE DATA
-    const waitForData = setInterval(() => {
-      if(CATEGORIES.length > 0){
-        clearInterval(waitForData);
-        renderTabs();
-        renderContent();
-      }
-    }, 100);
+    const waitForData = setInterval(() => { if(CATEGORIES.length > 0){ clearInterval(waitForData); renderTabs(); renderContent(); } }, 100);
   })
-.catch(err => { alert('Login failed: ' + err.message); location.reload(); });
+ .catch(err => { alert('Login failed: ' + err.message); });
 }
 
 function logout(){ signOut(auth); location.reload(); }
@@ -250,7 +233,6 @@ function searchClient(){ const query = document.getElementById('clientSearch').v
 function renderTabs(){document.getElementById('tabs').innerHTML = CATEGORIES.map((c,i)=>`<div class="tab ${i===currentTab?'active':''}" onclick="switchTab(${i})">${c.name}</div>`).join('');}
 function switchTab(i){ currentTab=i; renderTabs(); renderContent(); }
 
-// ========== ALL EDIT FUNCTIONS NOW SAVE TO FIREBASE ==========
 function toggleStock(id){CATEGORIES.find(c=>c.id===id).outOfStock =!CATEGORIES.find(c=>c.id===id).outOfStock; saveToFirebase(); renderContent();}
 function addProduct(catId){ const title = document.getElementById('pTitle'+catId).value; const price = document.getElementById('pPrice'+catId).value; const desc = document.getElementById('pDesc'+catId).value; const imgLink = document.getElementById('pImg'+catId).value; if(!title ||!price){ alert('Enter Title and Price'); return; } const cat = CATEGORIES.find(c=>c.id===catId); const newImages = imgLink.trim()? [imgLink.trim()] : []; cat.products.push({id:Date.now(), title, price, desc, images:newImages, outOfStock:false}); document.getElementById('pTitle'+catId).value='';document.getElementById('pPrice'+catId).value='';document.getElementById('pDesc'+catId).value='';document.getElementById('pImg'+catId).value=''; saveToFirebase(); renderContent(); }
 function deleteProduct(catId, pId){CATEGORIES.find(c=>c.id===catId).products = CATEGORIES.find(c=>c.id===catId).products.filter(p=>p.id!==pId); saveToFirebase(); renderContent();}
@@ -258,36 +240,14 @@ function toggleProductStock(catId, pId){CATEGORIES.find(c=>c.id===catId).product
 function saveManualImage(catId, pId){const input = document.getElementById('manual'+catId+pId); const p = CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId); if(input.value.trim()){p.images.push(input.value.trim()); input.value=''; saveToFirebase(); renderContent();}}
 function deleteImage(catId, pId, index){CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).images.splice(index,1); saveToFirebase(); renderContent();}
 
-function renderProducts(cat){
-  if(cat.products.length===0) return '<p style="color:var(--muted)">No products yet. Add your first item below.</p>';
-  return `<div class="product-grid">${cat.products.map(p=>`<div class="product-card ${p.outOfStock?'out-of-stock':''}">
-      ${p.images[0]?`<img src="${p.images[0]}">`:''}<h4>${p.title}</h4><p style="color:var(--muted);font-size:0.85rem">${p.desc}</p><div class="price">${p.price}</div>
-      ${currentRole!=='Reception'?`<button class="btn small success" onclick="addToInvoice('${p.title}','${p.price}')">+ Add to Invoice</button>
-      <div class="gallery-grid">${p.images.map((img,i)=>`<div class="gallery-item"><img src="${img}"><button class="del-btn" onclick="deleteImage('${cat.id}',${p.id},${i})">×</button></div>`).join('')}</div>
-      <input type="file" id="file${cat.id}${p.id}" accept="image/*"><button class="btn small" onclick="uploadToCatbox('${cat.id}',${p.id})">Upload Img</button>
-      <div style="display:flex;gap:8px"><input type="text" id="manual${cat.id}${p.id}" placeholder="Paste catbox link"><button class="btn small" onclick="saveManualImage('${cat.id}',${p.id})">Add</button></div>
-      <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" onclick="toggleProductStock('${cat.id}',${p.id})">${p.outOfStock?'In Stock':'Out Stock'}</button><button class="btn small danger" onclick="deleteProduct('${cat.id}',${p.id})">Delete</button></div>`:''}
-    </div>`).join('')}</div>`;
-}
-function renderContent(){
-  const cat = CATEGORIES[currentTab];
-  let html = `<div class="card ${cat.outOfStock?'out-of-stock':''}"><h3>${cat.name}</h3><p>${cat.desc}</p><ul>${cat.features.map(f=>`<li>${f}</li>`).join('')}</ul><div class="price">${cat.price}</div>${cat.note?`<p style="color:var(--muted);font-size:0.9rem">${cat.note}</p>`:''}
-    <h4 style="margin-top:16px">Products Hub - ${cat.products.length} Items</h4>${renderProducts(cat)}
-    ${currentRole!=='Reception'?`<div class="card" style="margin-top:15px"><h4>Add New Product to ${cat.name}</h4><input id="pTitle${cat.id}" placeholder="Product Title e.g. BMW N47 Engine"><input id="pPrice${cat.id}" placeholder="Price e.g. R25000 or Quote"><textarea id="pDesc${cat.id}" placeholder="Description, Specs, Vehicle Fitment"></textarea><input id="pImg${cat.id}" placeholder="Paste Catbox.moe Image Link Here - Optional"><button class="btn" onclick="addProduct('${cat.id}')">+ Add Product</button></div>`:''}
-    <h4 style="margin-top:12px">Send Client Request</h4><textarea id="msg${cat.id}" placeholder="Tell us what you need... Vehicle make/model for parts"></textarea><button class="btn secondary" onclick="sendWhatsApp('${cat.id}')">Send WhatsApp</button></div>`;
-  if(currentRole==='CEO' || currentRole==='Manager'){
-    html += `<div class="card"><h3>Category Controls - ${cat.name}</h3><input placeholder="Edit Category Price" value="${cat.price}" onchange="CATEGORIES.find(c=>c.id=='${cat.id}').price=this.value; saveToFirebase()"><textarea placeholder="Edit Category Description" onchange="CATEGORIES.find(c=>c.id=='${cat.id}').desc=this.value; saveToFirebase()">${cat.desc}</textarea>
-      <div style="display:flex;align-items:center;gap:10px;margin:12px 0"><input type="checkbox" id="stock${cat.id}" ${cat.outOfStock?'checked':''} onchange="toggleStock('${cat.id}')"><label for="stock${cat.id}">Mark Whole Category Out of Stock</label></div></div>`;
-  }
-  document.getElementById('content').innerHTML = html;
-}
+function renderProducts(cat){ if(cat.products.length===0) return '<p style="color:var(--muted)">No products yet. Add your first item below.</p>'; return `<div class="product-grid">${cat.products.map(p=>`<div class="product-card ${p.outOfStock?'out-of-stock':''}"> ${p.images[0]?`<img src="${p.images[0]}">`:''}<h4>${p.title}</h4><p style="color:var(--muted);font-size:0.85rem">${p.desc}</p><div class="price">${p.price}</div> ${currentRole!=='Reception'?`<button class="btn small success" onclick="addToInvoice('${p.title}','${p.price}')">+ Add to Invoice</button> <div class="gallery-grid">${p.images.map((img,i)=>`<div class="gallery-item"><img src="${img}"><button class="del-btn" onclick="deleteImage('${cat.id}',${p.id},${i})">×</button></div>`).join('')}</div> <input type="file" id="file${cat.id}${p.id}" accept="image/*"><button class="btn small" onclick="uploadToCatbox('${cat.id}',${p.id})">Upload Img</button> <div style="display:flex;gap:8px"><input type="text" id="manual${cat.id}${p.id}" placeholder="Paste catbox link"><button class="btn small" onclick="saveManualImage('${cat.id}',${p.id})">Add</button></div> <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" onclick="toggleProductStock('${cat.id}',${p.id})">${p.outOfStock?'In Stock':'Out Stock'}</button><button class="btn small danger" onclick="deleteProduct('${cat.id}',${p.id})">Delete</button></div>`:''} </div>`).join('')}</div>`; }
+function renderContent(){ const cat = CATEGORIES[currentTab]; let html = `<div class="card ${cat.outOfStock?'out-of-stock':''}"><h3>${cat.name}</h3><p>${cat.desc}</p><ul>${cat.features.map(f=>`<li>${f}</li>`).join('')}</ul><div class="price">${cat.price}</div>${cat.note?`<p style="color:var(--muted);font-size:0.9rem">${cat.note}</p>`:''} <h4 style="margin-top:16px">Products Hub - ${cat.products.length} Items</h4>${renderProducts(cat)} ${currentRole!=='Reception'?`<div class="card" style="margin-top:15px"><h4>Add New Product to ${cat.name}</h4><input id="pTitle${cat.id}" placeholder="Product Title e.g. BMW N47 Engine"><input id="pPrice${cat.id}" placeholder="Price e.g. R25000 or Quote"><textarea id="pDesc${cat.id}" placeholder="Description, Specs, Vehicle Fitment"></textarea><input id="pImg${cat.id}" placeholder="Paste Catbox.moe Image Link Here - Optional"><button class="btn" onclick="addProduct('${cat.id}')">+ Add Product</button></div>`:''} <h4 style="margin-top:12px">Send Client Request</h4><textarea id="msg${cat.id}" placeholder="Tell us what you need... Vehicle make/model for parts"></textarea><button class="btn secondary" onclick="sendWhatsApp('${cat.id}')">Send WhatsApp</button></div>`; if(currentRole==='CEO' || currentRole==='Manager'){ html += `<div class="card"><h3>Category Controls - ${cat.name}</h3><input placeholder="Edit Category Price" value="${cat.price}" onchange="CATEGORIES.find(c=>c.id=='${cat.id}').price=this.value; saveToFirebase()"><textarea placeholder="Edit Category Description" onchange="CATEGORIES.find(c=>c.id=='${cat.id}').desc=this.value; saveToFirebase()">${cat.desc}</textarea> <div style="display:flex;align-items:center;gap:10px;margin:12px 0"><input type="checkbox" id="stock${cat.id}" ${cat.outOfStock?'checked':''} onchange="toggleStock('${cat.id}')"><label for="stock${cat.id}">Mark Whole Category Out of Stock</label></div></div>`; } document.getElementById('content').innerHTML = html; }
 async function uploadToCatbox(catId, pId){ const fileInput = document.getElementById('file'+catId+pId); if(!fileInput.files[0]){ alert('Select a file first'); return; } const formData = new FormData(); formData.append('reqtype','fileupload'); formData.append('fileToUpload', fileInput.files[0]); try{const res = await fetch('https://catbox.moe/user/api.php',{method:'POST',body:formData}); const url = await res.text(); CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).images.push(url); fileInput.value=''; saveToFirebase(); renderContent(); alert('Uploaded: '+url);}catch(e){ alert('Upload failed. Check connection.'); } }
 function sendWhatsApp(id){ const msg = document.getElementById('msg'+id).value || 'Hello TWINZ, I need assistance'; push(requestsRef, {category:id, message:msg, date:new Date().toISOString()}); window.open(`https://wa.me/27682547352?text=${encodeURIComponent(msg)}`,'_blank'); }
 function generateClientLink(){const baseUrl = window.location.origin + window.location.pathname; currentShareLink = baseUrl + '#client'; document.getElementById('shareLink').innerText = currentShareLink; document.getElementById('shareLinkBox').style.display = 'block'; alert('Client Link Generated! Click Copy Link to share.');}
 function copyLink(){navigator.clipboard.writeText(currentShareLink); alert('Link Copied!');}
 function renderClient(){ let html = CATEGORIES.filter(c=>!c.outOfStock).map(cat=>`<div class="card" id="cat-${cat.id}"><h3>${cat.name}</h3><p>${cat.desc}</p>${cat.products.length>0?`<h4 style="margin-top:10px;color:var(--accent)">Products: ${cat.products.length}</h4>`:''} <div class="product-grid">${cat.products.filter(p=>!p.outOfStock).map(p=>`<div class="product-card">${p.images[0]?`<img src="${p.images[0]}">`:''}<h4>${p.title}</h4><p style="color:var(--muted);font-size:0.85rem">${p.desc}</p><div class="price">${p.price}</div><textarea placeholder="Enquiry about ${p.title}"></textarea><button class="btn" onclick="alert('Enquiry sent to TWINZ')">Request Quote</button></div>`).join('')}</div> ${cat.products.length===0?`<div class="price">${cat.price}</div><textarea placeholder="Your request for ${cat.name}"></textarea><button class="btn" onclick="alert('Request sent to TWINZ')">Request Quote</button>`:''}</div>`).join(''); if(CATEGORIES.filter(c=>!c.outOfStock).length===0){html = `<div class="card"><h3>All Services Temporarily Unavailable</h3><p>Please contact us directly.</p></div>`;} html += `<div class="card"><h3>Our Details</h3><p><b>Email:</b> ${CONTACT.email}</p><p><b>Thabo:</b> ${CONTACT.thabo}</p><p><b>Thabang:</b> ${CONTACT.thabang}</p><p><b>Location:</b> ${CONTACT.location}</p><p><b>Hours:</b> ${CONTACT.hours}</p> <button class="btn" onclick="window.open('https://wa.me/27682547352')">WhatsApp Thabo</button><button class="btn secondary" onclick="window.open('https://wa.me/27698949596')">WhatsApp Thabang</button></div><div class="footer">© 2026 TWINZ COOPERATE SERVICES PTY LTD | BEST & QUALITY SERVICES</div>`; document.getElementById('clientContent').innerHTML = html; }
 
-// ========== INVOICE + PWA + ROUTING FROM OLD CODE ==========
 function openInvoice(){document.getElementById('invoiceBox').style.display='block'; renderInvoice();}
 function addToInvoice(title, price){const numPrice = parseFloat(price.replace(/[^0-9.]/g,'')) || 0; invoiceItems.push({title, price:numPrice, qty:1}); renderInvoice(); alert(title+' added to Invoice');}
 function renderInvoice(){ const invNo = 'INV-'+Date.now().toString().slice(-6); const date = new Date().toLocaleDateString('en-ZA'); let rows = invoiceItems.map((item,i)=>`<tr><td>${i+1}</td><td>${item.title}</td><td>${item.qty}</td><td>R${item.price.toFixed(2)}</td><td>R${(item.price*item.qty).toFixed(2)}</td></tr>`).join(''); const subtotal = invoiceItems.reduce((a,b)=>a+b.price*b.qty,0); const vat = subtotal * 0.15; const total = subtotal + vat; let html = `<div class="invoice-preview" id="invoicePrint"><div class="invoice-header"><div><h2 style="color:var(--accent2)">${CONTACT.company}</h2><p>${CONTACT.location}</p><p>Tel: ${CONTACT.thabo} | ${CONTACT.email}</p><p><b>Reg:</b> ${CONTACT.reg}</p></div> <div style="text-align:right"><h3>INVOICE</h3><p><b>No:</b> ${invNo}</p><p><b>Date:</b> ${date}</p></div></div> <input placeholder="Client Name" id="invClient"><input placeholder="Client Phone/Email" id="invContact"> <table class="invoice-table"><tr><th>#</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>${rows || '<tr><td colspan=5 style="text-align:center;color:var(--muted)">Add items from products using + Add to Invoice</td></tr>'}</table> <div class="invoice-totals"><p>Subtotal: R${subtotal.toFixed(2)}</p><p>VAT 15%: R${vat.toFixed(2)}</p><p style="color:var(--accent2);font-size:1.4rem">TOTAL: R${total.toFixed(2)}</p></div> <p><b>Banking Details:</b> FNB | Acc: 123456789 | Branch: 250655 | Ref: ${invNo}</p><p><b>Terms:</b> Payment due within 7 days. Goods remain property of TWINZ until paid in full.</p></div> <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap"><button class="btn" onclick="downloadPDF()">Download PDF</button><button class="btn success" onclick="sendInvoiceWhatsApp(${total.toFixed(2)})">Send via WhatsApp</button><button class="btn danger" onclick="invoiceItems=[];renderInvoice()">Clear Invoice</button><button class="btn secondary" onclick="document.getElementById('invoiceBox').style.display='none'">Close</button></div>`; document.getElementById('invoiceBox').innerHTML = html; }
@@ -297,10 +257,27 @@ function sendInvoiceWhatsApp(total){const client = document.getElementById('invC
 function installPWA(){ if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{document.getElementById('pwaBanner').style.display='none'; localStorage.setItem('pwa_installed','1')}); } else { const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent); if(isIOS){ alert('To Install: Tap Share button ⬆️ → "Add to Home Screen"'); } else { alert('To Install: Click the 3 dots ⋮ in Chrome → "Install App" or "Add to Home Screen"'); } document.getElementById('pwaBanner').style.display='none'; } }
 window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; if(window.location.hash==='#client' &&!localStorage.getItem('pwa_installed')) { setTimeout(()=>{document.getElementById('pwaBanner').style.display='block'}, 2000); } });
 
-window.addEventListener('load', ()=>{ const hash = window.location.hash; if(hash === '#client'){ document.getElementById('loginScreen').style.display='none'; document.getElementById('app').style.display='none'; document.getElementById('clientView').style.display='block'; renderClientNav(); renderClient(); if(!localStorage.getItem('pwa_installed')){ setTimeout(()=>{document.getElementById('pwaBanner').style.display='block'}, 4000); } else { document.getElementById('clientView').style.display='none'; document.getElementById('app').style.display='none'; document.getElementById('loginScreen').style.display='block'; } });
+// FIXED LOAD FUNCTION
+window.addEventListener('load', ()=>{
+  const hash = window.location.hash;
+  if(hash === '#client'){
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('app').style.display='none';
+    document.getElementById('clientView').style.display='block';
+    renderClientNav(); renderClient();
+    if(!localStorage.getItem('pwa_installed')){
+      setTimeout(()=>{document.getElementById('pwaBanner').style.display='block'}, 4000);
+    }
+  } else { // FIXED: added this else
+    document.getElementById('clientView').style.display='none';
+    document.getElementById('app').style.display='none';
+    document.getElementById('loginScreen').style.display='block';
+  }
+});
+
 if('serviceWorker' in navigator){ navigator.serviceWorker.register(URL.createObjectURL(new Blob([` self.addEventListener('install', e=>{self.skipWaiting();}); self.addEventListener('fetch', e=>{}); `],{type:'text/javascript'}))).catch(()=>{}); }
 
-// EXPOSE FUNCTIONS TO HTML BUTTONS
+// EXPOSE FUNCTIONS
 window.login = login; window.logout = logout; window.enterClientMode = enterClientMode; window.switchTab = switchTab; window.toggleStock = toggleStock; window.addProduct = addProduct; window.deleteProduct = deleteProduct; window.toggleProductStock = toggleProductStock; window.saveManualImage = saveManualImage; window.deleteImage = deleteImage; window.uploadToCatbox = uploadToCatbox; window.sendWhatsApp = sendWhatsApp; window.generateClientLink = generateClientLink; window.copyLink = copyLink; window.openInvoice = openInvoice; window.addToInvoice = addToInvoice; window.downloadPDF = downloadPDF; window.sendInvoiceWhatsApp = sendInvoiceWhatsApp; window.installPWA = installPWA; window.scrollToCategory = scrollToCategory; window.searchClient = searchClient;
 </script>
 </body>
