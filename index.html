@@ -300,7 +300,28 @@ window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferr
 window.addEventListener('load', ()=>{ const hash = window.location.hash; if(hash === '#client'){ document.getElementById('loginScreen').style.display='none'; document.getElementById('app').style.display='none'; document.getElementById('clientView').style.display='block'; renderClientNav(); renderClient(); if(!localStorage.getItem('pwa_installed')){ setTimeout(()=>{document.getElementById('pwaBanner').style.display='block'}, 4000); } else { document.getElementById('clientView').style.display='none'; document.getElementById('app').style.display='none'; document.getElementById('loginScreen').style.display='block'; } });
 if('serviceWorker' in navigator){ navigator.serviceWorker.register(URL.createObjectURL(new Blob([` self.addEventListener('install', e=>{self.skipWaiting();}); self.addEventListener('fetch', e=>{}); `],{type:'text/javascript'}))).catch(()=>{}); }
 
-window.login = login; window.logout = logout; window.enterClientMode = enterClientMode; window.switchTab = switchTab; window.toggleStock = toggleStock; window.addProduct = addProduct; window.deleteProduct = deleteProduct; window.toggleProductStock = toggleProductStock; window.saveManualImage = saveManualImage; window.deleteImage = deleteImage; window.uploadToCatbox = uploadToCatbox; window.sendWhatsApp = sendWhatsApp; window.generateClientLink = generateClientLink; window.copyLink = copyLink; window.openInvoice = openInvoice; window.addToInvoice = addToInvoice; window.downloadPDF = downloadPDF; window.sendInvoiceWhatsApp = sendInvoiceWhatsApp; window.installPWA = installPWA; window.scrollToCategory = scrollToCategory; window.searchClient = searchClient;
+// MAKE FUNCTIONS GLOBAL FOR HTML ONCLICK
+window.login = login;
+window.logout = logout;
+window.enterClientMode = enterClientMode;
+window.switchTab = switchTab;
+window.toggleStock = toggleStock;
+window.addProduct = addProduct;
+window.deleteProduct = deleteProduct;
+window.toggleProductStock = toggleProductStock;
+window.saveManualImage = saveManualImage;
+window.deleteImage = deleteImage;
+window.uploadToCatbox = uploadToCatbox;
+window.sendWhatsApp = sendWhatsApp;
+window.generateClientLink = generateClientLink;
+window.copyLink = copyLink;
+window.openInvoice = openInvoice;
+window.addToInvoice = addToInvoice;
+window.downloadPDF = downloadPDF;
+window.sendInvoiceWhatsApp = sendInvoiceWhatsApp;
+window.installPWA = installPWA;
+window.scrollToCategory = scrollToCategory;
+window.searchClient = searchClient;
 </script>
 </body>
 </html>
