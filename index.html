@@ -194,16 +194,36 @@ const defaultCategories = [
   {id:'food', name:'Food Supply',desc:'Wholesale food supply for businesses, restaurants and events',features:['Bulk Orders','Fresh Produce','Nationwide Delivery','Custom Quotes'],price:'Quote on Request', outOfStock:false, products:[]}
 ];
 
-function saveToFirebase(){ const data = {}; CATEGORIES.forEach(c => data[c.id] = c); set(categoriesRef, data); }
+let dataLoaded = false; // NEW FLAG
 
-onValue(categoriesRef, (snapshot) => {
-  const data = snapshot.val();
-  if(!data){
-    set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c])));
-    CATEGORIES = defaultCategories;
-  } else { CATEGORIES = Object.values(data); }
-  if(document.getElementById('app').style.display==='block'){ renderTabs(); renderContent(); }
-  if(document.getElementById('clientView').style.display==='block'){ renderClientNav(); renderClient(); }
+function saveToFirebase(){ 
+  if(!dataLoaded) return; // DON'T SAVE IF DATA ISN'T LOADED YET
+  const data = {}; 
+  CATEGORIES.forEach(c => data[c.id] = c); 
+  set(categoriesRef, data); 
+}
+
+onValue(categoriesRef, (snapshot) => { 
+  const data = snapshot.val(); 
+  
+  if(!data){ 
+    // ONLY SEED IF FIREBASE IS COMPLETELY EMPTY
+    set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c]))); 
+    CATEGORIES = defaultCategories; 
+  } else { 
+    CATEGORIES = Object.values(data); 
+  } 
+  
+  dataLoaded = true; // NOW WE CAN SAVE
+  
+  if(document.getElementById('app').style.display==='block'){ 
+    renderTabs(); 
+    renderContent(); 
+  }
+  if(document.getElementById('clientView').style.display==='block'){ 
+    renderClientNav(); 
+    renderClient(); 
+  }
 });
 
 function login(role){
