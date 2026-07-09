@@ -208,9 +208,10 @@ onValue(categoriesRef, (snapshot) => {
   
   if(!data){ 
     set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c]))); 
-    return; // STOP HERE, WAIT FOR FIREBASE TO CALL US AGAIN
+    return;
   } else { 
-    CATEGORIES = Object.values(data); 
+    // FIX: FORCE THE CORRECT ORDER FROM defaultCategories
+    CATEGORIES = defaultCategories.map(dc => data[dc.id] || dc);
   } 
   
   dataLoaded = true; 
@@ -225,7 +226,6 @@ onValue(categoriesRef, (snapshot) => {
     renderClient(); 
   }
 });
-
 function login(role){
   const emails = {CEO: 'ceo@twinz.co.za', Manager: 'manager@twinz.co.za', Sales: 'sales@twinz.co.za', Reception: 'reception@twinz.co.za'};
   const password = prompt(`Enter password for ${role}:`);
