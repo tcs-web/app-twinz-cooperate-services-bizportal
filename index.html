@@ -161,7 +161,7 @@ ul li::before{content:'▸';position:absolute;left:0;color:var(--accent)}
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getDatabase, ref, set, onValue, push } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getDatabase, ref, set, onValue, push, keepSynced } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
@@ -179,6 +179,7 @@ const db = getDatabase(app);
 const auth = getAuth(app);
 const categoriesRef = ref(db, 'twinz_worldtier/categories');
 const requestsRef = ref(db, 'twinz_worldtier/requests');
+keepSynced(categoriesRef, true); // 1. KEEPS DATA OFFLINE CACHED
 
 let CATEGORIES = [];
 const CONTACT = {email:'twinz.cooperate.services@gmail.com',thabo:'068 254 7352',thabang:'069 894 9596',location:'Greater Tubatse, Limpopo',hours:'Mon - Sat | 8am - 6pm',company:'TWINZ COOPERATE SERVICES PTY LTD',reg:'2026/XXXXXX/07'};
@@ -194,35 +195,40 @@ const defaultCategories = [
   {id:'food', name:'Food Supply',desc:'Wholesale food supply for businesses, restaurants and events',features:['Bulk Orders','Fresh Produce','Nationwide Delivery','Custom Quotes'],price:'Quote on Request', outOfStock:false, products:[]}
 ];
 
-let dataLoaded = false; // NEW FLAG
+let dataLoaded = false;
 
-function saveToFirebase(){ 
-  if(!dataLoaded) return; // DON'T SAVE IF DATA ISN'T LOADED YET
-  const data = {}; 
-  CATEGORIES.forEach(c => data[c.id] = c); 
-  set(categoriesRef, data); 
+// 2. LOAD FROM CACHE FIRST = INSTANT
+const cached = localStorage.getItem('twinz_cache');
+if(cached) CATEGORIES = JSON.parse(cached);
+
+function saveToFirebase(){
+  if(!dataLoaded) return;
+  const data = {};
+  CATEGORIES.forEach(c => data[c.id] = c);
+  set(categoriesRef, data);
 }
 
-onValue(categoriesRef, (snapshot) => { 
-  const data = snapshot.val(); 
-  
-  if(!data){ 
-    // ONLY SEED IF FIREBASE IS COMPLETELY EMPTY
-    set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c]))); 
-    CATEGORIES = defaultCategories; 
-  } else { 
-    CATEGORIES = Object.values(data); 
-  } 
-  
-  dataLoaded = true; // NOW WE CAN SAVE
-  
-  if(document.getElementById('app').style.display==='block'){ 
-    renderTabs(); 
-    renderContent(); 
+onValue(categoriesRef, (snapshot) => {
+  const data = snapshot.val();
+
+  if(!data){
+    set(categoriesRef, Object.fromEntries(defaultCategories.map(c=>[c.id,c])));
+    CATEGORIES = defaultCategories;
+  } else {
+    CATEGORIES = Object.values(data);
   }
-  if(document.getElementById('clientView').style.display==='block'){ 
-    renderClientNav(); 
-    renderClient(); 
+
+  dataLoaded = true;
+  localStorage.setItem('twinz_cache', JSON.stringify(CATEGORIES)); // 3. SAVE TO CACHE FOR NEXT TIME
+
+  // 4. RENDER IMMEDIATELY IF APP IS OPEN
+  if(document.getElementById('app').style.display==='block'){
+    renderTabs();
+    renderContent();
+  }
+  if(document.getElementById('clientView').style.display==='block'){
+    renderClientNav();
+    renderClient();
   }
 });
 
@@ -232,15 +238,15 @@ function login(role){
   if(!password) return;
   alert('Logging in as ' + role + '...');
   signInWithEmailAndPassword(auth, emails[role], password)
- .then(() => {
+.then(() => {
     currentRole = role;
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('app').style.display='block';
     document.getElementById('roleBadge').className='role-badge '+role;
     document.getElementById('roleBadge').innerText=role;
-    const waitForData = setInterval(() => { if(CATEGORIES.length > 0){ clearInterval(waitForData); renderTabs(); renderContent(); } }, 100);
+    renderTabs(); renderContent(); // 5. NO MORE WAITING - RENDERS FROM CACHE INSTANTLY
   })
- .catch(err => { alert('Login failed: ' + err.message); });
+.catch(err => { alert('Login failed: ' + err.message); });
 }
 
 function logout(){ signOut(auth); location.reload(); }
@@ -261,7 +267,8 @@ function saveManualImage(catId, pId){const input = document.getElementById('manu
 function deleteImage(catId, pId, index){CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).images.splice(index,1); saveToFirebase(); renderContent();}
 
 function renderProducts(cat){ if(cat.products.length===0) return '<p style="color:var(--muted)">No products yet. Add your first item below.</p>'; return `<div class="product-grid">${cat.products.map(p=>`<div class="product-card ${p.outOfStock?'out-of-stock':''}"> ${p.images[0]?`<img src="${p.images[0]}">`:''}<h4>${p.title}</h4><p style="color:var(--muted);font-size:0.85rem">${p.desc}</p><div class="price">${p.price}</div> ${currentRole!=='Reception'?`<button class="btn small success" onclick="addToInvoice('${p.title}','${p.price}')">+ Add to Invoice</button> <div class="gallery-grid">${p.images.map((img,i)=>`<div class="gallery-item"><img src="${img}"><button class="del-btn" onclick="deleteImage('${cat.id}',${p.id},${i})">×</button></div>`).join('')}</div> <input type="file" id="file${cat.id}${p.id}" accept="image/*"><button class="btn small" onclick="uploadToCatbox('${cat.id}',${p.id})">Upload Img</button> <div style="display:flex;gap:8px"><input type="text" id="manual${cat.id}${p.id}" placeholder="Paste catbox link"><button class="btn small" onclick="saveManualImage('${cat.id}',${p.id})">Add</button></div> <div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" onclick="toggleProductStock('${cat.id}',${p.id})">${p.outOfStock?'In Stock':'Out Stock'}</button><button class="btn small danger" onclick="deleteProduct('${cat.id}',${p.id})">Delete</button></div>`:''} </div>`).join('')}</div>`; }
-function renderContent(){ const cat = CATEGORIES[currentTab]; let html = `<div class="card ${cat.outOfStock?'out-of-stock':''}"><h3>${cat.name}</h3><p>${cat.desc}</p><ul>${cat.features.map(f=>`<li>${f}</li>`).join('')}</ul><div class="price">${cat.price}</div>${cat.note?`<p style="color:var(--muted);font-size:0.9rem">${cat.note}</p>`:''} <h4 style="margin-top:16px">Products Hub - ${cat.products.length} Items</h4>${renderProducts(cat)} ${currentRole!=='Reception'?`<div class="card" style="margin-top:15px"><h4>Add New Product to ${cat.name}</h4><input id="pTitle${cat.id}" placeholder="Product Title e.g. BMW N47 Engine"><input id="pPrice${cat.id}" placeholder="Price e.g. R25000 or Quote"><textarea id="pDesc${cat.id}" placeholder="Description, Specs, Vehicle Fitment"></textarea><input id="pImg${cat.id}" placeholder="Paste Catbox.moe Image Link Here - Optional"><button class="btn" onclick="addProduct('${cat.id}')">+ Add Product</button></div>`:''} <h4 style="margin-top:12px">Send Client Request</h4><textarea id="msg${cat.id}" placeholder="Tell us what you need... Vehicle make/model for parts"></textarea><button class="btn secondary" onclick="sendWhatsApp('${cat.id}')">Send WhatsApp</button></div>`; if(currentRole==='CEO' || currentRole==='Manager'){ html += `<div class="card"><h3>Category Controls - ${cat.name}</h3><input placeholder="Edit Category Price" value="${cat.price}" onchange="CATEGORIES.find(c=>c.id=='${cat.id}').price=this.value; saveToFirebase()"><textarea placeholder="Edit Category Description" onchange="CATEGORIES.find(c=>c.id=='${cat.id}').desc=this.value; saveToFirebase()">${cat.desc}</textarea> <div style="display:flex;align-items:center;gap:10px;margin:12px 0"><input type="checkbox" id="stock${cat.id}" ${cat.outOfStock?'checked':''} onchange="toggleStock('${cat.id}')"><label for="stock${cat.id}">Mark Whole Category Out of Stock</label></div></div>`; } document.getElementById('content').innerHTML = html; }
+function renderContent(){ const cat = CATEGORIES[currentTab]; if(!cat) return; let html = `<div class="card ${cat.outOfStock?'out-of-stock':''}"><h3>${cat.name}</h3><p>${cat.desc}</p><ul>${cat.features.map(f=>`<li>${f}</li>`).join('')}</ul><div class="price">${cat.price}</div>${cat.note?`<p style="color:var(--muted);font-size:0.9rem">${cat.note}</p>`:''} <h4 style="margin-top:16px">Products Hub - ${cat.products.length} Items</h4>${renderProducts(cat)} ${currentRole!=='Reception'?`<div class="card" style="margin-top:15px"><h4>Add New Product to ${cat.name}</h4><input id="pTitle${cat.id}" placeholder="Product Title e.g. BMW N47 Engine"><input id="pPrice${cat.id}" placeholder="Price e.g. R25000 or Quote"><textarea id="pDesc${cat.id}" placeholder="Description, Specs, Vehicle Fitment"></textarea><input id="pImg${cat.id}" placeholder="Paste Catbox.moe Image Link Here - Optional"><button class="btn" onclick="addProduct('${cat.id}')">+ Add Product</button></div>`:''} <h4 style="margin-top:12px">Send Client Request</h4><textarea id="msg${cat.id}" placeholder="Tell us what you need... Vehicle make/model for parts"></textarea><button class="btn secondary" onclick="sendWhatsApp('${cat.id}')">Send WhatsApp</button></div>`; if(currentRole==='CEO' || currentRole==='Manager'){ html += `<div class="card"><h3>Category Controls - ${cat.name}</h3><input placeholder="Edit Category Price" value="${cat.price}" onchange="CATEGORIES.find(c=>c.id=='${cat.id}').price=this.value; saveToFirebase()"><textarea placeholder="Edit Category Description" onchange="CATEGORIES.find(c=>c.id=='${cat.id}').desc=this.value; saveToFirebase()">${cat.desc}</textarea> <div style="display:flex;align-items:center;gap:10px;margin:12px 0"><input type="checkbox" id="stock${cat.id}" ${cat.outOfStock?'checked':''} onchange="toggleStock('${cat.id}')"><label for="stock${cat.id}">Mark Whole Category Out of Stock</label></div></div>`; } document.getElementById('content').innerHTML = html; }
+
 async function uploadToCatbox(catId, pId){ const fileInput = document.getElementById('file'+catId+pId); if(!fileInput.files[0]){ alert('Select a file first'); return; } const formData = new FormData(); formData.append('reqtype','fileupload'); formData.append('fileToUpload', fileInput.files[0]); try{const res = await fetch('https://catbox.moe/user/api.php',{method:'POST',body:formData}); const url = await res.text(); CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).images.push(url); fileInput.value=''; saveToFirebase(); renderContent(); alert('Uploaded: '+url);}catch(e){ alert('Upload failed. Check connection.'); } }
 function sendWhatsApp(id){ const msg = document.getElementById('msg'+id).value || 'Hello TWINZ, I need assistance'; push(requestsRef, {category:id, message:msg, date:new Date().toISOString()}); window.open(`https://wa.me/27682547352?text=${encodeURIComponent(msg)}`,'_blank'); }
 function generateClientLink(){const baseUrl = window.location.origin + window.location.pathname; currentShareLink = baseUrl + '#client'; document.getElementById('shareLink').innerText = currentShareLink; document.getElementById('shareLinkBox').style.display = 'block'; alert('Client Link Generated! Click Copy Link to share.');}
@@ -288,7 +295,7 @@ window.addEventListener('load', ()=>{
     if(!localStorage.getItem('pwa_installed')){
       setTimeout(()=>{document.getElementById('pwaBanner').style.display='block'}, 4000);
     }
-  } else { // FIXED: added this else
+  } else {
     document.getElementById('clientView').style.display='none';
     document.getElementById('app').style.display='none';
     document.getElementById('loginScreen').style.display='block';
