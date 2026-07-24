@@ -25,18 +25,26 @@
 .container{max-width:1200px;margin:0 auto;padding:15px}
 .banner{background:linear-gradient(135deg,#0984e3,#74b9ff);color:#fff;padding:20px;border-radius:15px;text-align:center;margin:15px 0;font-weight:800;font-size:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-.card{background:var(--card);border-radius:12px;padding:10px;box-shadow:var(--shadow);position:relative}
-.card img{width:100%;height:160px;object-fit:cover;border-radius:8px}
-.card-imgs{display:flex;gap:4px;margin-top:5px;overflow-x:auto}
-.card-imgs img{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0;cursor:pointer;border:2px solid transparent}
-.card-imgs img.active{border:2px solid var(--accent)}
+
+/* YOUR FIXES ADDED */
+.card{display:flex;flex-direction:column;min-height:380px;background:var(--card);border-radius:12px;padding:10px;box-shadow:var(--shadow);position:relative}
 .card h4{margin:8px 0;font-size:13px;height:36px;overflow:hidden}
-.price{color:var(--accent);font-weight:800;font-size:16px}
+.price{color:var(--accent);font-weight:800;font-size:16px;margin-top:auto}
+.btn-cart,.btn-oos{margin-top:8px}
+
+.card img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+.card-imgs{display:flex;gap:4px;margin-top:5px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.card-imgs::-webkit-scrollbar{height:4px}
+.card-imgs::-webkit-scrollbar-thumb{background:var(--accent);border-radius:4px}
+.card-imgs img{width:45px;height:45px;border-radius:6px;object-fit:cover;flex-shrink:0;cursor:pointer;border:2px solid transparent}
+.card-imgs img.active{border:2px solid var(--accent)}
+
 .old-price{text-decoration:line-through;color:var(--muted);font-size:11px}
 .stock{font-size:10px;color:var(--green)}
 .stock-low{color:var(--danger);font-weight:700}
-.btn-cart{background:var(--accent);color:#fff;border:none;width:100%;padding:8px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:5px}
-.btn-oos{background:#ccc;color:#fff;border:none;width:100%;padding:8px;border-radius:8px;font-weight:700;margin-top:5px;cursor:not-allowed}
+.btn-cart{background:var(--accent);color:#fff;border:none;width:100%;padding:8px;border-radius:8px;font-weight:700;cursor:pointer}
+.btn-oos{background:#ccc;color:#fff;border:none;width:100%;padding:8px;border-radius:8px;font-weight:700;cursor:not-allowed}
+.btn-remove{background:var(--danger);color:#fff;border:none;width:100%;padding:8px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:5px}
 .admin{background:#fff;padding:15px;border-radius:12px;margin:15px 0;box-shadow:var(--shadow)}
 .login-box{max-width:400px;margin:40px auto;background:#fff;padding:25px;border-radius:15px;box-shadow:var(--shadow)}
 .login-box h2{text-align:center;color:var(--accent)}
@@ -345,7 +353,9 @@ document.addEventListener('DOMContentLoaded', () => {
       let mainImg = imgs[0];
       let extraImgs = imgs.map((u,i)=>`<img src="${u}" class="${i==0?'active':''}" onclick="switchImage('${id}','${u}',this)" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
-      productGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><div class="stock ${p.stock<10?'stock-low':''}">Stock: ${p.stock}</div>${p.stock > 0? `<button class="btn-cart" onclick="addToCart('${id}')">Request Quote</button>` : `<button class="btn-oos" disabled>Out of Stock</button>`}</div>`;
+      let inCart = cart.find(x=>x.id==id);
+      let cartBtn = inCart? `<button class="btn-remove" onclick="removeFromCart('${id}')">Remove from Cart</button>` : (p.stock > 0? `<button class="btn-cart" onclick="addToCart('${id}')">Request Quote</button>` : `<button class="btn-oos" disabled>Out of Stock</button>`);
+      productGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><div class="stock ${p.stock<10?'stock-low':''}">Stock: ${p.stock}</div>${cartBtn}</div>`;
     })
   }
 
@@ -362,7 +372,8 @@ document.addEventListener('DOMContentLoaded', () => {
       let mainImg = imgs[0];
       let extraImgs = imgs.map((u,i)=>`<img src="${u}" class="${i==0?'active':''}" onclick="switchImage('${id}','${u}',this)" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
-      let btn = p.stock > 0? `<button class="btn-cart" onclick="addToCart('${id}')">Request Quote</button>` : `<button class="btn-oos" disabled>Out of Stock</button>`;
+      let inCart = cart.find(x=>x.id==id);
+      let btn = inCart? `<button class="btn-remove" onclick="removeFromCart('${id}')">Remove from Cart</button>` : (p.stock > 0? `<button class="btn-cart" onclick="addToCart('${id}')">Request Quote</button>` : `<button class="btn-oos" disabled>Out of Stock</button>`);
       clientProductGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div>${btn}</div>`;
     })
   }
@@ -418,13 +429,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!productData.name){ return alert('Please enter service name') }
     if(editingId){
       set(ref(db, 'twinz_worldtier/categories/' + editingId), productData)
- .then(()=>{ alert('Service Updated!'); cancelEdit(); })
- .catch(err=> alert('Error: ' + err.message));
+.then(()=>{ alert('Service Updated!'); cancelEdit(); })
+.catch(err=> alert('Error: ' + err.message));
     } else {
       let id = Date.now().toString();
       set(ref(db, 'twinz_worldtier/categories/' + id), productData)
- .then(()=>{ [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); })
- .catch(err=> alert('Error: ' + err.message));
+.then(()=>{ [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); })
+.catch(err=> alert('Error: ' + err.message));
     }
   }
 
@@ -464,7 +475,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addToCart = (id) => {
     let p = products[id]; let item = cart.find(x=>x.id==id);
     if(item){ item.qty++ } else { cart.push({id,name:p.name,price:p.price,qty:1,category:p.category}) }
-    updateCart();
+    updateCart(); renderProducts(); renderClientProducts();
+  }
+
+  window.removeFromCart = (id) => {
+    cart = cart.filter(x=>x.id!= id);
+    updateCart(); renderProducts(); renderClientProducts();
   }
 
   function updateCart(){
@@ -490,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let msg = `GOD TIER INQUIRY\nName: ${isClientMode? 'Guest' : currentUser.email}\n` + cart.map(i=>`${i.name} x${i.qty} - R${i.price}`).join('\n') + `\nTotal: R${order.total}`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
-    cart = []; updateCart(); alert('Request sent! We will contact you shortly.')
+    cart = []; updateCart(); renderProducts(); renderClientProducts(); alert('Request sent! We will contact you shortly.')
   }
 
   window.downloadReport = () => {
