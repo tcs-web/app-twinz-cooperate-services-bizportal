@@ -23,9 +23,9 @@ html, body{overflow-x:hidden; width:100%}
 .nav-cats button{background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 12px;border-radius:20px;font-weight:600;cursor:pointer;white-space:nowrap}
 
 /* CLIENT CATEGORIES BLACK TEXT - FIXED */
-#clientView .nav-cats button{background:#fff!important;color:#000!important;border:1px solid #ccc!important;opacity:1!important;}
-#clientView .nav-cats button:hover{background:var(--accent)!important;color:#fff!important;}
-#clientView .nav-cats button.active{background:var(--accent)!important;color:#fff!important;border-bottom:2px solid #000!important;font-weight:700!important;}
+#clientView.nav-cats button{background:#fff!important;color:#000!important;border:1px solid #ccc!important;opacity:1!important;}
+#clientView.nav-cats button:hover{background:var(--accent)!important;color:#fff!important;}
+#clientView.nav-cats button.active{background:var(--accent)!important;color:#fff!important;border-bottom:2px solid #000!important;font-weight:700!important;}
 
 .container{max-width:100%;margin:0 auto;padding:10px}
 .banner{background:linear-gradient(135deg,#0984e3,#74b9ff);color:#fff;padding:20px;border-radius:15px;text-align:center;margin:15px 0;font-weight:800;font-size:18px}
@@ -74,12 +74,20 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 .client-header{text-align:center;padding:15px;background:linear-gradient(90deg,#0984e3,#74b9ff);color:#fff}
 .brand-tag{background:#e3f2fd;padding:4px 8px;border-radius:15px;font-size:10px;margin:2px 2px;display:inline-block}
 .client-link{margin:15px 0;padding:12px;background:#e3f2fd;border-radius:10px;text-align:center;font-size:12px}
+
+/* NEW ADDITIONS */
+footer{background:#2d3436;color:#fff;padding:25px 15px;text-align:center;margin-top:40px}
+footer a{color:var(--accent2);text-decoration:none}
+.dark-mode{--bg:#1a1a1a;--card:#2d3436;--text:#fff;--border:#444}
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:999}
+.modal-content{background:var(--card);padding:20px;border-radius:15px;width:90%;max-width:400px}
 @media(max-width:600px){
 .grid{grid-template-columns:1fr!important}
 .stats{grid-template-columns:repeat(2,1fr)}
 .tabs{font-size:12px}
 .tab{padding:8px 10px}
 .card-imgs img{width:38px;height:38px}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -89,6 +97,17 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
   📲 <b>Install Twinz App</b> - Get services faster
   <button class="btn" style="padding:5px 10px;margin-left:10px;background:#fff;color:var(--blue)" id="installBtn">Install</button>
   <button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;float:right">x</button>
+</div>
+
+<!-- CUSTOMER DETAILS MODAL -->
+<div id="customerModal" class="modal">
+  <div class="modal-content">
+    <h3>Customer Details</h3>
+    <input type="text" id="custName" placeholder="Your Name">
+    <input type="tel" id="custPhone" placeholder="Your Phone Number">
+    <button class="btn" onclick="sendQuote()" style="width:100%">Send Quote Request</button>
+    <button class="btn-gray" onclick="document.getElementById('customerModal').style.display='none'" style="width:100%;margin-top:8px">Cancel</button>
+  </div>
 </div>
 
 <!-- CLIENT VIEW -->
@@ -102,17 +121,23 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
     <div class="client-link"><b>📲 Share this with clients:</b><br><code id="clientLink"></code></div>
     <div class="banner">🔥 GOD TIER TECH - BEST & AFFORDABLE SERVICES 🔥</div>
     <div class="nav-cats">
-      <button onclick="filterCat('All')">All</button><button onclick="filterCat('Diagnostics')">Diagnostics</button>
-      <button onclick="filterCat('Web & Apps')">Web & Apps</button><button onclick="filterCat('WiFi')">WiFi</button>
-      <button onclick="filterCat('Parts')">Parts</button><button onclick="filterCat('Groceries')">Groceries</button>
+      <button onclick="filterCat('All', event)">All</button><button onclick="filterCat('Diagnostics', event)">Diagnostics</button>
+      <button onclick="filterCat('Web & Apps', event)">Web & Apps</button><button onclick="filterCat('WiFi', event)">WiFi</button>
+      <button onclick="filterCat('Parts', event)">Parts</button><button onclick="filterCat('Groceries', event)">Groceries</button>
     </div>
     <h2 style="margin:20px 0">🛠️ Our Services</h2>
     <div class="grid" id="clientProductGrid"><div class="loading">Loading services...</div></div>
   </div>
   <div class="cart-bar" id="clientCartBar">
     <b>Quote Requests: <span id="clientCartCount">0</span> | Total: R<span id="clientCartTotal">0</span></b>
-    <button class="btn" onclick="checkout()">Send Quote Request</button>
+    <button class="btn" onclick="openCustomerModal()">Send Quote Request</button>
   </div>
+  <footer>
+    <h4>Contact TWINZ COOPERATE SERVICES</h4>
+    <p>📞 <a href="tel:0682547352">068 254 7352</a> | <a href="tel:0698949596">069 894 9596</a></p>
+    <p>📧 <a href="mailto:twinz.cooperate.services@gmail.com">twinz.cooperate.services@gmail.com</a></p>
+    <p>📍 Burgersfort, Limpopo | Nationwide Service</p>
+  </footer>
 </div>
 
 <!-- ADMIN LOGIN -->
@@ -139,12 +164,15 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
     <div class="header-top">
       <img src="https://files.catbox.moe/0zympr.jpeg" class="logo">
       <div class="search-box"><input type="text" id="searchInput" placeholder="Search services..." onkeyup="searchProducts()"></div>
-      <div><span class="role-badge" id="userRole">ADMIN</span><button class="btn" style="padding:5px 10px;font-size:12px" onclick="logout()">Logout</button></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn" style="padding:5px 10px;font-size:12px;background:#fff;color:var(--blue)" onclick="toggleDark()">🌙</button>
+        <span class="role-badge" id="userRole">ADMIN</span><button class="btn" style="padding:5px 10px;font-size:12px" onclick="logout()">Logout</button>
+      </div>
     </div>
     <div class="nav-cats">
-      <button onclick="filterCat('All')">All</button><button onclick="filterCat('Diagnostics')">Diagnostics</button>
-      <button onclick="filterCat('Web & Apps')">Web & Apps</button><button onclick="filterCat('WiFi')">WiFi</button>
-      <button onclick="filterCat('Parts')">Parts</button><button onclick="filterCat('Groceries')">Groceries</button>
+      <button onclick="filterCat('All', event)">All</button><button onclick="filterCat('Diagnostics', event)">Diagnostics</button>
+      <button onclick="filterCat('Web & Apps', event)">Web & Apps</button><button onclick="filterCat('WiFi', event)">WiFi</button>
+      <button onclick="filterCat('Parts', event)">Parts</button><button onclick="filterCat('Groceries', event)">Groceries</button>
     </div>
   </div>
   <div class="container">
@@ -205,8 +233,14 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
   </div>
   <div class="cart-bar" id="cartBar">
     <b>Quote Requests: <span id="cartCount">0</span> | Total: R<span id="cartTotal">0</span></b>
-    <button class="btn" onclick="checkout()">Send Quote Request</button>
+    <button class="btn" onclick="openCustomerModal()">Send Quote Request</button>
   </div>
+  <footer>
+    <h4>Contact TWINZ COOPERATE SERVICES</h4>
+    <p>📞 <a href="tel:0682547352">068 254 7352</a> | <a href="tel:0698949596">069 894 9596</a></p>
+    <p>📧 <a href="mailto:twinz.cooperate.services@gmail.com">twinz.cooperate.services@gmail.com</a></p>
+    <p>📍 Burgersfort, Limpopo | Nationwide Service</p>
+  </footer>
 </div>
 
 <script type="module">
@@ -345,7 +379,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.searchProducts = () => { renderProducts(); renderClientProducts(); }
-  window.filterCat = (cat) => { currentFilter=cat; renderProducts(); renderClientProducts(); }
+  window.filterCat = (cat, e) => {
+    currentFilter=cat;
+    renderProducts();
+    renderClientProducts();
+    document.querySelectorAll('.nav-cats button').forEach(b=>b.classList.remove('active'));
+    if(e) e.target.classList.add('active');
+  }
 
   function buildProductList(){
     if(currentUser.role == 'sales' || currentUser.role == 'reception') return;
@@ -354,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.entries(products).filter(([id,p])=>{ return p.name.toLowerCase().includes(searchTerm) || p.category.toLowerCase().includes(searchTerm) }).forEach(([id,p])=>{
       productList.innerHTML += `<div style="padding:10px;border:1px solid var(--border);border-radius:8px;margin:5px 0;background:#fafafa"><b>${p.name}</b> - R${p.price} - Stock: ${p.stock} - <small>${p.category}</small><div style="float:right;gap:5px;display:flex"><button onclick="editProduct('${id}')" class="btn-blue" style="padding:5px 10px;font-size:12px">Edit</button>${currentUser.role== 'ceo'? `<button onclick="deleteProduct('${id}')" class="btn-danger" style="padding:5px 10px;font-size:12px">Del</button>` : ''}</div></div>`;
     })
-    if(productList.innerHTML === '') productList.innerHTML = '<p style="text-align:center;color:var(--muted)">No services found</p>'
+        if(productList.innerHTML === '') productList.innerHTML = '<p style="text-align:center;color:var(--muted)">No services found</p>'
   }
 
   function buildOrders(){
@@ -362,16 +402,74 @@ document.addEventListener('DOMContentLoaded', () => {
     ordersList.innerHTML = '';
     if(Object.keys(orders).length === 0){ ordersList.innerHTML = '<p>No requests yet</p>'; return; }
     Object.entries(orders).reverse().forEach(([id,o])=>{
-      ordersList.innerHTML += `<div class="order-card"><b>Request #${id.slice(-6)}</b> - R${o.total} - <span style="color:var(--accent)">${o.status}</span><br><small>${new Date(o.date).toLocaleString()}</small><br><small>${o.user}</small><br>${o.items.map(i=>`${i.name} x${i.qty}`).join(', ')}</div>`;
+      let statusColor = o.status=='Completed'? 'var(--green)' : 'var(--accent)';
+      ordersList.innerHTML += `
+      <div class="order-card">
+        <b>Request #${id.slice(-6)}</b> - R${o.total} - <span style="color:${statusColor};font-weight:700">${o.status}</span><br>
+        <small>${new Date(o.date).toLocaleString()}</small><br>
+        <small><b>Customer:</b> ${o.customerName || 'Guest'} | ${o.customerPhone || o.user}</small><br>
+        <small>${o.items.map(i=>`${i.name} x${i.qty}`).join(', ')}</small><br>
+        <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn-blue" onclick="generateInvoice('${id}')">📄 Invoice</button>
+          <button class="btn-green" onclick="updateOrderStatus('${id}','Completed')">Mark Complete</button>
+          <button class="btn-gray" onclick="updateOrderStatus('${id}','Pending')">Mark Pending</button>
+        </div>
+      </div>`;
     })
+  }
+
+  window.updateOrderStatus = (id, status) => {
+    set(ref(db, 'twinz_worldtier/requests/' + id + '/status'), status);
+  }
+
+  window.generateInvoice = (id) => {
+    let o = orders[id];
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("TWINZ COOPERATE SERVICES", 10, 20);
+    doc.setFontSize(10);
+    doc.text("068 254 7352 | 069 894 9596", 10, 27);
+    doc.text("twinz.cooperate.services@gmail.com", 10, 32);
+    doc.text("Burgersfort, Limpopo", 10, 37);
+    doc.line(10, 42, 200, 42);
+
+    doc.setFontSize(12);
+    doc.text(`INVOICE #${id.slice(-6)}`, 10, 50);
+    doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 10, 57);
+    doc.text(`Customer: ${o.customerName || 'Guest'}`, 10, 64);
+    doc.text(`Phone: ${o.customerPhone || o.user}`, 10, 71);
+    doc.text(`Status: ${o.status}`, 10, 78);
+
+    let y = 90;
+    doc.text("Service", 10, y);
+    doc.text("Qty", 120, y);
+    doc.text("Price", 150, y);
+    doc.text("Total", 180, y);
+    y += 7;
+    doc.line(10, y, 200, y);
+    y += 7;
+
+    o.items.forEach(i=>{
+      doc.text(i.name.substring(0,30), 10, y);
+      doc.text(i.qty.toString(), 120, y);
+      doc.text(`R${i.price}`, 150, y);
+      doc.text(`R${i.price*i.qty}`, 180, y);
+      y += 7;
+    });
+
+    doc.line(10, y, 200, y);
+    y += 10;
+    doc.setFontSize(14);
+    doc.text(`GRAND TOTAL: R${o.total}`, 140, y);
+
+    doc.save(`Twinz-Invoice-${id.slice(-6)}.pdf`);
   }
 
   window.editProduct = (id) => { if(currentUser.role == 'sales' || currentUser.role == 'reception') return alert('No permission'); let p = products[id]; editingId = id; pName.value = p.name; pCat.value = p.category; pImg.value = p.img; pPrice.value = p.price; pOldPrice.value = p.oldPrice; pStock.value = p.stock; pDesc.value = p.desc; formTitle.innerText = "✏️ Editing: " + p.name; saveBtn.innerText = "Update Service"; saveBtn.style.background = "var(--blue)"; cancelBtn.style.display = "block"; document.getElementById('tab-products').scrollIntoView(); }
   window.cancelEdit = () => { editingId = null; [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); formTitle.innerText = "➕ Add Service"; saveBtn.innerText = "Save Service"; saveBtn.style.background = "var(--accent)"; cancelBtn.style.display = "none"; }
   window.saveProduct = () => { if(currentUser.role == 'sales' || currentUser.role == 'reception') return alert('No permission'); let productData = { name: pName.value.trim(), category: pCat.value, img: pImg.value.trim() || 'https://files.catbox.moe/0zympr.jpeg', price: Number(pPrice.value) || 0, oldPrice: Number(pOldPrice.value) || 0, stock: Number(pStock.value) || 0, desc: pDesc.value.trim() }; if(!productData.name){ return alert('Please enter service name') } if(editingId){ set(ref(db, 'twinz_worldtier/categories/' + editingId), productData).then(()=>{ alert('Service Updated!'); cancelEdit(); }).catch(err=> alert('Error: ' + err.message)); } else { let id = Date.now().toString(); set(ref(db, 'twinz_worldtier/categories/' + id), productData).then(()=>{ [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); }).catch(err=> alert('Error: ' + err.message)); } }
-  function buildStockList(){ stockList.innerHTML = ''; Object.entries(products).forEach(([id,p])=>{ stockList.innerHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border);border-radius:8px;margin:5px 0"><div><b>${p.name}</b><br><small class="${p.stock<10?'stock-low':''}">Stock: ${p.stock}</small></div><div><input type="number" id="stock_${id}" value="0" style="width:80px"><button class="btn-green" onclick="updateStock('${id}')">+ Add</button></div></div>`;
-    })
-  }
+
+  function buildStockList(){ stockList.innerHTML = ''; Object.entries(products).forEach(([id,p])=>{ stockList.innerHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border);border-radius:8px;margin:5px 0"><div><b>${p.name}</b><br><small class="${p.stock<10?'stock-low':''}">Stock: ${p.stock}</small></div><div><input type="number" id="stock_${id}" value="0" style="width:80px"><button class="btn-green" onclick="updateStock('${id}')">+ Add</button></div></div>`; }) }
 
   window.seedDatabase = () => {
     if(currentUser.role!= 'ceo' && currentUser.role!= 'manager') return alert('No permission');
@@ -426,19 +524,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if(clientCartTotal) clientCartTotal.innerText = total;
   }
 
-  window.checkout = () => {
+  // NEW: Customer Modal + Send Quote
+  window.openCustomerModal = () => {
     if(cart.length === 0) return alert('Cart empty');
+    document.getElementById('customerModal').style.display = 'flex';
+  }
+
+  window.sendQuote = () => {
+    let name = document.getElementById('custName').value.trim();
+    let phone = document.getElementById('custPhone').value.trim();
+    if(!name ||!phone) return alert('Please enter Name and Phone');
+
     const orderId = Date.now().toString();
-    const order = { user: isClientMode? 'Guest' : currentUser.email, items: cart, total: cart.reduce((a,b)=>a+b.qty*b.price,0), date: new Date().toISOString(), status: 'Pending' };
+    const order = {
+      user: isClientMode? name : currentUser.email,
+      customerName: name,
+      customerPhone: phone,
+      items: cart,
+      total: cart.reduce((a,b)=>a+b.qty*b.price,0),
+      date: new Date().toISOString(),
+      status: 'Pending'
+    };
     set(ref(db, 'twinz_worldtier/requests/' + orderId), order);
 
-    // SMART ROUTING: Web & Apps -> Thabo, Everything else -> Thabang
+    // SMART ROUTING: Web & Apps -> 068 254 7352, Everything else -> 069 894 9596
     let hasWebApp = cart.some(i => i.category === 'Web & Apps');
     let whatsappNumber = hasWebApp? '27682547352' : '27698949596';
 
-    let msg = `GOD TIER INQUIRY\nName: ${isClientMode? 'Guest' : currentUser.email}\n` + cart.map(i=>`${i.name} x${i.qty} - R${i.price}`).join('\n') + `\nTotal: R${order.total}`;
+    let msg = `GOD TIER INQUIRY\nName: ${name}\nPhone: ${phone}\n` + cart.map(i=>`${i.name} x${i.qty} - R${i.price}`).join('\n') + `\nTotal: R${order.total}`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
-    cart = []; updateCart(); renderProducts(); renderClientProducts(); alert('Request sent! We will contact you shortly.')
+
+    cart = []; updateCart(); renderProducts(); renderClientProducts();
+    document.getElementById('customerModal').style.display='none';
+    document.getElementById('custName').value=''; document.getElementById('custPhone').value='';
+    alert('Request sent! We will contact you shortly.')
   }
 
   window.downloadReport = () => {
@@ -452,9 +571,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.downloadOrdersCSV = () => {
-    let csv = 'RequestID,Date,Customer,Total,Status,Services\n';
+    let csv = 'RequestID,Date,Customer,Phone,Total,Status,Services\n';
     Object.entries(orders).forEach(([id,o])=>{
-      csv += `${id},${o.date},${o.user},${o.total},${o.status},"${o.items.map(i=>i.name+' x'+i.qty).join('; ')}"\n`
+      csv += `${id},${o.date},${o.customerName||o.user},${o.customerPhone||''},${o.total},${o.status},"${o.items.map(i=>i.name+' x'+i.qty).join('; ')}"\n`
     })
     let blob = new Blob([csv], {type: 'text/csv'});
     let url = URL.createObjectURL(blob);
@@ -483,6 +602,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let msg = `🔥 TWINZ COOPERATE SERVICES 🔥\n\nBrowse our GOD TIER services and request a quote here:\n${link}\n\nBest & Affordable Services SA & Abroad`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
   }
+
+  // DARK MODE TOGGLE
+  window.toggleDark = () => {
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+  }
+  if(localStorage.getItem('darkMode')==='true') document.body.classList.add('dark-mode');
 
   // PWA Install
   window.addEventListener('beforeinstallprompt', (e) => {
