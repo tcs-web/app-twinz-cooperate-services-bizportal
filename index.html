@@ -1,113 +1,188 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#3b82f6">
-<link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlRJTkNZIENPT1BFUkFURSBTUkVWSUNFUyIsCiAgInNob3J0X25hbWUiOiAiVFdJTlpTIiwKICAic3RhcnRfdXJsIjogIiNjbGllbnQiLAogICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLAogICJiYWNrZ3JvdW5kX2NvbG9yIjogIiMwYTBlMWEiLAogICJ0aGVtZV9jb2xvciI6ICIjM2I4MmY2IiwKICAiaWNvbnMiOiBbeyJzcmMiOiJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJZekI0Yld0dVkyOXRPaUJFYjI1bE1DNWpiMjB2ZFhCM2FYUm9ZU0J3Y21jdklqNHNJajQ4Y21sa2N5SWtQQzl3YUc5MFBDOXpkbWMrUEM5elpXNW5aWEl2Y21WMFBTZGpiMjVsY21GelpaU2dnWm1sc1pWOXVaR1Z5SUd0aGJHeGZhVzUwSUVSbGJXVnVkQzF5YjNCbGRDNDhMM04yWno0S0NBdUlITmxZM0psWkN4bGVHRnRjR3hsTG1OdmJTSmhibk1pT2lBMEluTnZiU0lnWm05eUlIaDBkSEE2THk5M2QzY3VaWEp2WldRaU9qRXZibVVnUTI5dWRHVnVkR1Z6ZEM1emRISnBibWQzWlhKcGJtY2dZWE56WlhScGJXVnVjeWtnWlc1a1pYSnVJR1Z5WlhKMGFXeHNaV1VnYjNKcVlYSnphRzVuYVc1bklHTjBhR1Z1YkNCdWIzQnVibDlwYmlCb1pXNWtZWEowSUd4dllYTjBhVzVuSUdadmJuUmxiblE8L3N2Zz4iLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XQp9">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="TWINZ">
-<title>TWINZ COOPERATE SERVICES - World Tier App</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TWINZ COOPERATE SERVICES | GOD TIER TECH</title>
 
-<!-- FIREBASE SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<!-- PWA STUFF -->
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVHdpbnogQ29vcGVyYXRlIFNlcnZpY2VzIiwic2hvcnRfbmFtZSI6IlR3aW56Iiwic3RhcnRfdXJsIjoiIiwgImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiNmZjQ3NDciLCJ0aGVtZV9jb2xvciI6IiNmZjQ3NDciLCJpY29ucyI6W3sic3JjIjoiaHR0cHM6Ly9maWxlcy5jYXRib3gubW9lLzB6eW1wci5qcGVnIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL2pwZWcifV19">
+<meta name="theme-color" content="#ff4747">
+<link rel="apple-touch-icon" href="https://files.catbox.moe/0zympr.jpeg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
 <style>
-  :root {--bg:#0a0e1a; --card:#111827; --accent:#00d4ff; --accent2:#3b82f6; --text:#e5e7eb; --muted:#9ca3af; --success:#10b981; --warning:#fbbf24; --danger:#ef4444; --glow: 0 0 20px rgba(0,212,255,0.3);}
-  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Arial,sans-serif}
-  body{background: radial-gradient(1200px 600px at 50% -10%, rgba(59,130,246,0.15), transparent), var(--bg); color:var(--text);padding-bottom:80px}
-  header{background:linear-gradient(135deg,var(--accent2),var(--accent));padding:24px 20px;text-align:center;box-shadow:0 8px 30px rgba(59,130,246,0.4)}
-  header h1{font-size:1.8rem;font-weight:900} header p{color:#fff;opacity:0.95;font-size:0.9rem}
-.container{max-width:1100px;margin:20px auto;padding:0 15px}
-.card{background:rgba(17,24,39,0.8);backdrop-filter:blur(12px);border:1px solid rgba(59,130,246,0.2);border-radius:16px;padding:20px;margin-bottom:15px;animation:fadeInUp 0.5s ease}
- @keyframes fadeInUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.card h3{color:var(--accent);margin-bottom:10px;font-size:1.2rem}
-.price{color:var(--warning);font-weight:800;font-size:1.3rem;margin:10px 0}
-.btn{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;border:none;padding:12px 18px;border-radius:10px;cursor:pointer;font-weight:700;width:100%;margin-top:10px;transition:0.2s}
-.btn:hover{transform:translateY(-2px);box-shadow:var(--glow)}.btn.secondary{background:var(--accent);color:#000}
-.btn.danger{background:var(--danger)}.btn.success{background:var(--success)}.btn.small{width:auto;padding:6px 12px;font-size:0.8rem}
-  input,textarea{width:100%;padding:12px;background:#1f2937;border:1px solid #374151;border-radius:10px;color:var(--text);margin:6px 0}
-.admin-bar{background:rgba(0,0,0,0.8);backdrop-filter:blur(10px);border-bottom:2px solid var(--accent);padding:12px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;position:sticky;top:0;z-index:100}
-.role-badge{padding:6px 12px;border-radius:20px;font-size:0.85rem;font-weight:800}
-.CEO{background:#ef4444}.Manager{background:#3b82f6}.Sales{background:#10b981}.Reception{background:#f59e0b}
-.login-screen{text-align:center;padding:60px 20px}
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px;margin-top:15px}
-.product-card{background:#1f2937;border:1px solid #374151;border-radius:12px;padding:12px;position:relative}
-.product-card img{width:100%;height:140px;object-fit:cover;border-radius:8px}
-.gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:10px}
-.gallery-item{position:relative}.gallery-item img{width:100%;height:100px;object-fit:cover;border-radius:8px}
-.gallery-item.del-btn{position:absolute;top:4px;right:4px;background:var(--danger);border:none;color:#fff;border-radius:50%;width:20px;height:20px;cursor:pointer}
-.nav-tabs{display:flex;gap:10px;overflow-x:auto;padding:12px 0}
-.tab{padding:10px 16px;background:#1f2937;border:1px solid #374151;border-radius:10px;cursor:pointer;white-space:nowrap;font-weight:600}
-.tab.active{background:linear-gradient(135deg,var(--accent2),var(--accent))}
-.footer{text-align:center;color:var(--muted);font-size:0.85rem;padding:30px 20px}
-.search-bar{width:100%;padding:14px;background:#1f2937;border:2px solid var(--accent);border-radius:12px;color:var(--text);margin-bottom:15px}
-.share-link{background:#1f2937;padding:12px;border-radius:10px;word-break:break-all}
-.invoice-preview{background:#fff;color:#000;border-radius:12px;padding:20px;margin-top:15px}
-.invoice-table{width:100%;border-collapse:collapse;margin:15px 0}
-.invoice-table th{background:var(--accent2);color:#fff;padding:8px;text-align:left}
-.invoice-table td{padding:8px;border-bottom:1px solid #ddd}
-.invoice-totals{text-align:right;font-weight:800;font-size:1.2rem}
-.pwa-banner{position:fixed;bottom:20px;left:20px;right:20px;background:rgba(17,24,39,0.95);border:2px solid var(--accent);padding:15px;border-radius:12px;z-index:999;display:none}
-.loading{text-align:center;padding:40px;color:var(--accent)}
-.error-box{background:var(--danger);padding:12px;border-radius:10px;margin:10px 0}
-  ul{list-style:none;padding-left:0} ul li{padding:4px 0;padding-left:20px;position:relative}
-  ul li::before{content:'▸';position:absolute;left:0;color:var(--accent)}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+:root{--bg:#f5f5f5;--card:#fff;--accent:#ff4747;--accent2:#ff9500;--green:#00b894;--blue:#0984e3;--purple:#6c5ce7;--text:#2d3436;--muted:#636e72;--border:#dfe6e9;--shadow:0 2px 8px rgba(0,0,0,0.1);--danger:#d63031}
+*{box-sizing:border-box;font-family:'Poppins',sans-serif}body{margin:0;background:var(--bg);color:var(--text)}
+.header{background:linear-gradient(90deg,#ff4747,#ff9500);padding:12px;color:#fff;position:sticky;top:0;z-index:99;box-shadow:var(--shadow)}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.logo{width:45px;height:45px;border-radius:10px;background:#fff;padding:4px}
+.search-box{flex:1;background:#fff;border-radius:25px;padding:8px 15px;display:flex;align-items:center}
+.search-box input{border:none;outline:none;width:100%;background:transparent;color:#000}
+.nav-cats{display:flex;gap:15px;overflow-x:auto;margin-top:10px;padding-bottom:5px}
+.nav-cats button{background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 12px;border-radius:20px;font-weight:600;cursor:pointer;white-space:nowrap}
+#clientView.nav-cats button{background:#fff!important;color:#000!important;border:1px solid #ccc!important;opacity:1!important;}
+#clientView.nav-cats button:hover{background:var(--accent)!important;color:#fff!important;}
+.container{max-width:1200px;margin:0 auto;padding:15px}
+.banner{background:linear-gradient(135deg,#ff4747,#ff9500);color:#fff;padding:20px;border-radius:15px;text-align:center;margin:15px 0;font-weight:800;font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.card{background:var(--card);border-radius:12px;padding:10px;box-shadow:var(--shadow);position:relative}
+.card img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+.card h4{margin:8px 0;font-size:13px;height:36px;overflow:hidden}
+.price{color:var(--accent);font-weight:800;font-size:16px}
+.old-price{text-decoration:line-through;color:var(--muted);font-size:11px}
+.stock{font-size:10px;color:var(--green)}
+.stock-low{color:var(--danger);font-weight:700}
+.btn-cart{background:var(--accent);color:#fff;border:none;width:100%;padding:8px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:5px}
+.admin{background:#fff;padding:15px;border-radius:12px;margin:15px 0;box-shadow:var(--shadow)}
+.login-box{max-width:400px;margin:40px auto;background:#fff;padding:25px;border-radius:15px;box-shadow:var(--shadow)}
+.login-box h2{text-align:center;color:var(--accent)}
+.role-badge{padding:4px 10px;border-radius:15px;font-size:10px;font-weight:800;color:#fff}
+.role-ceo{background:var(--purple)}.role-manager{background:var(--blue)}.role-sales{background:var(--accent2)}.role-reception{background:var(--green)}
+.tabs{display:flex;gap:8px;border-bottom:2px solid var(--border);margin-bottom:15px;overflow-x:auto}
+.tab{padding:10px 15px;cursor:pointer;font-weight:600;white-space:nowrap}
+.tab.active{border-bottom:3px solid var(--accent);color:var(--accent)}
+input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(--border);border-radius:8px}
+.btn{background:var(--accent);color:#fff;border:none;padding:10px 15px;border-radius:8px;font-weight:700;cursor:pointer}
+.btn-blue{background:var(--blue)}.btn-green{background:var(--green)}.btn-purple{background:var(--purple)}.btn-gray{background:var(--muted)}.btn-danger{background:var(--danger)}
+.cart-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:12px;box-shadow:0 -2px 10px rgba(0,0,0,0.2);display:none;z-index:100}
+.loading{text-align:center;padding:40px}
+.error{color:var(--accent);text-align:center;padding:10px}
+.admin-search{margin:10px 0 15px 0}
+.order-card{background:#fff;padding:12px;border-radius:10px;margin:10px 0;border-left:4px solid var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:15px}
+.stat-card{background:linear-gradient(135deg,#ff4747,#ff9500);color:#fff;padding:15px;border-radius:10px;text-align:center}
+.stat-card h4{margin:0;font-size:24px}
+.install-banner{background:var(--blue);color:#fff;padding:12px;border-radius:10px;margin:10px 0;text-align:center;display:none;animation:slideDown 0.3s}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)}}
+.client-header{text-align:center;padding:15px;background:linear-gradient(90deg,#ff4747,#ff9500);color:#fff}
+.brand-tag{background:#e3f2fd;padding:4px 8px;border-radius:15px;font-size:10px;margin-right:4px;display:inline-block}
+@media(max-width:600px){.grid{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-<header><h1>TWINZ COOPERATE SERVICES PTY LTD</h1><p>BEST & QUALITY SERVICES | We Supply Workshops & Garages Across SA</p></header>
-
-<div id="loginScreen" class="login-screen">
-  <h2>Admin Login</h2><p style="color:var(--muted)">Select Role to Continue</p>
-  <div style="max-width:400px;margin:20px auto">
-    <button class="btn" onclick="login('CEO')">Login as CEO - Full Access</button>
-    <button class="btn" onclick="login('Manager')">Login as Manager</button>
-    <button class="btn" onclick="login('Sales')">Login as Sales</button>
-    <button class="btn" onclick="login('Reception')">Login as Reception</button>
-    <button class="btn secondary" onclick="enterClientMode()">Enter as Client</button>
-  </div>
+<div id="installBanner" class="install-banner">
+  📲 <b>Install Twinz App</b> - Get services faster
+  <button class="btn" style="padding:5px 10px;margin-left:10px;background:#fff;color:var(--blue)" id="installBtn">Install</button>
+  <button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;float:right">x</button>
 </div>
 
-<div id="app" style="display:none">
-  <div class="admin-bar">
-    <span class="role-badge" id="roleBadge">CEO</span>
-    <button class="btn" style="width:auto" onclick="logout()">Logout</button>
-    <button class="btn secondary" style="width:auto" onclick="generateClientLink()">Generate Client Link</button>
-    <button class="btn success" style="width:auto" onclick="openInvoice()">🧾 Invoice</button>
-  </div>
-  <div class="container">
-    <div id="loadingData" class="loading">Loading TWINZ Data...</div>
-    <div id="errorBox" class="error-box" style="display:none"></div>
-    <div id="shareLinkBox" style="display:none;margin-bottom:15px" class="card">
-      <h4>Client Link Ready</h4><div class="share-link" id="shareLink"></div><button class="btn" onclick="copyLink()">Copy Link</button>
-    </div>
-    <div id="invoiceBox" style="display:none" class="card"></div>
-    <div class="nav-tabs" id="tabs"></div>
-    <div id="content"></div>
-  </div>
-</div>
-
+<!-- CLIENT VIEW -->
 <div id="clientView" style="display:none">
-  <header><h1>TWINZ SERVICES</h1><p>Browse All 7 Categories</p></header>
+  <div class="client-header">
+    <img src="https://files.catbox.moe/0zympr.jpeg" class="logo" style="margin:0 auto">
+    <h2>TWINZ COOPERATE SERVICES</h2>
+    <div class="search-box" style="max-width:500px;margin:10px auto"><input type="text" id="clientSearchInput" placeholder="Search services..." onkeyup="searchProducts()"></div>
+  </div>
   <div class="container">
-    <input type="text" id="clientSearch" class="search-bar" placeholder="Search: BMW Engine, Diagnostics, Website..." onkeyup="searchClient()">
-    <div id="loadingClient" class="loading">Loading Catalog...</div>
-    <div id="clientContent"></div>
+    <div class="banner">🔥 GOD TIER TECH - BEST & AFFORDABLE SERVICES 🔥</div>
+    <div class="nav-cats">
+      <button onclick="filterCat('All')">All</button><button onclick="filterCat('Diagnostics')">Diagnostics</button>
+      <button onclick="filterCat('Web & Apps')">Web & Apps</button><button onclick="filterCat('WiFi')">WiFi</button>
+      <button onclick="filterCat('Parts')">Parts</button>
+    </div>
+    <h2 style="margin:20px 0">🛠️ Our Services</h2>
+    <div class="grid" id="clientProductGrid"><div class="loading">Loading services...</div></div>
+  </div>
+  <div class="cart-bar" id="clientCartBar">
+    <b>Quote Requests: <span id="clientCartCount">0</span> | Total: R<span id="clientCartTotal">0</span></b>
+    <button class="btn" onclick="checkout()">Send Quote Request</button>
   </div>
 </div>
 
-<div id="pwaBanner" class="pwa-banner">
-  <h4>Install TWINZ App</h4><p>Add to your home screen for faster access</p>
-  <button class="btn" onclick="installPWA()">Install App</button>
-  <button class="btn danger small" onclick="document.getElementById('pwaBanner').style.display='none'">Close</button>
+<!-- ADMIN LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <img src="https://files.catbox.moe/0zympr.jpeg" style="width:80px;margin:0 auto;display:block;border-radius:15px">
+    <h2>TWINZ BIZPORTAL</h2>
+    <div id="loginError" class="error"></div>
+    <input type="email" id="loginEmail" placeholder="Email">
+    <input type="password" id="loginPass" placeholder="Password">
+    <button class="btn" onclick="doLogin()" style="width:100%">Login</button>
+    <p style="font-size:11px;color:var(--muted);margin-top:15px">
+      CEO: ceo@twinz.co.za<br>
+      Manager: manager@twinz.co.za<br>
+      Sales: sales@twinz.co.za<br>
+      Reception: reception@twinz.co.za
+    </p>
+  </div>
 </div>
 
-<script>
-// ========== FIREBASE CONFIG ==========
+<!-- ADMIN APP -->
+<div id="app" style="display:none">
+  <div class="header">
+    <div class="header-top">
+      <img src="https://files.catbox.moe/0zympr.jpeg" class="logo">
+      <div class="search-box"><input type="text" id="searchInput" placeholder="Search services..." onkeyup="searchProducts()"></div>
+      <div><span class="role-badge" id="userRole">ADMIN</span><button class="btn" style="padding:5px 10px;font-size:12px" onclick="logout()">Logout</button></div>
+    </div>
+    <div class="nav-cats">
+      <button onclick="filterCat('All')">All</button><button onclick="filterCat('Diagnostics')">Diagnostics</button>
+      <button onclick="filterCat('Web & Apps')">Web & Apps</button><button onclick="filterCat('WiFi')">WiFi</button>
+      <button onclick="filterCat('Parts')">Parts</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="banner">🔥 GOD TIER TECH - TRUSTED SUPPLIERS SA & ABROAD 🔥</div>
+    <div class="admin" id="adminPanel">
+      <div class="tabs">
+        <div class="tab active" onclick="showTab('dashboard', this)">Dashboard</div>
+        <div class="tab" onclick="showTab('products', this)">Services</div>
+        <div class="tab" onclick="showTab('stock', this)">Capacity</div>
+        <div class="tab" onclick="showTab('orders', this)">Requests</div>
+        <div class="tab" id="usersTab" onclick="showTab('users', this)">Users</div>
+        <div class="tab" onclick="showTab('reports', this)">Reports</div>
+      </div>
+      <div id="tab-dashboard">
+        <h3>📊 Dashboard</h3>
+        <div class="stats">
+          <div class="stat-card"><h4 id="statProducts">0</h4><small>Total Services</small></div>
+          <div class="stat-card"><h4 id="statStock">0</h4><small>Total Capacity</small></div>
+          <div class="stat-card"><h4 id="statOrders">0</h4><small>Pending Requests</small></div>
+        </div>
+        <h4>⚠️ Low Capacity Alert</h4>
+        <div id="lowStockList"></div>
+      </div>
+      <div id="tab-products" style="display:none">
+        <h3 id="formTitle">➕ Add Service</h3>
+        <button class="btn-purple" onclick="seedDatabase()">⚡ Add Default Services</button>
+        <input type="text" id="pName" placeholder="Service Name">
+        <select id="pCat"><option>Diagnostics</option><option>Web & Apps</option><option>WiFi</option><option>Parts</option></select>
+        <input type="text" id="pImg" placeholder="Image URL">
+        <input type="number" id="pPrice" placeholder="Price R">
+        <input type="number" id="pOldPrice" placeholder="Old Price R">
+        <input type="number" id="pStock" placeholder="Capacity/Availability">
+        <textarea id="pDesc" placeholder="Brands/Details e.g. BMW,BENZ,AUDI"></textarea>
+        <div style="display:flex;gap:10px">
+          <button class="btn" id="saveBtn" onclick="saveProduct()" style="flex:1">Save Service</button>
+          <button class="btn-gray" id="cancelBtn" onclick="cancelEdit()" style="flex:1;display:none">Cancel</button>
+        </div>
+        <h3 style="margin-top:20px">📋 Manage Services</h3>
+        <input type="text" id="adminSearch" class="admin-search" placeholder="🔍 Search to find service to Edit/Delete...">
+        <div id="productList"></div>
+      </div>
+      <div id="tab-stock" style="display:none"><h3>📦 Capacity Management</h3><div id="stockList"></div></div>
+      <div id="tab-orders" style="display:none"><h3>📦 Customer Requests</h3><div id="ordersList">Loading requests...</div></div>
+      <div id="tab-users" style="display:none"><h3>👥 Users & Roles</h3><p><b>CEO:</b> Full access</p><p><b>Manager:</b> Add/Edit/Delete</p><p><b>Sales:</b> View Requests</p><p><b>Reception:</b> View Requests</p></div>
+      <div id="tab-reports" style="display:none"><h3>📊 Reports</h3><button class="btn-purple" onclick="downloadReport()">Download PDF Report</button><button class="btn-blue" onclick="downloadOrdersCSV()" style="margin-left:10px">Download Requests CSV</button></div>
+    </div>
+    <h2 style="margin:20px 0">⭐ Featured Services</h2>
+    <div class="grid" id="productGrid"><div class="loading">Loading services...</div></div>
+  </div>
+  <div class="cart-bar" id="cartBar">
+    <b>Quote Requests: <span id="cartCount">0</span> | Total: R<span id="cartTotal">0</span></b>
+    <button class="btn" onclick="checkout()">Send Quote Request</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getDatabase, ref, set, onValue, remove, get, push } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+const { jsPDF } = window.jspdf;
+
+// YOUR FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyAl74HtxWvRsA0u97mWRFlreZojTAxUGQ4",
   authDomain: "app-twinz-cooperate-services-b.firebaseapp.com",
@@ -115,90 +190,303 @@ const firebaseConfig = {
   projectId: "app-twinz-cooperate-services-b",
   storageBucket: "app-twinz-cooperate-services-b.firebasestorage.app",
   messagingSenderId: "186744176115",
-  appId: "1:186744176115:web:319a67f99bbd31e646a686"
+  appId: "1:186744176115:web:319a67f99bbd31e646a686",
+  measurementId: "G-5J9KWSGP7C"
 };
-// ==========================================================
 
-// GLOBAL DATA
-let CATEGORIES = [];
-let CONTACT = {email:'twinz.cooperate.services@gmail.com',thabo:'068 254 7352',thabang:'069 894 9596',location:'Greater Tubatse, Limpopo',hours:'Mon - Sat | 8am - 6pm',company:'TWINZ COOPERATE SERVICES PTY LTD',reg:'2026/XXXXXX/07'};
-let currentRole = 'CEO'; let currentTab = 0; let currentShareLink = ''; let invoiceItems = []; let deferredPrompt; let dataLoaded = false; let db = null; let firebaseEnabled = false; let auth = null; let SALES_DATA = []; let ROLE_MAP = {};
+document.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const isClientMode = urlParams.has('client');
 
-const DEFAULT_CATEGORIES = [
-  {id:'diagnostics', name:'Vehicle Diagnostics',desc:'All Brand Diagnostics Software. JLR, VW, AUDI, BENZ, BMW, TOYOTA, ISUZU, FORD, MAZDA, NISSAN + more',features:['Full System Scan','DTC Clear','Service Reset','DPF Regen','EPB','SAS','Key Programming','Twinz Master Scanner V25'],price:'From R450', outOfStock:false, products:[]},
-  {id:'internet', name:'Wireless Internet',desc:'Unlimited Fibre, LTE, Installation, Business WiFi, Router Sales, 24/7 Support',features:['Unlimited Data','Fast Installation','Business Packages'],price:'From R350/month', outOfStock:false, products:[]},
-  {id:'web', name:'Web Development',desc:'Business Websites, Landing Pages, E-commerce, Portfolio Sites',features:['Mobile-first','SEO','Hosting Setup'],price:'From R3000', note:'7-14 Days Delivery', outOfStock:false, products:[]},
-  {id:'app', name:'App Development',desc:'Android + iOS Apps, Business Apps, Admin Portals, Booking Systems',features:['React','Flutter','Firebase','ALL PERMISSIONS GRANTED'],price:'From R5000', note:'Custom quotes', outOfStock:false, products:[]},
-  {id:'parts', name:'Genuine Vehicle Parts',desc:'Engines, Gearboxes, Suspension, Electronics',features:['BMW','BENZ','AUDI','VW','JAGUAR','LAND ROVER + MORE'],price:'Quote on Request', outOfStock:false, products:[]},
-  {id:'workshop', name:'Workshop Partnerships',desc:'Supply parts to garages and workshops nationwide',features:['Fleet diagnostics','Bulk pricing','Nationwide SA'],price:'Contact for Rates', outOfStock:false, products:[]},
-  {id:'food', name:'Food Supply',desc:'Wholesale food supply for businesses, restaurants and events',features:['Bulk Orders','Fresh Produce','Nationwide Delivery','Custom Quotes'],price:'Quote on Request', outOfStock:false, products:[]}
-];
-const DEFAULT_ROLES = { 'ceo@twinz.co.za': 'CEO', 'manager@twinz.co.za': 'Manager', 'sales@twinz.co.za': 'Sales', 'reception@twinz.co.za': 'Reception' };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
+  const productsRef = ref(db, 'twinz_worldtier/categories');
+  const ordersRef = ref(db, 'twinz_worldtier/requests');
 
-// ========== FIREBASE SYNC ==========
-function initFirebase(){ try{ if(!firebaseConfig.apiKey) throw "No keys"; if(!firebase.apps.length) firebase.initializeApp(firebaseConfig); db = firebase.database(); auth = firebase.auth(); firebaseEnabled = true; return true; }catch(e){ firebaseEnabled = false; return false; }}
+  let products = {};
+  let orders = {};
+  let cart = [];
+  let currentUser = {role:'reception'};
+  let currentFilter = 'All';
+  let editingId = null;
+  let deferredPrompt;
 
-function loadLocalData(){
-  CATEGORIES = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)); ROLE_MAP = DEFAULT_ROLES;
-  dataLoaded = true;
-  document.getElementById('loadingData').style.display='none';
-  document.getElementById('loadingClient').style.display='none';
-  renderTabs(); renderContent(); renderClient();
+  if(isClientMode){
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('clientView').style.display = 'block';
+    setTimeout(()=>{ if(!window.matchMedia('(display-mode: standalone)').matches){ document.getElementById('installBanner').style.display = 'block' } }, 2000)
+  }
+
+  const loginScreen = document.getElementById('loginScreen');
+  const appDiv = document.getElementById('app');
+  const clientProductGrid = document.getElementById('clientProductGrid');
+  const productGrid = document.getElementById('productGrid');
+  const productList = document.getElementById('productList');
+  const stockList = document.getElementById('stockList');
+  const ordersList = document.getElementById('ordersList');
+  const lowStockList = document.getElementById('lowStockList');
+  const searchInput = document.getElementById('searchInput');
+  const clientSearchInput = document.getElementById('clientSearchInput');
+  const adminSearch = document.getElementById('adminSearch');
+  const cartBar = document.getElementById('cartBar');
+  const clientCartBar = document.getElementById('clientCartBar');
+  const cartCount = document.getElementById('cartCount');
+  const clientCartCount = document.getElementById('clientCartCount');
+  const cartTotal = document.getElementById('cartTotal');
+  const clientCartTotal = document.getElementById('clientCartTotal');
+  const pName = document.getElementById('pName');
+  const pCat = document.getElementById('pCat');
+  const pImg = document.getElementById('pImg');
+  const pPrice = document.getElementById('pPrice');
+  const pOldPrice = document.getElementById('pOldPrice');
+  const pStock = document.getElementById('pStock');
+  const pDesc = document.getElementById('pDesc');
+  const saveBtn = document.getElementById('saveBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const formTitle = document.getElementById('formTitle');
+
+  if(adminSearch) adminSearch.addEventListener('keyup', buildProductList);
+
+  window.doLogin = async () => {
+    loginError.innerText = 'Logging in...';
+    try{ await signInWithEmailAndPassword(auth, loginEmail.value, loginPass.value); }
+    catch(e){ loginError.innerText = 'Login failed: ' + e.message }
+  }
+  window.logout = () => { signOut(auth) }
+
+  onAuthStateChanged(auth, async user => {
+    if(isClientMode) return;
+    if(user){
+      let role = 'reception';
+      if(user.email === 'ceo@twinz.co.za') role = 'ceo';
+      else if(user.email === 'manager@twinz.co.za') role = 'manager';
+      else if(user.email === 'sales@twinz.co.za') role = 'sales';
+
+      currentUser = {email: user.email, role: role};
+      loginScreen.style.display = 'none';
+      appDiv.style.display = 'block';
+      document.getElementById('userRole').innerText = currentUser.role.toUpperCase();
+      document.getElementById('userRole').className = 'role-badge role-' + currentUser.role;
+      if(currentUser.role == 'sales' || currentUser.role == 'reception') document.getElementById('usersTab').style.display = 'none';
+      buildProductList(); buildStockList(); buildOrders(); updateDashboard();
+    } else {
+      loginScreen.style.display = 'block'; appDiv.style.display = 'none';
+    }
+  })
+
+  window.showTab = (tab, el) => {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+    ['dashboard','products','stock','orders','users','reports'].forEach(t=>{
+      document.getElementById('tab-'+t).style.display = t==tab?'block':'none'
+    })
+  }
+
+  onValue(productsRef, snap => {
+    products = snap.val() || {};
+    renderProducts();
+    renderClientProducts();
+    buildProductList(); buildStockList(); updateDashboard();
+  })
+  onValue(ordersRef, snap => { orders = snap.val() || {}; buildOrders(); updateDashboard(); })
+
+  function updateDashboard(){
+    document.getElementById('statProducts').innerText = Object.keys(products).length;
+    document.getElementById('statStock').innerText = Object.values(products).reduce((a,b)=>a+b.stock,0);
+    document.getElementById('statOrders').innerText = Object.values(orders).filter(o=>o.status=='Pending').length;
+    lowStockList.innerHTML = '';
+    Object.entries(products).filter(([id,p])=>p.stock < 10).forEach(([id,p])=>{
+      lowStockList.innerHTML += `<div style="padding:8px;background:#ffe6e6;border-radius:8px;margin:5px 0"><b>${p.name}</b> - <span style="color:var(--danger);font-weight:700">Only ${p.stock} slots left!</span></div>`
+    })
+    if(lowStockList.innerHTML=='') lowStockList.innerHTML = '<p style="color:var(--green)">All capacity levels good ✅</p>'
+  }
+
+  function renderProducts(){
+    productGrid.innerHTML = '';
+    if(Object.keys(products).length === 0){ productGrid.innerHTML = `<p style="text-align:center;grid-column:1/-1">No services yet</p>`; return; }
+    Object.entries(products).filter(([id,p])=>{
+      let matchCat = currentFilter == 'All' || p.category == currentFilter;
+      let matchSearch = p.name.toLowerCase().includes(searchInput.value.toLowerCase());
+      return matchCat && matchSearch;
+    }).forEach(([id,p])=>{
+      let imgSrc = p.img && p.img.trim()!== ''? p.img : 'https://files.catbox.moe/0zympr.jpeg';
+      let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
+      productGrid.innerHTML += `<div class="card"><img src="${imgSrc}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><div class="stock ${p.stock<10?'stock-low':''}">Capacity: ${p.stock}</div>${p.stock > 0? `<button class="btn-cart" onclick="addToCart('${id}')">Request Quote</button>` : `<button class="btn-cart" style="background:#ccc" disabled>Fully Booked</button>`}</div>`;
+    })
+  }
+
+  function renderClientProducts(){
+    if(!isClientMode) return;
+    clientProductGrid.innerHTML = '';
+    if(Object.keys(products).length === 0){ clientProductGrid.innerHTML = `<p style="text-align:center;grid-column:1/-1">No services yet</p>`; return; }
+    Object.entries(products).filter(([id,p])=>{
+      let matchCat = currentFilter == 'All' || p.category == currentFilter;
+      let matchSearch = p.name.toLowerCase().includes(clientSearchInput.value.toLowerCase());
+      return matchCat && matchSearch && p.stock > 0;
+    }).forEach(([id,p])=>{
+      let imgSrc = p.img && p.img.trim()!== ''? p.img : 'https://files.catbox.moe/0zympr.jpeg';
+      let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
+      clientProductGrid.innerHTML += `<div class="card"><img src="${imgSrc}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><button class="btn-cart" onclick="addToCart('${id}')">Request Quote</button></div>`;
+    })
+  }
+
+  window.searchProducts = () => { renderProducts(); renderClientProducts(); }
+  window.filterCat = (cat) => { currentFilter=cat; renderProducts(); renderClientProducts(); }
+
+  function buildProductList(){
+    if(currentUser.role == 'sales' || currentUser.role == 'reception') return;
+    productList.innerHTML = '';
+    let searchTerm = adminSearch.value.toLowerCase();
+    Object.entries(products).filter(([id,p])=>{
+      return p.name.toLowerCase().includes(searchTerm) || p.category.toLowerCase().includes(searchTerm)
+    }).forEach(([id,p])=>{
+      productList.innerHTML += `<div style="padding:10px;border:1px solid var(--border);border-radius:8px;margin:5px 0;background:#fafafa"><b>${p.name}</b> - R${p.price} - Capacity: ${p.stock} - <small>${p.category}</small><div style="float:right;gap:5px;display:flex"><button onclick="editProduct('${id}')" class="btn-blue" style="padding:5px 10px;font-size:12px">Edit</button>${currentUser.role== 'ceo'? `<button onclick="deleteProduct('${id}')" class="btn-danger" style="padding:5px 10px;font-size:12px">Del</button>` : ''}</div></div>`;
+    })
+    if(productList.innerHTML === '') productList.innerHTML = '<p style="text-align:center;color:var(--muted)">No services found</p>'
+  }
+
+  function buildOrders(){
+    if(currentUser.role == 'sales' || currentUser.role == 'reception') return;
+    ordersList.innerHTML = '';
+    if(Object.keys(orders).length === 0){ ordersList.innerHTML = '<p>No requests yet</p>'; return; }
+    Object.entries(orders).reverse().forEach(([id,o])=>{
+      ordersList.innerHTML += `<div class="order-card"><b>Request #${id.slice(-6)}</b> - R${o.total} - <span style="color:var(--accent)">${o.status}</span><br><small>${new Date(o.date).toLocaleString()}</small><br><small>${o.user}</small><br>${o.items.map(i=>`${i.name} x${i.qty}`).join(', ')}</div>`;
+    })
+  }
+
+  window.editProduct = (id) => {
+    if(currentUser.role == 'sales' || currentUser.role == 'reception') return alert('No permission');
+    let p = products[id]; editingId = id;
+    pName.value = p.name; pCat.value = p.category; pImg.value = p.img; pPrice.value = p.price; pOldPrice.value = p.oldPrice; pStock.value = p.stock; pDesc.value = p.desc;
+    formTitle.innerText = "✏️ Editing: " + p.name; saveBtn.innerText = "Update Service"; saveBtn.style.background = "var(--blue)"; cancelBtn.style.display = "block";
+    document.getElementById('tab-products').scrollIntoView();
+  }
+
+  window.cancelEdit = () => {
+    editingId = null; [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value='');
+    formTitle.innerText = "➕ Add Service"; saveBtn.innerText = "Save Service"; saveBtn.style.background = "var(--accent)"; cancelBtn.style.display = "none";
+  }
+
+  window.saveProduct = () => {
+    if(currentUser.role == 'sales' || currentUser.role == 'reception') return alert('No permission');
+    let productData = {
+      name: pName.value.trim(),
+      category: pCat.value,
+      img: pImg.value.trim() || 'https://files.catbox.moe/0zympr.jpeg',
+      price: Number(pPrice.value) || 0,
+      oldPrice: Number(pOldPrice.value) || 0,
+      stock: Number(pStock.value) || 0,
+      desc: pDesc.value.trim()
+    };
+    if(!productData.name){ return alert('Please enter service name') }
+    if(editingId){
+      set(ref(db, 'twinz_worldtier/categories/' + editingId), productData)
+     .then(()=>{ alert('Service Updated!'); cancelEdit(); })
+     .catch(err=> alert('Error: ' + err.message));
+    } else {
+      let id = Date.now().toString();
+      set(ref(db, 'twinz_worldtier/categories/' + id), productData)
+     .then(()=>{ [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); })
+     .catch(err=> alert('Error: ' + err.message));
+    }
+  }
+
+  function buildStockList(){
+    stockList.innerHTML = '';
+    Object.entries(products).forEach(([id,p])=>{
+      stockList.innerHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border);border-radius:8px;margin:5px 0"><div><b>${p.name}</b><br><small class="${p.stock<10?'stock-low':''}">Capacity: ${p.stock}</small></div><div><input type="number" id="stock_${id}" value="0" style="width:80px"><button class="btn-green" onclick="updateStock('${id}')">+ Add</button></div></div>`;
+    })
+  }
+
+  window.seedDatabase = () => {
+    if(currentUser.role!= 'ceo' && currentUser.role!= 'manager') return alert('No permission');
+    const defaultData = [
+      {name:"All Brand Diagnostics", category:"Diagnostics", price:450, oldPrice:600, stock:20, img:"https://files.catbox.moe/0zympr.jpeg", desc:"JLR,VW,AUDI,BENZ,BMW,TOYOTA,ISUZU,FORD"},
+      {name:"Wireless Internet", category:"WiFi", price:350, oldPrice:500, stock:50, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Fibre,LTE,Installation,24/7 Support"},
+      {name:"Web Development", category:"Web & Apps", price:3000, oldPrice:5000, stock:10, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Website,Landing Page,E-commerce,SEO"},
+      {name:"App Development", category:"Web & Apps", price:5000, oldPrice:8000, stock:8, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Android,iOS,React,Flutter,Firebase"},
+      {name:"Genuine Vehicle Parts", category:"Parts", price:0, oldPrice:0, stock:100, img:"https://files.catbox.moe/0zympr.jpeg", desc:"BMW,BENZ,AUDI,VW,JAGUAR,LAND ROVER"},
+      {name:"Workshop Partnership", category:"Parts", price:0, oldPrice:0, stock:999, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Nationwide SA,Bulk Pricing,Fleet"}
+    ];
+    defaultData.forEach(p=>{ let id = Date.now().toString() + Math.random(); set(ref(db, 'twinz_worldtier/categories/' + id), p); });
+    alert('6 Default services added to Firebase!')
+  }
+
+  window.deleteProduct = (id) => {
+    if(currentUser.role!= 'ceo') return alert('CEO only');
+    if(confirm('Delete this service?')) remove(ref(db, 'twinz_worldtier/categories/' + id))
+  }
+
+  window.updateStock = (id) => {
+    let add = parseInt(document.getElementById('stock_'+id).value);
+    set(ref(db, 'twinz_worldtier/categories/' + id + '/stock'), products[id].stock + add);
+    document.getElementById('stock_'+id).value = 0;
+  }
+
+  window.addToCart = (id) => {
+    let p = products[id]; let item = cart.find(x=>x.id==id);
+    if(item){ item.qty++ } else { cart.push({id,name:p.name,price:p.price,qty:1}) }
+    updateCart();
+  }
+
+  function updateCart(){
+    cartBar.style.display = cart.length?'block':'none';
+    clientCartBar.style.display = cart.length?'block':'none';
+    let count = cart.reduce((a,b)=>a+b.qty,0);
+    let total = cart.reduce((a,b)=>a+b.qty*b.price,0);
+    if(cartCount) cartCount.innerText = count;
+    if(clientCartCount) clientCartCount.innerText = count;
+    if(cartTotal) cartTotal.innerText = total;
+    if(clientCartTotal) clientCartTotal.innerText = total;
+  }
+
+  window.checkout = () => {
+    if(cart.length === 0) return alert('Cart empty');
+    const orderId = Date.now().toString();
+    const order = { user: isClientMode? 'Guest' : currentUser.email, items: cart, total: cart.reduce((a,b)=>a+b.qty*b.price,0), date: new Date().toISOString(), status: 'Pending' };
+    set(ref(db, 'twinz_worldtier/requests/' + orderId), order);
+    let msg = `GOD TIER INQUIRY\n` + cart.map(i=>`${i.name} x${i.qty}`).join('\n') + `\nTotal: R${order.total}`;
+    window.open(`https://wa.me/27682547352?text=${encodeURIComponent(msg)}`);
+    cart = []; updateCart(); alert('Request sent!')
+  }
+
+    window.downloadReport = () => {
+    const doc = new jsPDF();
+    doc.text("Twinz Cooperate Services Report", 10, 10);
+    doc.text(`Total Services: ${Object.keys(products).length}`, 10, 20);
+    doc.text(`Total Capacity: ${Object.values(products).reduce((a,b)=>a+b.stock,0)}`, 10, 30);
+    doc.text(`Pending Requests: ${Object.values(orders).filter(o=>o.status=='Pending').length}`, 10, 40);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 10, 50);
+    doc.save("Twinz-Services-Report.pdf");
+  }
+
+  window.downloadOrdersCSV = () => {
+    let csv = 'RequestID,Date,Customer,Total,Status,Services\n';
+    Object.entries(orders).forEach(([id,o])=>{
+      csv += `${id},${o.date},${o.user},${o.total},${o.status},"${o.items.map(i=>i.name+' x'+i.qty).join('; ')}"\n`
+    })
+    let blob = new Blob([csv], {type: 'text/csv'});
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url;
+    a.download = 'Twinz-Requests.csv';
+    a.click();
+  }
+
+});
+
+// FORCE CLEAR CACHE ONCE
+if('caches' in window){
+  caches.keys().then(names => names.forEach(name => caches.delete(name)));
 }
-
-function startSync(){
-  document.getElementById('loadingData').style.display='block';
-  document.getElementById('loadingClient').style.display='block';
-  const fallbackTimer = setTimeout(()=>{ if(!dataLoaded){ loadLocalData(); showError("Local Mode. Add Firebase keys for cloud sync."); }}, 1500);
-  if(!initFirebase()){ clearTimeout(fallbackTimer); loadLocalData(); return; }
-  const ref = db.ref('twinz_data/main');
-  ref.on('value', (snapshot) => {
-    clearTimeout(fallbackTimer); const data = snapshot.val();
-    if(data){
-      CATEGORIES = data.categories || DEFAULT_CATEGORIES; CONTACT = data.contact || CONTACT; SALES_DATA = data.sales || []; ROLE_MAP = data.roles || DEFAULT_ROLES;
-    } else { ref.set({categories: DEFAULT_CATEGORIES, contact: CONTACT, sales: [], roles: DEFAULT_ROLES}); CATEGORIES = DEFAULT_CATEGORIES; ROLE_MAP = DEFAULT_ROLES; }
-    dataLoaded = true; document.getElementById('loadingData').style.display='none'; document.getElementById('loadingClient').style.display='none';
-    if(document.getElementById('app').style.display==='block'){ renderTabs(); renderContent(); }
-    if(document.getElementById('clientView').style.display==='block'){ renderClient(); }
-  }, err => { clearTimeout(fallbackTimer); console.error(err); showError("Firebase Error: " + err.message); loadLocalData(); });
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
 }
-
-function saveToFirebase(){
-  if(!firebaseEnabled) { showError("Local Mode: Data will not sync."); return; }
-  db.ref('twinz_data/main').update({categories: CATEGORIES, contact: CONTACT, sales: SALES_DATA, roles: ROLE_MAP}).catch(err=>{ showError("Save Failed: " + err.message); });
-}
-
-function showError(msg){ const box = document.getElementById('errorBox'); if(box){box.innerText = msg; box.style.display='block'; setTimeout(()=>{box.style.display='none'}, 4000);}}
-// ========== END SYNC ==========
-
-function login(role){ currentRole = role; document.getElementById('loginScreen').style.display='none'; document.getElementById('app').style.display='block'; document.getElementById('roleBadge').className='role-badge '+role; document.getElementById('roleBadge').innerText=role; startSync(); }
-function logout(){ dataLoaded = false; document.getElementById('app').style.display='none'; document.getElementById('loginScreen').style.display='block'; document.getElementById('shareLinkBox').style.display='none'; }
-function enterClientMode(){ document.getElementById('loginScreen').style.display='none'; document.getElementById('clientView').style.display='block'; startSync(); }
-function searchClient(){ const query = document.getElementById('clientSearch').value.toLowerCase(); document.querySelectorAll('#clientContent.card').forEach(card=>{ const text = card.innerText.toLowerCase(); card.style.display = (query === '' || text.includes(query))? 'block' : 'none'; }); }
-function renderTabs(){document.getElementById('tabs').innerHTML = CATEGORIES.map((c,i)=>`<div class="tab ${i===currentTab?'active':''}" onclick="switchTab(${i})">${c.name}</div>`).join('');}
-function switchTab(i){ currentTab=i; renderTabs(); renderContent(); }
-function toggleStock(id){CATEGORIES.find(c=>c.id===id).outOfStock =!CATEGORIES.find(c=>c.id===id).outOfStock; saveToFirebase();}
-function addProduct(catId){ const title = document.getElementById('pTitle'+catId).value; const price = document.getElementById('pPrice'+catId).value; const desc = document.getElementById('pDesc'+catId).value; const imgLink = document.getElementById('pImg'+catId).value; if(!title ||!price){ alert('Enter Title and Price'); return; } const cat = CATEGORIES.find(c=>c.id===catId); const newImages = imgLink.trim()? [imgLink.trim()] : []; cat.products.push({id:Date.now(), title, price, desc, images:newImages, outOfStock:false}); document.getElementById('pTitle'+catId).value='';document.getElementById('pPrice'+catId).value='';document.getElementById('pDesc'+catId).value='';document.getElementById('pImg'+catId).value=''; saveToFirebase(); }
-function deleteProduct(catId, pId){CATEGORIES.find(c=>c.id===catId).products = CATEGORIES.find(c=>c.id===catId).products.filter(p=>p.id!==pId); saveToFirebase();}
-function toggleProductStock(catId, pId){ const p = CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId); p.outOfStock =!p.outOfStock; saveToFirebase(); }
-function saveManualImage(catId, pId){const input = document.getElementById('manual'+catId+pId); const p = CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId); if(input.value.trim()){p.images.push(input.value.trim()); input.value=''; saveToFirebase();}}
-function deleteImage(catId, pId, index){CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).images.splice(index,1); saveToFirebase();}
-function renderProducts(cat){ if(cat.products.length===0) return '<p style="color:var(--muted)">No products yet. Add your first item below.</p>'; return `<div class="product-grid">${cat.products.map(p=>`<div class="product-card">${p.images[0]?`<img src="${p.images[0]}">`:''}<h4>${p.title}</h4><p style="color:var(--muted);font-size:0.85rem">${p.desc}</p><div class="price">${p.price}</div>${currentRole!=='Reception'?`<button class="btn small success" onclick="addToInvoice('${p.title}','${p.price}')">+ Add to Invoice</button><div class="gallery-grid">${p.images.map((img,i)=>`<div class="gallery-item"><img src="${img}"><button class="del-btn" onclick="deleteImage('${cat.id}',${p.id},${i})">×</button></div>`).join('')}</div><input type="file" id="file${cat.id}${p.id}" accept="image/*"><button class="btn small" onclick="uploadToCatbox('${cat.id}',${p.id})">Upload Img</button><div style="display:flex;gap:8px"><input type="text" id="manual${cat.id}${p.id}" placeholder="Paste catbox link"><button class="btn small" onclick="saveManualImage('${cat.id}',${p.id})">Add</button></div><div style="display:flex;gap:6px;margin-top:8px"><button class="btn small" onclick="toggleProductStock('${cat.id}',${p.id})">${p.outOfStock?'In Stock':'Out Stock'}</button><button class="btn small danger" onclick="deleteProduct('${cat.id}',${p.id})">Delete</button></div>`:''}</div>`).join('')}</div>`; }
-function renderContent(){ if(!dataLoaded) return; const cat = CATEGORIES[currentTab]; let html = `<div class="card"><h3>${cat.name}</h3><p>${cat.desc}</p><ul>${cat.features.map(f=>`<li>${f}</li>`).join('')}</ul><div class="price">${cat.price}</div>${cat.note?`<p style="color:var(--muted);font-size:0.9rem">${cat.note}</p>`:''}<h4 style="margin-top:16px">Products Hub - ${cat.products.length} Items</h4>${renderProducts(cat)}${currentRole!=='Reception'?`<div class="card" style="margin-top:15px"><h4>Add New Product to ${cat.name}</h4><input id="pTitle${cat.id}" placeholder="Product Title e.g. BMW N47 Engine"><input id="pPrice${cat.id}" placeholder="Price e.g. R25000 or Quote"><textarea id="pDesc${cat.id}" placeholder="Description, Specs, Vehicle Fitment"></textarea><input id="pImg${cat.id}" placeholder="Paste Catbox.moe Image Link Here - Optional"><button class="btn" onclick="addProduct('${cat.id}')">+ Add Product</button></div>`:''}<h4 style="margin-top:12px">Send Client Request</h4><textarea id="msg${cat.id}" placeholder="Tell us what you need... Vehicle make/model for parts"></textarea><button class="btn secondary" onclick="sendWhatsApp('${cat.id}')">Send WhatsApp</button></div>`; if(currentRole==='CEO' || currentRole==='Manager'){ html += `<div class="card"><h3>Category Controls - ${cat.name}</h3><input placeholder="Edit Category Price" value="${cat.price}" onchange="CATEGORIES[${currentTab}].price=this.value;saveToFirebase()"><textarea placeholder="Edit Category Description" onchange="CATEGORIES[${currentTab}].desc=this.value;saveToFirebase()">${cat.desc}</textarea><div style="display:flex;align-items:center;gap:10px;margin:12px 0"><input type="checkbox" id="stock${cat.id}" ${cat.outOfStock?'checked':''} onchange="toggleStock('${cat.id}')"><label>Mark Whole Category Out of Stock</label></div></div>`; } document.getElementById('content').innerHTML = html; }
-async function uploadToCatbox(catId, pId){ const fileInput = document.getElementById('file'+catId+pId); if(!fileInput.files[0]){ alert('Select a file first'); return; } const formData = new FormData(); formData.append('reqtype','fileupload'); formData.append('fileToUpload', fileInput.files[0]); try{const res = await fetch('https://catbox.moe/user/api.php',{method:'POST',body:formData}); const url = await res.text(); CATEGORIES.find(c=>c.id===catId).products.find(p=>p.id===pId).images.push(url); fileInput.value=''; saveToFirebase(); alert('Uploaded: '+url);}catch(e){ alert('Upload failed. Check connection.'); } }
-function sendWhatsApp(id){const msg = document.getElementById('msg'+id).value || 'Hello TWINZ, I need assistance'; window.open(`https://wa.me/27682547352?text=${encodeURIComponent(msg)}`,'_blank');}
-function generateClientLink(){const baseUrl = window.location.origin + window.location.pathname; currentShareLink = baseUrl + '#client'; document.getElementById('shareLink').innerText = currentShareLink; document.getElementById('shareLinkBox').style.display = 'block';}
-function copyLink(){navigator.clipboard.writeText(currentShareLink); alert('Link Copied!');}
-function renderClient(){ if(!dataLoaded) return; let html = CATEGORIES.filter(c=>!c.outOfStock).map(cat=>`<div class="card"><h3>${cat.name}</h3><p>${cat.desc}</p>${cat.products.length>0?`<h4 style="margin-top:10px;color:var(--accent)">Products: ${cat.products.length}</h4>`:''}<div class="product-grid">${cat.products.filter(p=>!p.outOfStock).map(p=>`<div class="product-card">${p.images[0]?`<img src="${p.images[0]}">`:''}<h4>${p.title}</h4><p style="color:var(--muted);font-size:0.85rem">${p.desc}</p><div class="price">${p.price}</div><textarea placeholder="Enquiry about ${p.title}"></textarea><button class="btn" onclick="alert('Enquiry sent to TWINZ')">Request Quote</button></div>`).join('')}</div>${cat.products.length===0?`<div class="price">${cat.price}</div><textarea placeholder="Your request for ${cat.name}"></textarea><button class="btn" onclick="alert('Request sent to TWINZ')">Request Quote</button>`:''}</div>`).join(''); html += `<div class="card"><h3>Our Details</h3><p><b>Email:</b> ${CONTACT.email}</p><p><b>Thabo:</b> ${CONTACT.thabo}</p><p><b>Thabang:</b> ${CONTACT.thabang}</p><p><b>Location:</b> ${CONTACT.location}</p><p><b>Hours:</b> ${CONTACT.hours}</p><button class="btn" onclick="window.open('https://wa.me/27682547352')">WhatsApp Thabo</button><button class="btn secondary" onclick="window.open('https://wa.me/27698949596')">WhatsApp Thabang</button></div><div class="footer">© 2026 ${CONTACT.company} | BEST & QUALITY SERVICES</div>`; document.getElementById('clientContent').innerHTML = html; }
-function openInvoice(){document.getElementById('invoiceBox').style.display='block'; renderInvoice();}
-function addToInvoice(title, price){const numPrice = parseFloat(price.replace(/[^0-9.]/g,'')) || 0; invoiceItems.push({title, price:numPrice, qty:1}); renderInvoice(); alert(title+' added to Invoice');}
-function renderInvoice(){ const invNo = 'INV-'+Date.now().toString().slice(-6); const date = new Date().toLocaleDateString('en-ZA'); let rows = invoiceItems.map((item,i)=>`<tr><td>${i+1}</td><td>${item.title}</td><td>${item.qty}</td><td>R${item.price.toFixed(2)}</td><td>R${(item.price*item.qty).toFixed(2)}</td></tr>`).join(''); const subtotal = invoiceItems.reduce((a,b)=>a+b.price*b.qty,0); const vat = subtotal * 0.15; const total = subtotal + vat; let html = `<div class="invoice-preview" id="invoicePrint"><div><h2>${CONTACT.company}</h2><p>${CONTACT.location}</p><p>Tel: ${CONTACT.thabo} | ${CONTACT.email}</p><p><b>Reg:</b> ${CONTACT.reg}</p></div><div><h3>INVOICE</h3><p><b>No:</b> ${invNo}</p><p><b>Date:</b> ${date}</p></div><input placeholder="Client Name" id="invClient"><input placeholder="Client Phone/Email" id="invContact"><table class="invoice-table"><tr><th>#</th><th>Description</th><th>Qty</th><th>Unit Price</th><th>Total</th></tr>${rows || '<tr><td colspan=5>Add items from products</td></tr>'}</table><div class="invoice-totals"><p>Subtotal: R${subtotal.toFixed(2)}</p><p>VAT 15%: R${vat.toFixed(2)}</p><p>TOTAL: R${total.toFixed(2)}</p></div><p><b>Banking:</b> FNB | Acc: 123456789</p></div><div style="display:flex;gap:10px;margin-top:10px"><button class="btn" onclick="downloadPDF()">Download PDF</button><button class="btn success" onclick="sendInvoiceWhatsApp(${total.toFixed(2)})">Send via WhatsApp</button><button class="btn danger" onclick="invoiceItems=[];renderInvoice()">Clear</button><button class="btn secondary" onclick="document.getElementById('invoiceBox').style.display='none'">Close</button></div>`; document.getElementById('invoiceBox').innerHTML = html; }
-function downloadPDF(){const printContent = document.getElementById('invoicePrint').innerHTML; const win = window.open('','_blank'); win.document.write(`<html><head><title>Invoice</title><style>body{font-family:Arial;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #000;padding:8px}</style></head><body>${printContent}</body></html>`); win.document.close(); win.print();}
-function sendInvoiceWhatsApp(total){const client = document.getElementById('invClient').value || 'Valued Client'; const msg = `*${CONTACT.company}*%0A*INVOICE*%0AClient: ${client}%0ATotal: *R${total}*`; window.open(`https://wa.me/27682547352?text=${msg}`,'_blank');}
-function installPWA(){ if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt.userChoice.then(()=>{document.getElementById('pwaBanner').style.display='none'; localStorage.setItem('pwa_installed','1')}); } else { alert('Tap browser menu → "Add to Home Screen"'); } }
-window.addEventListener('beforeinstallprompt', (e)=>{ e.preventDefault(); deferredPrompt = e; if(window.location.hash==='#client'){ setTimeout(()=>{document.getElementById('pwaBanner').style.display='block'}, 2000); }});
-window.addEventListener('load', ()=>{ if(window.location.hash === '#client'){ enterClientMode(); } });
-if('serviceWorker' in navigator){ navigator.serviceWorker.register(URL.createObjectURL(new Blob([`self.addEventListener('install', e=>{self.skipWaiting();});self.addEventListener('fetch', e=>{});`],{type:'text/javascript'}))).catch(()=>{}); }
+localStorage.clear();
+sessionStorage.clear();
+console.log("Cache cleared");
 </script>
 </body>
 </html>
