@@ -27,12 +27,15 @@
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
 .card{background:var(--card);border-radius:12px;padding:10px;box-shadow:var(--shadow);position:relative}
 .card img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+.card-imgs{display:flex;gap:4px;margin-top:5px;overflow-x:auto}
+.card-imgs img{width:40px;height:40px;border-radius:6px;object-fit:cover;flex-shrink:0}
 .card h4{margin:8px 0;font-size:13px;height:36px;overflow:hidden}
 .price{color:var(--accent);font-weight:800;font-size:16px}
 .old-price{text-decoration:line-through;color:var(--muted);font-size:11px}
 .stock{font-size:10px;color:var(--green)}
 .stock-low{color:var(--danger);font-weight:700}
 .btn-cart{background:var(--accent);color:#fff;border:none;width:100%;padding:8px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:5px}
+.btn-oos{background:#ccc;color:#fff;border:none;width:100%;padding:8px;border-radius:8px;font-weight:700;margin-top:5px;cursor:not-allowed}
 .admin{background:#fff;padding:15px;border-radius:12px;margin:15px 0;box-shadow:var(--shadow)}
 .login-box{max-width:400px;margin:40px auto;background:#fff;padding:25px;border-radius:15px;box-shadow:var(--shadow)}
 .login-box h2{text-align:center;color:var(--accent)}
@@ -149,7 +152,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
         <button class="btn-purple" onclick="seedDatabase()">⚡ Add Default Services</button>
         <input type="text" id="pName" placeholder="Service Name">
         <select id="pCat"><option>Diagnostics</option><option>Web & Apps</option><option>WiFi</option><option>Parts</option><option>Groceries</option></select>
-        <input type="text" id="pImg" placeholder="Image URL">
+        <input type="text" id="pImg" placeholder="Image URL 1, Image URL 2, Image URL 3, Image URL 4, Image URL 5">
         <input type="number" id="pPrice" placeholder="Price R">
         <input type="number" id="pOldPrice" placeholder="Old Price R">
         <input type="number" id="pStock" placeholder="Stock/Availability">
@@ -303,6 +306,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if(lowStockList.innerHTML=='') lowStockList.innerHTML = '<p style="color:var(--green)">All stock levels good ✅</p>'
   }
 
+  function getImages(p){
+    if(!p.img) return ['https://files.catbox.moe/0zympr.jpeg'];
+    return p.img.split(',').map(s=>s.trim()).filter(s=>s);
+  }
+
   function renderProducts(){
     productGrid.innerHTML = '';
     if(Object.keys(products).length === 0){ productGrid.innerHTML = `<p style="text-align:center;grid-column:1/-1">No services yet</p>`; return; }
@@ -311,9 +319,11 @@ document.addEventListener('DOMContentLoaded', () => {
       let matchSearch = p.name.toLowerCase().includes(searchInput.value.toLowerCase());
       return matchCat && matchSearch;
     }).forEach(([id,p])=>{
-      let imgSrc = p.img && p.img.trim()!== ''? p.img : 'https://files.catbox.moe/0zympr.jpeg';
+      let imgs = getImages(p);
+      let mainImg = imgs[0];
+      let extraImgs = imgs.slice(1,5).map(u=>`<img src="${u}" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
-      productGrid.innerHTML += `<div class="card"><img src="${imgSrc}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><div class="stock ${p.stock<10?'stock-low':''}">Stock: ${p.stock}</div>${p.stock > 0? `<button class="btn-cart" onclick="addToCart('${id}')">Request Quote</button>` : `<button class="btn-cart" style="background:#ccc" disabled>Out of Stock</button>`}</div>`;
+      productGrid.innerHTML += `<div class="card"><img src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><div class="stock ${p.stock<10?'stock-low':''}">Stock: ${p.stock}</div>${p.stock > 0? `<button class="btn-cart" onclick="addToCart('${id}')">Request Quote</button>` : `<button class="btn-oos" disabled>Out of Stock</button>`}</div>`;
     })
   }
 
@@ -324,11 +334,14 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.entries(products).filter(([id,p])=>{
       let matchCat = currentFilter == 'All' || p.category == currentFilter;
       let matchSearch = p.name.toLowerCase().includes(clientSearchInput.value.toLowerCase());
-      return matchCat && matchSearch && p.stock > 0;
+      return matchCat && matchSearch;
     }).forEach(([id,p])=>{
-      let imgSrc = p.img && p.img.trim()!== ''? p.img : 'https://files.catbox.moe/0zympr.jpeg';
+      let imgs = getImages(p);
+      let mainImg = imgs[0];
+      let extraImgs = imgs.slice(1,5).map(u=>`<img src="${u}" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
-      clientProductGrid.innerHTML += `<div class="card"><img src="${imgSrc}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><button class="btn-cart" onclick="addToCart('${id}')">Request Quote</button></div>`;
+      let btn = p.stock > 0? `<button class="btn-cart" onclick="addToCart('${id}')">Request Quote</button>` : `<button class="btn-oos" disabled>Out of Stock</button>`;
+      clientProductGrid.innerHTML += `<div class="card"><img src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div>${btn}</div>`;
     })
   }
 
@@ -383,13 +396,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!productData.name){ return alert('Please enter service name') }
     if(editingId){
       set(ref(db, 'twinz_worldtier/categories/' + editingId), productData)
-    .then(()=>{ alert('Service Updated!'); cancelEdit(); })
-    .catch(err=> alert('Error: ' + err.message));
+   .then(()=>{ alert('Service Updated!'); cancelEdit(); })
+   .catch(err=> alert('Error: ' + err.message));
     } else {
       let id = Date.now().toString();
       set(ref(db, 'twinz_worldtier/categories/' + id), productData)
-    .then(()=>{ [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); })
-    .catch(err=> alert('Error: ' + err.message));
+   .then(()=>{ [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); })
+   .catch(err=> alert('Error: ' + err.message));
     }
   }
 
@@ -428,7 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addToCart = (id) => {
     let p = products[id]; let item = cart.find(x=>x.id==id);
-    if(item){ item.qty++ } else { cart.push({id,name:p.name,price:p.price,qty:1,category:p.category}) }
+        if(item){ item.qty++ } else { cart.push({id,name:p.name,price:p.price,qty:1,category:p.category}) }
     updateCart();
   }
 
@@ -449,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const order = { user: isClientMode? 'Guest' : currentUser.email, items: cart, total: cart.reduce((a,b)=>a+b.qty*b.price,0), date: new Date().toISOString(), status: 'Pending' };
     set(ref(db, 'twinz_worldtier/requests/' + orderId), order);
 
-        // SMART ROUTING: Web & Apps -> Thabo, Everything else -> Thabang
+    // SMART ROUTING: Web & Apps -> Thabo, Everything else -> Thabang
     let hasWebApp = cart.some(i => i.category === 'Web & Apps');
     let whatsappNumber = hasWebApp? '27682547352' : '27698949596'; // Thabo : Thabang
 
