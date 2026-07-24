@@ -21,8 +21,11 @@ html, body{overflow-x:hidden; width:100%}
 .search-box input{border:none;outline:none;width:100%;background:transparent;color:#000}
 .nav-cats{display:flex;gap:15px;overflow-x:auto;margin-top:10px;padding-bottom:5px;padding-right:15px}
 .nav-cats button{background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 12px;border-radius:20px;font-weight:600;cursor:pointer;white-space:nowrap}
+
+/* FIX 1: CLIENT CATEGORIES BLACK TEXT */
 #clientView.nav-cats button{background:#fff!important;color:#000!important;border:1px solid #ccc!important;opacity:1!important;}
 #clientView.nav-cats button:hover{background:var(--accent)!important;color:#fff!important;}
+
 .container{max-width:100%;margin:0 auto;padding:10px}
 .banner{background:linear-gradient(135deg,#0984e3,#74b9ff);color:#fff;padding:20px;border-radius:15px;text-align:center;margin:15px 0;font-weight:800;font-size:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
@@ -73,11 +76,11 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 
 /* MOBILE */
 @media(max-width:600px){
-  .grid{grid-template-columns:1fr !important}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .tabs{font-size:12px}
-  .tab{padding:8px 10px}
-  .card-imgs img{width:38px;height:38px}
+ .grid{grid-template-columns:1fr!important}
+ .stats{grid-template-columns:repeat(2,1fr)}
+ .tabs{font-size:12px}
+ .tab{padding:8px 10px}
+ .card-imgs img{width:38px;height:38px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -454,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-    window.seedDatabase = () => {
+  window.seedDatabase = () => {
     if(currentUser.role!= 'ceo' && currentUser.role!= 'manager') return alert('No permission');
     const defaultData = [
       {name:"All Brand Diagnostics", category:"Diagnostics", price:450, oldPrice:600, stock:20, img:"https://files.catbox.moe/0zympr.jpeg", desc:"JLR,VW,AUDI,BENZ,BMW,TOYOTA,ISUZU,FORD"},
@@ -480,6 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('stock_'+id).value = 0;
   }
 
+  // FIX 2: ADD TO CART NOW INCREASES QTY
   window.addToCart = (id) => {
     let p = products[id]; let item = cart.find(x=>x.id==id);
     if(item){ item.qty++ } else { cart.push({id,name:p.name,price:p.price,qty:1,category:p.category}) }
@@ -510,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // SMART ROUTING: Web & Apps -> Thabo, Everything else -> Thabang
     let hasWebApp = cart.some(i => i.category === 'Web & Apps');
-    let whatsappNumber = hasWebApp? '27682547352' : '27698949596'; // Thabo : Thabang
+    let whatsappNumber = hasWebApp? '27682547352' : '27698949596';
 
     let msg = `GOD TIER INQUIRY\nName: ${isClientMode? 'Guest' : currentUser.email}\n` + cart.map(i=>`${i.name} x${i.qty} - R${i.price}`).join('\n') + `\nTotal: R${order.total}`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
@@ -521,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const doc = new jsPDF();
     doc.text("Twinz Cooperate Services Report", 10, 10);
     doc.text(`Total Services: ${Object.keys(products).length}`, 10, 20);
-    doc.text(`Total Stock: ${Object.values(products).reduce((a,b)=>a+b.stock,0)}`, 10, 30);
+    doc.text(`Total Stock: ${Object.values(products).reduce((a,b)=>a+(b.stock||0),0)}`, 10, 30);
     doc.text(`Pending Requests: ${Object.values(orders).filter(o=>o.status=='Pending').length}`, 10, 40);
     doc.text(`Generated: ${new Date().toLocaleString()}`, 10, 50);
     doc.save("Twinz-Services-Report.pdf");
