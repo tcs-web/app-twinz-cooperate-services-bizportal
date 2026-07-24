@@ -147,7 +147,19 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
           <div class="stat-card"><h4 id="statStock">0</h4><small>Total Stock</small></div>
           <div class="stat-card"><h4 id="statOrders">0</h4><small>Pending Requests</small></div>
         </div>
-        <h4>⚠️ Low Stock Alert</h4>
+
+        <!-- NEW: CLIENT SHARE LINK FOR ADMIN -->
+        <div class="admin" style="background:#e3f2fd;border-left:4px solid var(--blue);margin-top:15px">
+          <h4>📲 Share Client Shop Link</h4>
+          <p style="font-size:12px;color:var(--muted)">Send this link to clients so they can browse + request quotes</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <input type="text" id="clientShareLink" readonly style="flex:1;min-width:200px">
+            <button class="btn" onclick="copyClientLink()">Copy</button>
+            <button class="btn-green" onclick="shareClientWhatsApp()">WhatsApp</button>
+          </div>
+        </div>
+
+        <h4 style="margin-top:15px">⚠️ Low Stock Alert</h4>
         <div id="lowStockList"></div>
       </div>
       <div id="tab-products" style="display:none">
@@ -277,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('userRole').innerText = currentUser.role.toUpperCase();
       document.getElementById('userRole').className = 'role-badge role-' + currentUser.role;
       if(currentUser.role == 'sales' || currentUser.role == 'reception') document.getElementById('usersTab').style.display = 'none';
-      buildProductList(); buildStockList(); buildOrders(); updateDashboard();
+      buildProductList(); buildStockList(); buildOrders(); updateDashboard(); setClientLink();
     } else {
       loginScreen.style.display = 'block'; appDiv.style.display = 'none';
     }
@@ -406,13 +418,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!productData.name){ return alert('Please enter service name') }
     if(editingId){
       set(ref(db, 'twinz_worldtier/categories/' + editingId), productData)
-  .then(()=>{ alert('Service Updated!'); cancelEdit(); })
-  .catch(err=> alert('Error: ' + err.message));
+ .then(()=>{ alert('Service Updated!'); cancelEdit(); })
+ .catch(err=> alert('Error: ' + err.message));
     } else {
       let id = Date.now().toString();
       set(ref(db, 'twinz_worldtier/categories/' + id), productData)
-  .then(()=>{ [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); })
-  .catch(err=> alert('Error: ' + err.message));
+ .then(()=>{ [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); })
+ .catch(err=> alert('Error: ' + err.message));
     }
   }
 
@@ -502,6 +514,26 @@ document.addEventListener('DOMContentLoaded', () => {
     a.href = url;
     a.download = 'Twinz-Requests.csv';
     a.click();
+  }
+
+  // CLIENT LINK FUNCTIONS FOR ADMIN
+  function setClientLink(){
+    let link = window.location.origin + window.location.pathname + '?client=1';
+    if(document.getElementById('clientShareLink'))
+      document.getElementById('clientShareLink').value = link;
+  }
+
+  window.copyClientLink = () => {
+    let link = document.getElementById('clientShareLink');
+    link.select();
+    document.execCommand('copy');
+    alert('Client link copied! 📋');
+  }
+
+  window.shareClientWhatsApp = () => {
+    let link = document.getElementById('clientShareLink').value;
+    let msg = `🔥 TWINZ COOPERATE SERVICES 🔥\n\nBrowse our GOD TIER services and request a quote here:\n${link}\n\nBest & Affordable Services SA & Abroad`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
   }
 
   // PWA Install
