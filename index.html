@@ -92,6 +92,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 .tabs{font-size:12px}
 .tab{padding:8px 10px}
 .card-imgs img{width:38px;height:38px}
+} /* FIXED */
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -101,6 +102,20 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
   📲 <b>Install Twinz App</b> - Get services faster
   <button class="btn" style="padding:5px 10px;margin-left:10px;background:#fff;color:var(--blue)" id="installBtn">Install</button>
   <button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;float:right">x</button>
+</div>
+
+<!-- INVOICE EDIT MODAL -->
+<div id="invoiceModal" class="modal">
+  <div class="modal-content">
+    <h3>📄 Edit Invoice Details</h3>
+    <input type="text" id="invCustName" placeholder="Customer Name">
+    <input type="tel" id="invCustPhone" placeholder="Customer Phone">
+    <input type="text" id="invCustAddress" placeholder="Customer Address">
+    <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="invTaxToggle"> Add 15% VAT</label>
+    <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="invPaidToggle"> Mark as PAID</label>
+    <button class="btn" onclick="downloadFinalInvoice()" style="width:100%">Download Invoice PDF</button>
+    <button class="btn-gray" onclick="document.getElementById('invoiceModal').style.display='none'" style="width:100%;margin-top:8px">Cancel</button>
+  </div>
 </div>
 
 <!-- CUSTOMER DETAILS MODAL -->
@@ -275,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const productsRef = ref(db, 'twinz_worldtier/categories');
   const ordersRef = ref(db, 'twinz_worldtier/requests');
   let products = {}; let orders = {}; let cart = [];
-  let currentUser = {role:'reception'}; let currentFilter = 'All'; let editingId = null; let deferredPrompt;
+  let currentUser = {role:'reception'}; let currentFilter = 'All'; let editingId = null; let deferredPrompt; let currentInvoiceId = null;
 
   if(isClientMode){
     document.getElementById('loginScreen').style.display = 'none';
@@ -416,9 +431,10 @@ document.addEventListener('DOMContentLoaded', () => {
         <small><b>Customer:</b> ${o.customerName || 'Guest'} | ${o.customerPhone || o.user}</small><br>
         <small>${o.items.map(i=>`${i.name} x${i.qty}`).join(', ')}</small><br>
         <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">
-          <button class="btn-blue" onclick="generateInvoice('${id}')">📄 Invoice</button>
+          <button class="btn-blue" onclick="openInvoiceModal('${id}')">📄 Invoice</button>
           <button class="btn-green" onclick="updateOrderStatus('${id}','Completed')">Mark Complete</button>
           <button class="btn-gray" onclick="updateOrderStatus('${id}','Pending')">Mark Pending</button>
+          ${currentUser.role== 'ceo' || currentUser.role== 'manager'? `<button class="btn-danger" onclick="deleteOrder('${id}')">Delete</button>` : ''}
         </div>
       </div>`;
     })
@@ -428,20 +444,94 @@ document.addEventListener('DOMContentLoaded', () => {
     set(ref(db, 'twinz_worldtier/requests/' + id + '/status'), status);
   }
 
-  window.generateInvoice = (id) => {
+  window.deleteOrder = (id) => {
+    if(currentUser.role!= 'ceo' && currentUser.role!= 'manager') return alert('No permission');
+    if(confirm('Delete this request?')) remove(ref(db, 'twinz_worldtier/requests/' + id))
+  }
+
+  window.openInvoiceModal = (id) => {
+    currentInvoiceId = id;
     let o = orders[id];
+    document.getElementById('invCustName').value = o.customerName || '';
+    document.getElementById('invCustPhone').value = o.customerPhone || '';
+    document.getElementById('invCustAddress').value = o.customerAddress || '';
+    document.getElementById('invoiceModal').style.display = 'flex';
+  }
+
+  window.downloadFinalInvoice = () => {
+    let o = orders[currentInvoiceId];
+    let custName = document.getElementById('invCustName').value || o.customerName || 'Guest';
+    let custPhone = document.getElementById('invCustPhone').value || o.customerPhone || '';
+    let custAddress = document.getElementById('invCustAddress').value || '';
+    let addTax = document.getElementById('invTaxToggle').checked;
+    let isPaid = document.getElementById('invPaidToggle').checked;
+    
+    let subtotal = o.total;
+    let tax = addTax ? subtotal * 0.15 : 0;
+    let grandTotal = subtotal + tax;
+
     const doc = new jsPDF();
-    doc.setFontSize(18); doc.text("TWINZ COOPERATE SERVICES", 10, 20);
-    doc.setFontSize(10); doc.text("068 254 7352 | 069 894 9596", 10, 27);
-    doc.text("twinz.cooperate.services@gmail.com", 10, 32); doc.text("Burgersfort, Limpopo", 10, 37); doc.line(10, 42, 200, 42);
-    doc.setFontSize(12); doc.text(`INVOICE #${id.slice(-6)}`, 10, 50);
-    doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 10, 57);
-    doc.text(`Customer: ${o.customerName || 'Guest'}`, 10, 64);
-    doc.text(`Phone: ${o.customerPhone || o.user}`, 10, 71); doc.text(`Status: ${o.status}`, 10, 78);
-    let y = 90; doc.text("Service", 10, y); doc.text("Qty", 120, y); doc.text("Price", 150, y); doc.text("Total", 180, y); y += 7; doc.line(10, y, 200, y); y += 7;
-    o.items.forEach(i=>{ doc.text(i.name.substring(0,30), 10, y); doc.text(i.qty.toString(), 120, y); doc.text(`R${i.price}`, 150, y); doc.text(`R${i.price*i.qty}`, 180, y); y += 7; });
-    doc.line(10, y, 200, y); y += 10; doc.setFontSize(14); doc.text(`GRAND TOTAL: R${o.total}`, 140, y);
-    doc.save(`Twinz-Invoice-${id.slice(-6)}.pdf`);
+    
+    // LOGO
+    doc.addImage('https://files.catbox.moe/0zympr.jpeg', 'JPEG', 10, 10, 25, 25);
+    
+    // COMPANY HEADER
+    doc.setFontSize(16); doc.setFont(undefined, 'bold');
+    doc.text("TWINZ COOPERATE SERVICES PTY LTD", 40, 18);
+    doc.setFontSize(9); doc.setFont(undefined, 'normal');
+    doc.text("Account no: 10 26 459 443 4 | Branch code: 006145 | Reg no: 2024/444303/07", 40, 24);
+    doc.text("068 254 7352 | 069 894 9596 | twinz.cooperate.services@gmail.com", 40, 29);
+    doc.text("Burgersfort, Limpopo | Nationwide Service", 40, 34);
+    doc.line(10, 40, 200, 40);
+
+    // INVOICE TITLE
+    doc.setFontSize(18); doc.setFont(undefined, 'bold');
+    doc.text("TAX INVOICE", 150, 50);
+    doc.setFontSize(10);
+    doc.text(`Invoice #: ${currentInvoiceId.slice(-6)}`, 150, 57);
+    doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 150, 62);
+
+    // CUSTOMER DETAILS
+    doc.setFontSize(12); doc.text("BILL TO:", 10, 50);
+    doc.setFontSize(10);
+    doc.text(custName, 10, 57);
+    if(custPhone) doc.text(custPhone, 10, 62);
+    if(custAddress) doc.text(custAddress, 10, 67);
+
+    // ITEMS TABLE
+    let y = 85;
+    doc.setFontSize(10); doc.setFont(undefined, 'bold');
+    doc.text("Description", 10, y); doc.text("Qty", 120, y); doc.text("Rate", 145, y); doc.text("Amount", 175, y);
+    y += 5; doc.line(10, y, 200, y); y += 7; doc.setFont(undefined, 'normal');
+    
+    o.items.forEach(i=>{
+      doc.text(i.name.substring(0,35), 10, y);
+      doc.text(i.qty.toString(), 120, y);
+      doc.text(`R${i.price}`, 145, y);
+      doc.text(`R${i.price*i.qty}`, 175, y);
+      y += 7;
+    });
+
+    // TOTALS
+    y += 5; doc.line(120, y, 200, y); y += 7;
+    doc.text("Subtotal:", 145, y); doc.text(`R${subtotal.toFixed(2)}`, 175, y); y += 7;
+    if(addTax){ doc.text("VAT 15%:", 145, y); doc.text(`R${tax.toFixed(2)}`, 175, y); y += 7; }
+    doc.setFont(undefined, 'bold'); doc.setFontSize(12);
+    doc.text("TOTAL:", 145, y); doc.text(`R${grandTotal.toFixed(2)}`, 175, y);
+
+    // PAID STAMP
+    if(isPaid){
+      doc.setFontSize(30); doc.setTextColor(0, 184, 148);
+      doc.text("PAID", 80, 150, {angle: -30});
+      doc.setTextColor(0,0,0);
+    }
+
+    // FOOTER
+    doc.setFontSize(8); doc.setFont(undefined, 'normal');
+    doc.text("Thank you for choosing Twinz Cooperate Services - GOD TIER TECH", 105, 280, {align: "center"});
+    
+    doc.save(`Twinz-Invoice-${currentInvoiceId.slice(-6)}.pdf`);
+    document.getElementById('invoiceModal').style.display='none';
   }
 
   window.editProduct = (id) => { if(currentUser.role == 'sales' || currentUser.role == 'reception') return alert('No permission'); let p = products[id]; editingId = id; pName.value = p.name; pCat.value = p.category; pImg.value = p.img; pPrice.value = p.price; pOldPrice.value = p.oldPrice; pStock.value = p.stock; pDesc.value = p.desc; formTitle.innerText = "✏️ Editing: " + p.name; saveBtn.innerText = "Update Service"; saveBtn.style.background = "var(--blue)"; cancelBtn.style.display = "block"; document.getElementById('tab-products').scrollIntoView(); }
