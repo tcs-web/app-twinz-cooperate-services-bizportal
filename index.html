@@ -88,6 +88,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 .modal-content{background:var(--card);padding:20px;border-radius:15px;width:90%;max-width:400px}
 .demo-link-btn{background:var(--purple);color:#fff;border:none;width:100%;padding:8px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:5px}
 .demo-link-btn:hover{background:#5b4bc7}
+.vin-result{background:#e3f2fd;padding:10px;border-radius:8px;margin-top:10px;font-size:12px;line-height:1.6}
 @media(max-width:600px){
 .grid{grid-template-columns:1fr!important}
 .stats{grid-template-columns:repeat(2,1fr)}
@@ -106,12 +107,24 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
   <button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;float:right">x</button>
 </div>
 
+<!-- VIN DECODER MODAL -->
+<div id="vinModal" class="modal">
+  <div class="modal-content">
+    <h3>🚗 VIN Decoder</h3>
+    <input type="text" id="vinInput" placeholder="Enter 17 Character VIN" maxlength="17" style="text-transform:uppercase">
+    <button class="btn" onclick="decodeVIN()" style="width:100%">Decode VIN</button>
+    <div id="vinResult" class="vin-result" style="display:none"></div>
+    <button class="btn-gray" onclick="document.getElementById('vinModal').style.display='none'" style="width:100%;margin-top:8px">Close</button>
+  </div>
+</div>
+
 <!-- QUICK INVOICE MODAL -->
 <div id="quickInvoiceModal" class="modal">
   <div class="modal-content">
     <h3>🧾 Quick Invoice - Walk In</h3>
     <input type="text" id="quickInvName" placeholder="Customer Name">
     <input type="tel" id="quickInvPhone" placeholder="Customer Phone">
+    <input type="email" id="quickInvEmail" placeholder="Customer Email"> <!-- ADDED -->
     <input type="text" id="quickInvItem" placeholder="Item/Service Name">
     <input type="number" id="quickInvQty" placeholder="Qty" value="1">
     <input type="number" id="quickInvPrice" placeholder="Price R">
@@ -225,6 +238,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
         <div class="tab" onclick="showTab('orders', this)">Requests</div>
         <div class="tab" id="usersTab" onclick="showTab('users', this)">Users</div>
         <div class="tab" onclick="showTab('reports', this)">Reports</div>
+        <div class="tab" onclick="document.getElementById('vinModal').style.display='flex'">VIN</div> <!-- ADDED -->
       </div>
       <div id="tab-dashboard">
         <h3>📊 Dashboard</h3>
@@ -400,7 +414,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderProducts(){
     productGrid.innerHTML = '';
     if(Object.keys(products).length === 0){ productGrid.innerHTML = `<p style="text-align:center;grid-column:1/-1">No services yet</p>`; return; }
-    Object.entries(products).filter(([id,p])=>{ let matchCat = currentFilter == 'All' || p.category == currentFilter; let matchSearch = p.name.toLowerCase().includes(searchInput.value.toLowerCase()); return matchCat && matchSearch; }).forEach(([id,p])=>{
+    Object.entries(products).filter(([id,p])=>{ let matchCat = currentFilter =='All' || p.category == currentFilter; let matchSearch = p.name.toLowerCase().includes(searchInput.value.toLowerCase()); return matchCat && matchSearch; }).forEach(([id,p])=>{
       let imgs = getImages(p); let mainImg = imgs[0];
       let extraImgs = imgs.map((u,i)=>`<img src="${u}" class="${i==0?'active':''}" onclick="switchImage('${id}','${u}',this)" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
@@ -545,10 +559,36 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('invoiceModal').style.display='none';
   }
 
-  // QUICK INVOICE
+  // VIN DECODER
+  window.decodeVIN = async () => {
+    let vin = document.getElementById('vinInput').value.trim().toUpperCase();
+    if(vin.length!== 17) return alert('VIN must be 17 characters');
+    document.getElementById('vinResult').style.display = 'block';
+    document.getElementById('vinResult').innerHTML = 'Decoding...';
+    try{
+      let res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
+      let data = await res.json();
+      let result = data.Results;
+      let year = result.find(r=>r.Variable === 'Model Year')?.Value || 'N/A';
+      let make = result.find(r=>r.Variable === 'Make')?.Value || 'N/A';
+      let model = result.find(r=>r.Variable === 'Model')?.Value || 'N/A';
+      let engine = result.find(r=>r.Variable === 'Engine Cylinder Count')?.Value || 'N/A';
+
+      document.getElementById('vinResult').innerHTML = `
+        <b>Year:</b> ${year}<br>
+        <b>Make:</b> ${make}<br>
+        <b>Model:</b> ${model}<br>
+        <b>Engine Cylinders:</b> ${engine}<br>
+        <b>VIN:</b> ${vin}
+      `;
+    }catch(e){ document.getElementById('vinResult').innerHTML = 'Error decoding VIN'; }
+  }
+
+  // QUICK INVOICE - WITH EMAIL
   window.downloadQuickInvoice = () => {
     let name = document.getElementById('quickInvName').value;
     let phone = document.getElementById('quickInvPhone').value;
+    let email = document.getElementById('quickInvEmail').value; // ADDED
     let item = document.getElementById('quickInvItem').value;
     let qty = Number(document.getElementById('quickInvQty').value) || 1;
     let price = Number(document.getElementById('quickInvPrice').value) || 0;
@@ -576,7 +616,10 @@ document.addEventListener('DOMContentLoaded', () => {
     doc.text(`Invoice #: ${invId}`, 150, 57);
     doc.text(`Date: ${new Date().toLocaleDateString()}`, 150, 62);
     doc.setFontSize(12); doc.text("BILL TO:", 10, 50);
-    doc.setFontSize(10); doc.text(name, 10, 57); if(phone) doc.text(phone, 10, 62);
+    doc.setFontSize(10);
+    doc.text(name, 10, 57);
+    if(phone) doc.text(phone, 10, 62);
+    if(email) doc.text(email, 10, 67); // ADDED
     let y = 90;
     doc.setFont(undefined, 'bold');
     doc.text("Description", 10, y); doc.text("Qty", 120, y); doc.text("Rate", 145, y); doc.text("Amount", 175, y);
