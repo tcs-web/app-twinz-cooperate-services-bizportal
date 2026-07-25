@@ -23,9 +23,9 @@ html, body{overflow-x:hidden; width:100%}
 .nav-cats button{background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 12px;border-radius:20px;font-weight:600;cursor:pointer;white-space:nowrap}
 
 /* CLIENT CATEGORIES BLACK TEXT - FIXED */
-clientView .nav-cats button{background:#fff!important;color:#000!important;border:1px solid #ccc!important;opacity:1!important;}
-clientView .nav-cats button:hover{background:var(--accent)!important;color:#fff!important;}
-clientView .nav-cats button.active{background:var(--accent)!important;color:#fff!important;border-bottom:2px solid #000!important;font-weight:700!important;}
+#clientView.nav-cats button{background:#fff!important;color:#000!important;border:1px solid #ccc!important;opacity:1!important;}
+#clientView.nav-cats button:hover{background:var(--accent)!important;color:#fff!important;}
+#clientView.nav-cats button.active{background:var(--accent)!important;color:#fff!important;border-bottom:2px solid #000!important;font-weight:700!important;}
 
 .container{max-width:100%;margin:0 auto;padding:10px}
 .banner{background:linear-gradient(135deg,#0984e3,#74b9ff);color:#fff;padding:20px;border-radius:15px;text-align:center;margin:15px 0;font-weight:800;font-size:18px}
@@ -110,6 +110,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
     <h3>📄 Edit Invoice Details</h3>
     <input type="text" id="invCustName" placeholder="Customer Name">
     <input type="tel" id="invCustPhone" placeholder="Customer Phone">
+    <input type="email" id="invCustEmail" placeholder="Customer Email"> <!-- ADDED -->
     <input type="text" id="invCustAddress" placeholder="Customer Address">
     <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="invTaxToggle"> Add 15% VAT</label>
     <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="invPaidToggle"> Mark as PAID</label>
@@ -124,6 +125,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
     <h3>Customer Details</h3>
     <input type="text" id="custName" placeholder="Your Name">
     <input type="tel" id="custPhone" placeholder="Your Phone Number">
+    <input type="email" id="custEmail" placeholder="Your Email Address"> <!-- ADDED -->
     <button class="btn" onclick="sendQuote()" style="width:100%">Send Quote Request</button>
     <button class="btn-gray" onclick="document.getElementById('customerModal').style.display='none'" style="width:100%;margin-top:8px">Cancel</button>
   </div>
@@ -428,7 +430,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="order-card">
         <b>Request #${id.slice(-6)}</b> - R${o.total} - <span style="color:${statusColor};font-weight:700">${o.status}</span><br>
         <small>${new Date(o.date).toLocaleString()}</small><br>
-        <small><b>Customer:</b> ${o.customerName || 'Guest'} | ${o.customerPhone || o.user}</small><br>
+        <small><b>Customer:</b> ${o.customerName || 'Guest'} | ${o.customerPhone || o.user} | ${o.customerEmail || ''}</small><br>
         <small>${o.items.map(i=>`${i.name} x${i.qty}`).join(', ')}</small><br>
         <div style="display:flex;gap:5px;margin-top:8px;flex-wrap:wrap">
           <button class="btn-blue" onclick="openInvoiceModal('${id}')">📄 Invoice</button>
@@ -454,6 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let o = orders[id];
     document.getElementById('invCustName').value = o.customerName || '';
     document.getElementById('invCustPhone').value = o.customerPhone || '';
+    document.getElementById('invCustEmail').value = o.customerEmail || ''; // ADDED
     document.getElementById('invCustAddress').value = o.customerAddress || '';
     document.getElementById('invoiceModal').style.display = 'flex';
   }
@@ -462,6 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let o = orders[currentInvoiceId];
     let custName = document.getElementById('invCustName').value || o.customerName || 'Guest';
     let custPhone = document.getElementById('invCustPhone').value || o.customerPhone || '';
+    let custEmail = document.getElementById('invCustEmail').value || o.customerEmail || ''; // ADDED
     let custAddress = document.getElementById('invCustAddress').value || '';
     let addTax = document.getElementById('invTaxToggle').checked;
     let isPaid = document.getElementById('invPaidToggle').checked;
@@ -475,11 +479,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // LOGO
     doc.addImage('https://files.catbox.moe/0zympr.jpeg', 'JPEG', 10, 10, 25, 25);
     
-    // COMPANY HEADER
+    // COMPANY HEADER - ADDED STANDARD BANK
     doc.setFontSize(16); doc.setFont(undefined, 'bold');
     doc.text("TWINZ COOPERATE SERVICES PTY LTD", 40, 18);
     doc.setFontSize(9); doc.setFont(undefined, 'normal');
-    doc.text("Account no: 10 26 459 443 4 | Branch code: 006145 | Reg no: 2024/444303/07", 40, 24);
+    doc.text("Standard Bank | Account no: 10 26 459 443 4 | Branch: 006145 | Reg: 2024/444303/07", 40, 24); // CHANGED
     doc.text("068 254 7352 | 069 894 9596 | twinz.cooperate.services@gmail.com", 40, 29);
     doc.text("Burgersfort, Limpopo | Nationwide Service", 40, 34);
     doc.line(10, 40, 200, 40);
@@ -491,15 +495,16 @@ document.addEventListener('DOMContentLoaded', () => {
     doc.text(`Invoice #: ${currentInvoiceId.slice(-6)}`, 150, 57);
     doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 150, 62);
 
-    // CUSTOMER DETAILS
+    // CUSTOMER DETAILS - ADDED EMAIL
     doc.setFontSize(12); doc.text("BILL TO:", 10, 50);
     doc.setFontSize(10);
     doc.text(custName, 10, 57);
     if(custPhone) doc.text(custPhone, 10, 62);
-    if(custAddress) doc.text(custAddress, 10, 67);
+    if(custEmail) doc.text(custEmail, 10, 67); // ADDED
+    if(custAddress) doc.text(custAddress, 10, 72); // MOVED
 
     // ITEMS TABLE
-    let y = 85;
+    let y = 90; // WAS 85
     doc.setFontSize(10); doc.setFont(undefined, 'bold');
     doc.text("Description", 10, y); doc.text("Qty", 120, y); doc.text("Rate", 145, y); doc.text("Amount", 175, y);
     y += 5; doc.line(10, y, 200, y); y += 7; doc.setFont(undefined, 'normal');
@@ -599,21 +604,22 @@ document.addEventListener('DOMContentLoaded', () => {
   window.sendQuote = () => {
     let name = document.getElementById('custName').value.trim();
     let phone = document.getElementById('custPhone').value.trim();
+    let email = document.getElementById('custEmail').value.trim(); // ADDED
     if(!name ||!phone) return alert('Please enter Name and Phone');
     const orderId = Date.now().toString();
-    const order = { user: isClientMode? name : currentUser.email, customerName: name, customerPhone: phone, items: cart, total: cart.reduce((a,b)=>a+b.qty*b.price,0), date: new Date().toISOString(), status: 'Pending' };
+    const order = { user: isClientMode? name : currentUser.email, customerName: name, customerPhone: phone, customerEmail: email, items: cart, total: cart.reduce((a,b)=>a+b.qty*b.price,0), date: new Date().toISOString(), status: 'Pending' }; // ADDED
     set(ref(db, 'twinz_worldtier/requests/' + orderId), order);
 
     // SMART ROUTING: Web & Apps -> 068 254 7352, Everything else -> 069 894 9596
     let hasWebApp = cart.some(i => i.category === 'Web & Apps');
     let whatsappNumber = hasWebApp? '27682547352' : '27698949596';
 
-    let msg = `GOD TIER INQUIRY\nName: ${name}\nPhone: ${phone}\n` + cart.map(i=>`${i.name} x${i.qty} - R${i.price}`).join('\n') + `\nTotal: R${order.total}`;
+    let msg = `GOD TIER INQUIRY\nName: ${name}\nPhone: ${phone}\nEmail: ${email}\n` + cart.map(i=>`${i.name} x${i.qty} - R${i.price}`).join('\n') + `\nTotal: R${order.total}`; // ADDED
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
 
     cart = []; updateCart(); renderProducts(); renderClientProducts();
     document.getElementById('customerModal').style.display='none';
-    document.getElementById('custName').value=''; document.getElementById('custPhone').value='';
+    document.getElementById('custName').value=''; document.getElementById('custPhone').value=''; document.getElementById('custEmail').value=''; // ADDED
     alert('Request sent! We will contact you shortly.')
   }
 
@@ -628,9 +634,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.downloadOrdersCSV = () => {
-    let csv = 'RequestID,Date,Customer,Phone,Total,Status,Services\n';
+    let csv = 'RequestID,Date,Customer,Phone,Email,Total,Status,Services\n'; // ADDED EMAIL
     Object.entries(orders).forEach(([id,o])=>{
-      csv += `${id},${o.date},${o.customerName||o.user},${o.customerPhone||''},${o.total},${o.status},"${o.items.map(i=>i.name+' x'+i.qty).join('; ')}"\n`
+      csv += `${id},${o.date},${o.customerName||o.user},${o.customerPhone||''},${o.customerEmail||''},${o.total},${o.status},"${o.items.map(i=>i.name+' x'+i.qty).join('; ')}"\n` // ADDED
     })
     let blob = new Blob([csv], {type: 'text/csv'});
     let url = URL.createObjectURL(blob);
