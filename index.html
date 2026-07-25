@@ -86,6 +86,8 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 .dark-mode{--bg:#1a1a1a;--card:#2d3436;--text:#fff;--border:#444}
 .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:999}
 .modal-content{background:var(--card);padding:20px;border-radius:15px;width:90%;max-width:400px}
+.demo-link-btn{background:var(--purple);color:#fff;border:none;width:100%;padding:8px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:5px}
+.demo-link-btn:hover{background:#5b4bc7}
 @media(max-width:600px){
 .grid{grid-template-columns:1fr!important}
 .stats{grid-template-columns:repeat(2,1fr)}
@@ -102,6 +104,22 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
   📲 <b>Install Twinz App</b> - Get services faster
   <button class="btn" style="padding:5px 10px;margin-left:10px;background:#fff;color:var(--blue)" id="installBtn">Install</button>
   <button onclick="document.getElementById('installBanner').style.display='none'" style="background:none;border:none;color:#fff;font-size:18px;float:right">x</button>
+</div>
+
+<!-- QUICK INVOICE MODAL -->
+<div id="quickInvoiceModal" class="modal">
+  <div class="modal-content">
+    <h3>🧾 Quick Invoice - Walk In</h3>
+    <input type="text" id="quickInvName" placeholder="Customer Name">
+    <input type="tel" id="quickInvPhone" placeholder="Customer Phone">
+    <input type="text" id="quickInvItem" placeholder="Item/Service Name">
+    <input type="number" id="quickInvQty" placeholder="Qty" value="1">
+    <input type="number" id="quickInvPrice" placeholder="Price R">
+    <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="quickInvTax"> Add 15% VAT</label>
+    <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="quickInvPaid" checked> Mark as PAID</label>
+    <button class="btn" onclick="downloadQuickInvoice()" style="width:100%">Download Invoice PDF</button>
+    <button class="btn-gray" onclick="document.getElementById('quickInvoiceModal').style.display='none'" style="width:100%;margin-top:8px">Cancel</button>
+  </div>
 </div>
 
 <!-- INVOICE EDIT MODAL -->
@@ -215,6 +233,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
           <div class="stat-card"><h4 id="statStock">0</h4><small>Total Stock</small></div>
           <div class="stat-card"><h4 id="statOrders">0</h4><small>Pending Requests</small></div>
         </div>
+        <button class="btn-blue" onclick="document.getElementById('quickInvoiceModal').style.display='flex'" style="margin-bottom:15px">🧾 Quick Invoice</button> <!-- ADDED -->
         <div class="admin" style="background:#e3f2fd;border-left:4px solid var(--blue);margin-top:15px">
           <h4>📲 Share Client Shop Link</h4>
           <p style="font-size:12px;color:var(--muted)">Send this link to clients so they can browse + request quotes</p>
@@ -233,6 +252,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
         <input type="text" id="pName" placeholder="Service Name">
         <select id="pCat"><option>Diagnostics</option><option>Web & Apps</option><option>WiFi</option><option>Parts</option><option>Groceries</option></select>
         <input type="text" id="pImg" placeholder="Image URL 1, Image URL 2, Image URL 3, Image URL 4, Image URL 5">
+        <input type="url" id="pLink" placeholder="Demo/Portfolio Link - Only for Web & Apps"> <!-- ADDED -->
         <input type="number" id="pPrice" placeholder="Price R">
         <input type="number" id="pOldPrice" placeholder="Old Price R">
         <input type="number" id="pStock" placeholder="Stock/Availability">
@@ -320,7 +340,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const cartTotal = document.getElementById('cartTotal');
   const clientCartTotal = document.getElementById('clientCartTotal');
   const pName = document.getElementById('pName'); const pCat = document.getElementById('pCat');
-  const pImg = document.getElementById('pImg'); const pPrice = document.getElementById('pPrice');
+  const pImg = document.getElementById('pImg'); const pLink = document.getElementById('pLink'); // ADDED
+  const pPrice = document.getElementById('pPrice');
   const pOldPrice = document.getElementById('pOldPrice'); const pStock = document.getElementById('pStock');
   const pDesc = document.getElementById('pDesc'); const saveBtn = document.getElementById('saveBtn');
   const cancelBtn = document.getElementById('cancelBtn'); const formTitle = document.getElementById('formTitle');
@@ -368,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getImages(p){ if(!p.img) return ['https://files.catbox.moe/0zympr.jpeg']; return p.img.split(',').map(s=>s.trim()).filter(s=>s); }
-  window.switchImage = (cardId, imgUrl, thumb) => { document.getElementById('main_'+cardId).src = imgUrl; document.querySelectorAll(`#card_${cardId}.card-imgs img`).forEach(i=>i.classList.remove('active')); thumb.classList.add('active'); }
+  window.switchImage = (cardId, imgUrl, thumb) => { document.getElementById('main_'+cardId).src = imgUrl; document.querySelectorAll(`#card_${cardId} .card-imgs img`).forEach(i=>i.classList.remove('active')); thumb.classList.add('active'); }
 
   function getCartControls(id){
     let item = cart.find(x=>x.id==id);
@@ -383,8 +404,9 @@ document.addEventListener('DOMContentLoaded', () => {
       let imgs = getImages(p); let mainImg = imgs[0];
       let extraImgs = imgs.map((u,i)=>`<img src="${u}" class="${i==0?'active':''}" onclick="switchImage('${id}','${u}',this)" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
-      let cartBtn = p.stock > 0? getCartControls(id) : `<button class="btn-oos" disabled>Out of Stock</button>`;
-      productGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><div class="stock ${p.stock<10?'stock-low':''}">Stock: ${p.stock}</div>${cartBtn}</div>`;
+      let cartBtn = p.stock >0? getCartControls(id) : `<button class="btn-oos" disabled>Out of Stock</button>`;
+      let demoBtn = (p.category === 'Web & Apps' && p.link)? `<button class="demo-link-btn" onclick="window.open('${p.link}', '_blank')">🌐 View Demo</button>` : '';
+      productGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><div class="stock ${p.stock<10?'stock-low':''}">Stock: ${p.stock}</div>${cartBtn}${demoBtn}</div>`;
     })
   }
 
@@ -397,7 +419,8 @@ document.addEventListener('DOMContentLoaded', () => {
       let extraImgs = imgs.map((u,i)=>`<img src="${u}" class="${i==0?'active':''}" onclick="switchImage('${id}','${u}',this)" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
       let cartBtn = p.stock > 0? getCartControls(id) : `<button class="btn-oos" disabled>Out of Stock</button>`;
-      clientProductGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div>${cartBtn}</div>`;
+      let demoBtn = (p.category === 'Web & Apps' && p.link)? `<button class="demo-link-btn" onclick="window.open('${p.link}', '_blank')">🌐 View Demo</button>` : '';
+      clientProductGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://files.catbox.moe/0zympr.jpeg'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div>${cartBtn}${demoBtn}</div>`;
     })
   }
 
@@ -415,7 +438,8 @@ document.addEventListener('DOMContentLoaded', () => {
     productList.innerHTML = '';
     let searchTerm = adminSearch.value.toLowerCase();
     Object.entries(products).filter(([id,p])=>{ return p.name.toLowerCase().includes(searchTerm) || p.category.toLowerCase().includes(searchTerm) }).forEach(([id,p])=>{
-      productList.innerHTML += `<div style="padding:10px;border:1px solid var(--border);border-radius:8px;margin:5px 0;background:#fafafa"><b>${p.name}</b> - R${p.price} - Stock: ${p.stock} - <small>${p.category}</small><div style="float:right;gap:5px;display:flex"><button onclick="editProduct('${id}')" class="btn-blue" style="padding:5px 10px;font-size:12px">Edit</button>${currentUser.role== 'ceo'? `<button onclick="deleteProduct('${id}')" class="btn-danger" style="padding:5px 10px;font-size:12px">Del</button>` : ''}</div></div>`;
+      let linkInfo = p.link? ` <span style="color:var(--purple)">🔗</span>` : '';
+      productList.innerHTML += `<div style="padding:10px;border:1px solid var(--border);border-radius:8px;margin:5px 0;background:#fafafa"><b>${p.name}</b>${linkInfo} - R${p.price} - Stock: ${p.stock} - <small>${p.category}</small><div style="float:right;gap:5px;display:flex"><button onclick="editProduct('${id}')" class="btn-blue" style="padding:5px 10px;font-size:12px">Edit</button>${currentUser.role== 'ceo'? `<button onclick="deleteProduct('${id}')" class="btn-danger" style="padding:5px 10px;font-size:12px">Del</button>` : ''}</div></div>`;
     })
     if(productList.innerHTML === '') productList.innerHTML = '<p style="text-align:center;color:var(--muted)">No services found</p>'
   }
@@ -456,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let o = orders[id];
     document.getElementById('invCustName').value = o.customerName || '';
     document.getElementById('invCustPhone').value = o.customerPhone || '';
-    document.getElementById('invCustEmail').value = o.customerEmail || ''; // ADDED
+    document.getElementById('invCustEmail').value = o.customerEmail || '';
     document.getElementById('invCustAddress').value = o.customerAddress || '';
     document.getElementById('invoiceModal').style.display = 'flex';
   }
@@ -465,50 +489,39 @@ document.addEventListener('DOMContentLoaded', () => {
     let o = orders[currentInvoiceId];
     let custName = document.getElementById('invCustName').value || o.customerName || 'Guest';
     let custPhone = document.getElementById('invCustPhone').value || o.customerPhone || '';
-    let custEmail = document.getElementById('invCustEmail').value || o.customerEmail || ''; // ADDED
+    let custEmail = document.getElementById('invCustEmail').value || o.customerEmail || '';
     let custAddress = document.getElementById('invCustAddress').value || '';
     let addTax = document.getElementById('invTaxToggle').checked;
     let isPaid = document.getElementById('invPaidToggle').checked;
-    
+
     let subtotal = o.total;
-    let tax = addTax ? subtotal * 0.15 : 0;
+    let tax = addTax? subtotal * 0.15 : 0;
     let grandTotal = subtotal + tax;
 
     const doc = new jsPDF();
-    
-    // LOGO
     doc.addImage('https://files.catbox.moe/0zympr.jpeg', 'JPEG', 10, 10, 25, 25);
-    
-    // COMPANY HEADER - ADDED STANDARD BANK
     doc.setFontSize(16); doc.setFont(undefined, 'bold');
     doc.text("TWINZ COOPERATE SERVICES PTY LTD", 40, 18);
     doc.setFontSize(9); doc.setFont(undefined, 'normal');
-    doc.text("Standard Bank | Account no: 10 26 459 443 4 | Branch: 006145 | Reg: 2024/444303/07", 40, 24); // CHANGED
+    doc.text("Standard Bank | Account no: 10 26 459 443 4 | Branch: 006145 | Reg: 2024/444303/07", 40, 24);
     doc.text("068 254 7352 | 069 894 9596 | twinz.cooperate.services@gmail.com", 40, 29);
     doc.text("Burgersfort, Limpopo | Nationwide Service", 40, 34);
     doc.line(10, 40, 200, 40);
-
-    // INVOICE TITLE
     doc.setFontSize(18); doc.setFont(undefined, 'bold');
     doc.text("TAX INVOICE", 150, 50);
     doc.setFontSize(10);
     doc.text(`Invoice #: ${currentInvoiceId.slice(-6)}`, 150, 57);
     doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 150, 62);
-
-    // CUSTOMER DETAILS - ADDED EMAIL
     doc.setFontSize(12); doc.text("BILL TO:", 10, 50);
     doc.setFontSize(10);
     doc.text(custName, 10, 57);
     if(custPhone) doc.text(custPhone, 10, 62);
-    if(custEmail) doc.text(custEmail, 10, 67); // ADDED
-    if(custAddress) doc.text(custAddress, 10, 72); // MOVED
-
-    // ITEMS TABLE
-    let y = 90; // WAS 85
+    if(custEmail) doc.text(custEmail, 10, 67);
+    if(custAddress) doc.text(custAddress, 10, 72);
+    let y = 90;
     doc.setFontSize(10); doc.setFont(undefined, 'bold');
     doc.text("Description", 10, y); doc.text("Qty", 120, y); doc.text("Rate", 145, y); doc.text("Amount", 175, y);
     y += 5; doc.line(10, y, 200, y); y += 7; doc.setFont(undefined, 'normal');
-    
     o.items.forEach(i=>{
       doc.text(i.name.substring(0,35), 10, y);
       doc.text(i.qty.toString(), 120, y);
@@ -516,32 +529,73 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.text(`R${i.price*i.qty}`, 175, y);
       y += 7;
     });
-
-    // TOTALS
     y += 5; doc.line(120, y, 200, y); y += 7;
     doc.text("Subtotal:", 145, y); doc.text(`R${subtotal.toFixed(2)}`, 175, y); y += 7;
     if(addTax){ doc.text("VAT 15%:", 145, y); doc.text(`R${tax.toFixed(2)}`, 175, y); y += 7; }
     doc.setFont(undefined, 'bold'); doc.setFontSize(12);
     doc.text("TOTAL:", 145, y); doc.text(`R${grandTotal.toFixed(2)}`, 175, y);
-
-    // PAID STAMP
     if(isPaid){
       doc.setFontSize(30); doc.setTextColor(0, 184, 148);
       doc.text("PAID", 80, 150, {angle: -30});
       doc.setTextColor(0,0,0);
     }
-
-    // FOOTER
     doc.setFontSize(8); doc.setFont(undefined, 'normal');
     doc.text("Thank you for choosing Twinz Cooperate Services - GOD TIER TECH", 105, 280, {align: "center"});
-    
     doc.save(`Twinz-Invoice-${currentInvoiceId.slice(-6)}.pdf`);
     document.getElementById('invoiceModal').style.display='none';
   }
 
-  window.editProduct = (id) => { if(currentUser.role == 'sales' || currentUser.role == 'reception') return alert('No permission'); let p = products[id]; editingId = id; pName.value = p.name; pCat.value = p.category; pImg.value = p.img; pPrice.value = p.price; pOldPrice.value = p.oldPrice; pStock.value = p.stock; pDesc.value = p.desc; formTitle.innerText = "✏️ Editing: " + p.name; saveBtn.innerText = "Update Service"; saveBtn.style.background = "var(--blue)"; cancelBtn.style.display = "block"; document.getElementById('tab-products').scrollIntoView(); }
-  window.cancelEdit = () => { editingId = null; [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); formTitle.innerText = "➕ Add Service"; saveBtn.innerText = "Save Service"; saveBtn.style.background = "var(--accent)"; cancelBtn.style.display = "none"; }
-  window.saveProduct = () => { if(currentUser.role == 'sales' || currentUser.role == 'reception') return alert('No permission'); let productData = { name: pName.value.trim(), category: pCat.value, img: pImg.value.trim() || 'https://files.catbox.moe/0zympr.jpeg', price: Number(pPrice.value) || 0, oldPrice: Number(pOldPrice.value) || 0, stock: Number(pStock.value) || 0, desc: pDesc.value.trim() }; if(!productData.name){ return alert('Please enter service name') } if(editingId){ set(ref(db, 'twinz_worldtier/categories/' + editingId), productData).then(()=>{ alert('Service Updated!'); cancelEdit(); }).catch(err=> alert('Error: ' + err.message)); } else { let id = Date.now().toString(); set(ref(db, 'twinz_worldtier/categories/' + id), productData).then(()=>{ [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); }).catch(err=> alert('Error: ' + err.message)); } }
+  // QUICK INVOICE
+  window.downloadQuickInvoice = () => {
+    let name = document.getElementById('quickInvName').value;
+    let phone = document.getElementById('quickInvPhone').value;
+    let item = document.getElementById('quickInvItem').value;
+    let qty = Number(document.getElementById('quickInvQty').value) || 1;
+    let price = Number(document.getElementById('quickInvPrice').value) || 0;
+    let addTax = document.getElementById('quickInvTax').checked;
+    let isPaid = document.getElementById('quickInvPaid').checked;
+
+    if(!name ||!item ||!price) return alert('Please fill Name, Item and Price');
+
+    let subtotal = qty * price;
+    let tax = addTax? subtotal * 0.15 : 0;
+    let grandTotal = subtotal + tax;
+    let invId = Date.now().toString().slice(-6);
+
+    const doc = new jsPDF();
+    doc.addImage('https://files.catbox.moe/0zympr.jpeg', 'JPEG', 10, 10, 25, 25);
+    doc.setFontSize(16); doc.setFont(undefined, 'bold');
+    doc.text("TWINZ COOPERATE SERVICES PTY LTD", 40, 18);
+    doc.setFontSize(9);
+    doc.text("Standard Bank | Account no: 10 26 459 443 4 | Branch: 006145 | Reg: 2024/444303/07", 40, 24);
+    doc.text("068 254 7352 | 069 894 9596 | twinz.cooperate.services@gmail.com", 40, 29);
+    doc.line(10, 40, 200, 40);
+    doc.setFontSize(18); doc.setFont(undefined, 'bold');
+    doc.text("TAX INVOICE", 150, 50);
+    doc.setFontSize(10);
+    doc.text(`Invoice #: ${invId}`, 150, 57);
+    doc.text(`Date: ${new Date().toLocaleDateString()}`, 150, 62);
+    doc.setFontSize(12); doc.text("BILL TO:", 10, 50);
+    doc.setFontSize(10); doc.text(name, 10, 57); if(phone) doc.text(phone, 10, 62);
+    let y = 90;
+    doc.setFont(undefined, 'bold');
+    doc.text("Description", 10, y); doc.text("Qty", 120, y); doc.text("Rate", 145, y); doc.text("Amount", 175, y);
+    y += 5; doc.line(10, y, 200, y); y += 7; doc.setFont(undefined, 'normal');
+    doc.text(item.substring(0,35), 10, y); doc.text(qty.toString(), 120, y); doc.text(`R${price}`, 145, y); doc.text(`R${subtotal}`, 175, y); y+=7;
+    y += 5; doc.line(120, y, 200, y); y += 7;
+    doc.text("Subtotal:", 145, y); doc.text(`R${subtotal.toFixed(2)}`, 175, y); y += 7;
+    if(addTax){ doc.text("VAT 15%:", 145, y); doc.text(`R${tax.toFixed(2)}`, 175, y); y += 7; }
+    doc.setFont(undefined, 'bold'); doc.setFontSize(12);
+    doc.text("TOTAL:", 145, y); doc.text(`R${grandTotal.toFixed(2)}`, 175, y);
+    if(isPaid){ doc.setFontSize(30); doc.setTextColor(0, 184, 148); doc.text("PAID", 80, 150, {angle: -30}); doc.setTextColor(0,0,0); }
+    doc.text("Thank you for choosing Twinz Cooperate Services - GOD TIER TECH", 105, 280, {align: "center"});
+    doc.save(`Twinz-QuickInvoice-${invId}.pdf`);
+    document.getElementById('quickInvoiceModal').style.display='none';
+  }
+
+  window.editProduct = (id) => { if(currentUser.role == 'sales' || currentUser.role == 'reception') return alert('No permission'); let p = products[id]; editingId = id; pName.value = p.name; pCat.value = p.category; pImg.value = p.img; pLink.value = p.link || ''; pPrice.value = p.price; pOldPrice.value = p.oldPrice; pStock.value = p.stock; pDesc.value = p.desc; formTitle.innerText = "✏️ Editing: " + p.name; saveBtn.innerText = "Update Service"; saveBtn.style.background = "var(--blue)"; cancelBtn.style.display = "block"; document.getElementById('tab-products').scrollIntoView(); }
+  window.cancelEdit = () => { editingId = null; [pName,pImg,pLink,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); formTitle.innerText = "➕ Add Service"; saveBtn.innerText = "Save Service"; saveBtn.style.background = "var(--accent)"; cancelBtn.style.display = "none"; }
+  window.saveProduct = () => { if(currentUser.role == 'sales' || currentUser.role == 'reception') return alert('No permission'); let productData = { name: pName.value.trim(), category: pCat.value, img: pImg.value.trim() || 'https://files.catbox.moe/0zympr.jpeg', link: pLink.value.trim(), price: Number(pPrice.value) || 0, oldPrice: Number(pOldPrice.value) || 0, stock: Number(pStock.value) || 0, desc: pDesc.value.trim() }; if(!productData.name){ return alert('Please enter service name') } if(editingId){ set(ref(db, 'twinz_worldtier/categories/' + editingId), productData).then(()=>{ alert('Service Updated!'); cancelEdit(); }).catch(err=> alert('Error: ' + err.message)); } else { let id = Date.now().toString(); set(ref(db, 'twinz_worldtier/categories/' + id), productData).then(()=>{ [pName,pImg,pLink,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); }).catch(err=> alert('Error: ' + err.message)); } }
 
   function buildStockList(){ stockList.innerHTML = ''; Object.entries(products).forEach(([id,p])=>{ stockList.innerHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border);border-radius:8px;margin:5px 0"><div><b>${p.name}</b><br><small class="${p.stock<10?'stock-low':''}">Stock: ${p.stock}</small></div><div><input type="number" id="stock_${id}" value="0" style="width:80px"><button class="btn-green" onclick="updateStock('${id}')">+ Add</button></div></div>`; }) }
 
@@ -550,8 +604,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const defaultData = [
       {name:"All Brand Diagnostics", category:"Diagnostics", price:450, oldPrice:600, stock:20, img:"https://files.catbox.moe/0zympr.jpeg", desc:"JLR,VW,AUDI,BENZ,BMW,TOYOTA,ISUZU,FORD"},
       {name:"Wireless Internet", category:"WiFi", price:350, oldPrice:500, stock:50, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Fibre,LTE,Installation,24/7 Support"},
-      {name:"Web Development", category:"Web & Apps", price:3000, oldPrice:5000, stock:10, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Website,Landing Page,E-commerce,SEO"},
-      {name:"App Development", category:"Web & Apps", price:5000, oldPrice:8000, stock:8, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Android,iOS,React,Flutter,Firebase"},
+      {name:"Web Development", category:"Web & Apps", price:3000, oldPrice:5000, stock:10, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Website,Landing Page,E-commerce,SEO", link:"https://example.com"},
+      {name:"App Development", category:"Web & Apps", price:5000, oldPrice:8000, stock:8, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Android,iOS,React,Flutter,Firebase", link:"https://example.com"},
       {name:"Genuine Vehicle Parts", category:"Parts", price:0, oldPrice:0, stock:100, img:"https://files.catbox.moe/0zympr.jpeg", desc:"BMW,BENZ,AUDI,VW,JAGUAR,LAND ROVER"},
       {name:"Workshop Partnership", category:"Parts", price:0, oldPrice:0, stock:999, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Nationwide SA,Bulk Pricing,Fleet"},
       {name:"Potatoes 10kg", category:"Groceries", price:120, oldPrice:150, stock:80, img:"https://files.catbox.moe/0zympr.jpeg", desc:"Fresh Farm Potatoes"}
@@ -571,7 +625,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('stock_'+id).value = 0;
   }
 
-  // QTY CONTROLS
   window.addToCart = (id) => {
     let p = products[id]; let item = cart.find(x=>x.id==id);
     if(item){ item.qty++ } else { cart.push({id,name:p.name,price:p.price,qty:1,category:p.category}) }
@@ -595,7 +648,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if(clientCartTotal) clientCartTotal.innerText = total;
   }
 
-  // CUSTOMER MODAL + SEND QUOTE
   window.openCustomerModal = () => {
     if(cart.length === 0) return alert('Cart empty');
     document.getElementById('customerModal').style.display = 'flex';
@@ -604,22 +656,18 @@ document.addEventListener('DOMContentLoaded', () => {
   window.sendQuote = () => {
     let name = document.getElementById('custName').value.trim();
     let phone = document.getElementById('custPhone').value.trim();
-    let email = document.getElementById('custEmail').value.trim(); // ADDED
+    let email = document.getElementById('custEmail').value.trim();
     if(!name ||!phone) return alert('Please enter Name and Phone');
     const orderId = Date.now().toString();
-    const order = { user: isClientMode? name : currentUser.email, customerName: name, customerPhone: phone, customerEmail: email, items: cart, total: cart.reduce((a,b)=>a+b.qty*b.price,0), date: new Date().toISOString(), status: 'Pending' }; // ADDED
+    const order = { user: isClientMode? name : currentUser.email, customerName: name, customerPhone: phone, customerEmail: email, items: cart, total: cart.reduce((a,b)=>a+b.qty*b.price,0), date: new Date().toISOString(), status: 'Pending' };
     set(ref(db, 'twinz_worldtier/requests/' + orderId), order);
-
-    // SMART ROUTING: Web & Apps -> 068 254 7352, Everything else -> 069 894 9596
     let hasWebApp = cart.some(i => i.category === 'Web & Apps');
     let whatsappNumber = hasWebApp? '27682547352' : '27698949596';
-
-    let msg = `GOD TIER INQUIRY\nName: ${name}\nPhone: ${phone}\nEmail: ${email}\n` + cart.map(i=>`${i.name} x${i.qty} - R${i.price}`).join('\n') + `\nTotal: R${order.total}`; // ADDED
+    let msg = `GOD TIER INQUIRY\nName: ${name}\nPhone: ${phone}\nEmail: ${email}\n` + cart.map(i=>`${i.name} x${i.qty} - R${i.price}`).join('\n') + `\nTotal: R${order.total}`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`);
-
     cart = []; updateCart(); renderProducts(); renderClientProducts();
     document.getElementById('customerModal').style.display='none';
-    document.getElementById('custName').value=''; document.getElementById('custPhone').value=''; document.getElementById('custEmail').value=''; // ADDED
+    document.getElementById('custName').value=''; document.getElementById('custPhone').value=''; document.getElementById('custEmail').value='';
     alert('Request sent! We will contact you shortly.')
   }
 
@@ -634,9 +682,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.downloadOrdersCSV = () => {
-    let csv = 'RequestID,Date,Customer,Phone,Email,Total,Status,Services\n'; // ADDED EMAIL
+    let csv = 'RequestID,Date,Customer,Phone,Email,Total,Status,Services\n';
     Object.entries(orders).forEach(([id,o])=>{
-      csv += `${id},${o.date},${o.customerName||o.user},${o.customerPhone||''},${o.customerEmail||''},${o.total},${o.status},"${o.items.map(i=>i.name+' x'+i.qty).join('; ')}"\n` // ADDED
+      csv += `${id},${o.date},${o.customerName||o.user},${o.customerPhone||''},${o.customerEmail||''},${o.total},${o.status},"${o.items.map(i=>i.name+' x'+i.qty).join('; ')}"\n`
     })
     let blob = new Blob([csv], {type: 'text/csv'});
     let url = URL.createObjectURL(blob);
@@ -646,7 +694,6 @@ document.addEventListener('DOMContentLoaded', () => {
     a.click();
   }
 
-  // CLIENT LINK FUNCTIONS FOR ADMIN
   function setClientLink(){
     let link = window.location.origin + window.location.pathname + '?client=1';
     if(document.getElementById('clientShareLink'))
@@ -666,14 +713,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
   }
 
-  // DARK MODE TOGGLE
   window.toggleDark = () => {
     document.body.classList.toggle('dark-mode');
     localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
   }
   if(localStorage.getItem('darkMode')==='true') document.body.classList.add('dark-mode');
 
-  // PWA Install
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
