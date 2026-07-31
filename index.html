@@ -512,6 +512,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('invoiceModal').style.display = 'flex';
   }
 
+  function loadImageToPDF(doc, url, x, y, w, h, callback){
+    const img = new Image(); img.crossOrigin = "anonymous";
+    img.onload = () => { doc.addImage(img, 'PNG', x, y, w, h); callback(); }
+    img.src = url;
+  }
+
   window.downloadFinalInvoice = () => {
     let o = orders[currentInvoiceId];
     let custName = document.getElementById('invCustName').value || o.customerName || 'Guest';
@@ -521,23 +527,49 @@ document.addEventListener('DOMContentLoaded', () => {
     let subtotal = o.total; let tax = addTax? subtotal * 0.15 : 0; let grandTotal = subtotal + tax;
 
     const doc = new jsPDF();
-    doc.setFontSize(16); doc.setFont(undefined, 'bold'); doc.text(COMPANY_NAME, 10, 15);
-    doc.setFontSize(9); doc.text(`Reg: ${COMPANY_REG}`, 10, 22);
-    doc.text(`${COMPANY_ADDRESS} | ${COMPANY_PO}`, 10, 27);
-    doc.text(`Bank: ${COMPANY_BANK} | Acc: ${COMPANY_ACC} | Branch: ${COMPANY_BRANCH}`, 10, 32);
-    doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2} | Email: ${COMPANY_EMAIL}`, 10, 37);
-    doc.line(10, 41, 200, 41);
-    doc.setFontSize(11); doc.setFont(undefined, 'normal');
-    doc.text(`Name: ${custName}`, 10, 48);
-    doc.text(`Phone: ${custPhone}`, 10, 54);
-    doc.text(`Email: ${custEmail}`, 10, 60);
-    doc.text(`The Order:`, 10, 66);
-    let y = 72;
-    o.items.forEach(i=>{ doc.text(`- ${i.name} x${i.qty} = R${i.price*i.qty}`, 12, y); y+=7; });
-    doc.text(`Total: R${grandTotal.toFixed(2)}`, 10, y+3);
-    y+=12; doc.text(`Send proof to WhatsApp: ${COMPANY_PHONE1}`, 10, y);
+    loadImageToPDF(doc, 'https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png', 10, 10, 25, 25, () => {
+      doc.setFontSize(14); doc.setFont(undefined, 'bold'); doc.text(COMPANY_NAME, 40, 18);
+      doc.setFontSize(8); doc.setFont(undefined, 'normal');
+      doc.text(`Reg: ${COMPANY_REG}`, 40, 23);
+      doc.text(`${COMPANY_ADDRESS} | ${COMPANY_PO}`, 40, 27);
+      doc.text(`Bank: ${COMPANY_BANK} | Acc: ${COMPANY_ACC}`, 40, 31);
+      doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 40, 35);
+      doc.text(`Email: ${COMPANY_EMAIL}`, 40, 39);
 
-    doc.save(`TWINZ-Invoice-${currentInvoiceId.slice(-6)}.pdf`); document.getElementById('invoiceModal').style.display='none';
+      doc.setFontSize(16); doc.setFont(undefined, 'bold'); doc.text('TAX INVOICE', 150, 20);
+      doc.setFontSize(9); doc.text(`Invoice #: ${currentInvoiceId.slice(-6)}`, 150, 26);
+      doc.text(`Date: ${new Date().toISOString().split('T')[0]}`, 150, 30);
+
+      doc.line(10, 45, 200, 45);
+      doc.setFontSize(10); doc.text('BILL TO:', 10, 52);
+      doc.setFont(undefined, 'normal');
+      doc.text(custName, 10, 57);
+      doc.text(custPhone, 10, 61);
+      doc.text(custEmail, 10, 65);
+
+      let y = 75;
+      doc.setFont(undefined, 'bold');
+      doc.text('Description', 10, y); doc.text('Qty', 100, y); doc.text('Rate', 130, y); doc.text('Amount', 170, y);
+      doc.line(10, y+2, 200, y+2); y+=7;
+      doc.setFont(undefined, 'normal');
+      o.items.forEach(i=>{
+        doc.text(i.name, 10, y);
+        doc.text(i.qty.toString(), 100, y);
+        doc.text(`R${i.price}`, 130, y);
+        doc.text(`R${i.price*i.qty}`, 170, y);
+        y+=6;
+      });
+      y+=3; doc.line(130, y, 200, y); y+=6;
+      doc.text(`Subtotal: R${subtotal.toFixed(2)}`, 130, y); y+=6;
+      if(addTax) { doc.text(`VAT 15%: R${tax.toFixed(2)}`, 130, y); y+=6; }
+      doc.setFont(undefined, 'bold'); doc.text(`TOTAL: R${grandTotal.toFixed(2)}`, 130, y);
+      y+=15; doc.setFontSize(8); doc.setFont(undefined, 'italic');
+      doc.text(`Send proof to WhatsApp: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 10, y);
+      doc.text('Thank you for choosing TWINZ COOPERATE SERVICES', 105, 285, {align:'center'});
+
+      doc.save(`TWINZ-Invoice-${currentInvoiceId.slice(-6)}.pdf`);
+      document.getElementById('invoiceModal').style.display='none';
+    });
   }
 
   window.downloadQuickInvoice = () => {
@@ -558,22 +590,21 @@ document.addEventListener('DOMContentLoaded', () => {
     let invId = Date.now().toString().slice(-6);
 
     const doc = new jsPDF();
-    doc.setFontSize(16); doc.setFont(undefined, 'bold'); doc.text(COMPANY_NAME, 10, 15);
-    doc.setFontSize(9); doc.text(`Reg: ${COMPANY_REG}`, 10, 22);
-    doc.text(`${COMPANY_ADDRESS} | ${COMPANY_PO}`, 10, 27);
-    doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 10, 32);
-    doc.setFontSize(11); doc.setFont(undefined, 'normal');
-    doc.text(`Name: ${name}`, 10, 40);
-    doc.text(`Phone: ${phone}`, 10, 46);
-    doc.text(`Email: ${email}`, 10, 52);
-    doc.text(`The Order:`, 10, 58);
-    doc.text(`- ${item} x${qty} = R${subtotal}`, 12, 64);
-    doc.text(`Total: R${grandTotal.toFixed(2)}`, 10, 70);
-    doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC}`, 10, 76);
-
-    doc.save(`TWINZ-QuickInvoice-${invId}.pdf`);
-    document.getElementById('quickInvoiceModal').style.display='none';
-    alert('✅ Walk-In Invoice saved!')
+    loadImageToPDF(doc, 'https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png', 10, 10, 25, 25, () => {
+      doc.setFontSize(14); doc.setFont(undefined, 'bold'); doc.text(COMPANY_NAME, 40, 18);
+      doc.setFontSize(8); doc.text(`Reg: ${COMPANY_REG}`, 40, 23);
+      doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 40, 27);
+      doc.setFontSize(16); doc.text('TAX INVOICE', 150, 20);
+      doc.setFontSize(10); doc.setFont(undefined, 'normal');
+      doc.text(`Name: ${name}`, 10, 50);
+      doc.text(`Phone: ${phone}`, 10, 55);
+      doc.text(`Email: ${email}`, 10, 60);
+      doc.text(`- ${item} x${qty} = R${subtotal}`, 10, 70);
+      doc.text(`Total: R${grandTotal.toFixed(2)}`, 10, 80);
+      doc.save(`TWINZ-QuickInvoice-${invId}.pdf`);
+      document.getElementById('quickInvoiceModal').style.display='none';
+      alert('✅ Walk-In Invoice saved!')
+    });
   }
 
   function basicVINDecode(vin){
@@ -584,9 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let yearChar = vin[9];
     let year = 2010 + "ABCDEFGHJKLMNPRSTUVWXYZ123456789".indexOf(yearChar);
     return {
-      wmi: wmi,
-      vds: vds,
-      vis: vis,
+      wmi: wmi, vds: vds, vis: vis,
       year: year > 2000? year : "N/A",
       country: wmi[0] == '1' || wmi[0] == '4' || wmi[0] == '5'? 'USA' : wmi[0] == 'J'? 'Japan' : wmi[0] == 'W'? 'Germany' : 'Other'
     }
@@ -597,26 +626,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let resultDiv = document.getElementById('vinResult');
     if(vin.length!== 17){ resultDiv.innerHTML = '❌ VIN must be 17 characters'; resultDiv.style.display='block'; return; }
     let data = basicVINDecode(vin);
-    if(data){
-      resultDiv.innerHTML = `<b>VIN:</b> ${vin}<br><b>Country:</b> ${data.country}<br><b>Year:</b> ${data.year}<br><b>WMI:</b> ${data.wmi}<br><b>VDS:</b> ${data.vds}<br><b>VIS:</b> ${data.vis}`;
-    } else {
-      resultDiv.innerHTML = '❌ Invalid VIN';
-    }
+    resultDiv.innerHTML = data? `<b>VIN:</b> ${vin}<br><b>Country:</b> ${data.country}<br><b>Year:</b> ${data.year}` : '❌ Invalid VIN';
     resultDiv.style.display='block';
   }
 
-  window.adminDecodeVIN = () => {
-    let vin = document.getElementById('adminVinInput').value.toUpperCase().trim();
-    let resultDiv = document.getElementById('adminVinResult');
-    if(vin.length!== 17){ resultDiv.innerHTML = '❌ VIN must be 17 characters'; resultDiv.style.display='block'; return; }
-    let data = basicVINDecode(vin);
-    if(data){
-      resultDiv.innerHTML = `<b>VIN:</b> ${vin}<br><b>Country:</b> ${data.country}<br><b>Year:</b> ${data.year}<br><b>WMI:</b> ${data.wmi}<br><b>VDS:</b> ${data.vds}<br><b>VIS:</b> ${data.vis}`;
-    } else {
-      resultDiv.innerHTML = '❌ Invalid VIN';
-    }
-    resultDiv.style.display='block';
-  }
+  window.adminDecodeVIN = window.decodeVIN;
 
   window.editProduct = (id) => { if(currentUser.role == 'reception' || currentUser.role == 'sales') return alert('No permission'); let p = products[id]; editingId = id; pName.value = p.name; pCat.value = p.category; pImg.value = p.img; pPortfolio1.value = p.portfolio1 || ''; pPortfolio2.value = p.portfolio2 || ''; pPrice.value = p.price; pOldPrice.value = p.oldPrice; pStock.value = p.stock; pDesc.value = p.desc; formTitle.innerText = "✏️ Editing: " + p.name; saveBtn.innerText = "Update Service"; saveBtn.style.background = "var(--blue)"; cancelBtn.style.display = "block"; document.getElementById('tab-products').scrollIntoView(); }
   window.cancelEdit = () => { editingId = null; [pName,pImg,pPortfolio1,pPortfolio2,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); formTitle.innerText = "➕ Add Service"; saveBtn.innerText = "Save Service"; saveBtn.style.background = "var(--accent)"; cancelBtn.style.display = "none"; }
@@ -627,18 +641,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.seedDatabase = () => {
     if(currentUser.role!= 'ceo' && currentUser.role!= 'manager') return alert('No permission');
     const defaultData = [
-      {name:"Business Registration", category:"Admin", price:1200, stock:100, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"CIPC, SARS, UIF", portfolio1:"", portfolio2:""},
-      {name:"Consulting Session", category:"Consulting", price:850, stock:50, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"1 Hour Business Consulting", portfolio1:"", portfolio2:""},
-      {name:"Project Proposal", category:"Projects", price:2500, stock:30, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Full proposal writing", portfolio1:"", portfolio2:""},
-      {name:"Tender Document", category:"Admin", price:1800, stock:40, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Tender submission pack", portfolio1:"", portfolio2:""},
-      {name:"WiFi Installation", category:"Tech", price:1500, stock:20, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Home & Office WiFi Setup", portfolio1:"", portfolio2:""},
-      {name:"Computer Parts", category:"Tech", price:500, stock:100, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"RAM, SSD, Motherboards", portfolio1:"", portfolio2:""},
-      {name:"Diagnostic Service", category:"Tech", price:350, stock:50, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"PC & Vehicle Diagnostics", portfolio1:"", portfolio2:""},
       {name:"Web Development", category:"Tech", price:5000, stock:10, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Custom Websites", portfolio1:"https://yourportfolio.com/web1", portfolio2:"https://yourportfolio.com/web2"},
-      {name:"App Development", category:"Tech", price:8000, stock:10, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Mobile & Web Apps", portfolio1:"https://yourportfolio.com/app1", portfolio2:"https://yourportfolio.com/app2"},
-      {name:"Potatoes", category:"Products", price:80, stock:200, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"10kg Bag", portfolio1:"", portfolio2:""},
-      {name:"Atchar", category:"Products", price:45, stock:150, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"500ml Bottle", portfolio1:"", portfolio2:""},
-      {name:"Tomatoes", category:"Products", price:60, stock:180, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Box", portfolio1:"", portfolio2:""}
+      {name:"App Development", category:"Tech", price:8000, stock:10, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Mobile & Web Apps", portfolio1:"https://yourportfolio.com/app1", portfolio2:"https://yourportfolio.com/app2"}
     ];
     defaultData.forEach(p=>{ let id = Date.now().toString() + Math.random(); set(ref(db, 'twinz_worldtier/categories/' + id), p); });
     alert('✅ Twinz Services loaded!')
@@ -648,18 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.updateStock = (id) => { let add = parseInt(document.getElementById('stock_'+id).value); set(ref(db, 'twinz_worldtier/categories/' + id + '/stock'), (products[id].stock||0) + add); document.getElementById('stock_'+id).value = 0; }
 
   window.addToCart = (id) => { let p = products[id]; let item = cart.find(x=>x.id==id); if(item){ item.qty++ } else { cart.push({id,name:p.name,price:p.price,qty:1,category:p.category}) } updateCart(); renderProducts(); renderClientProducts(); }
-  window.decreaseQty = (id) => {
-    let item = cart.find(x=>x.id==id);
-    if(item){
-      item.qty--;
-      if(item.qty <= 0){
-        cart = cart.filter(x=>x.id!=id);
-      }
-    }
-    updateCart();
-    renderProducts();
-    renderClientProducts();
-  }
+  window.decreaseQty = (id) => { let item = cart.find(x=>x.id==id); if(item){ item.qty--; if(item.qty <= 0){ cart = cart.filter(x=>x.id!=id); } updateCart(); renderProducts(); renderClientProducts(); }
 
   function updateCart(){
     cartBar.style.display = cart.length?'block':'none'; clientCartBar.style.display = cart.length?'block':'none';
@@ -668,35 +661,38 @@ document.addEventListener('DOMContentLoaded', () => {
     if(cartTotal) cartTotal.innerText = total; if(clientCartTotal) clientCartTotal.innerText = total;
   }
 
-  window.openCustomerModal = () => { if(cart.length === 0) return alert('Cart empty'); document.getElementById('customerModal').style.display = 'flex'; }
+  window.openCustomerModal = () => {
+    if(cart.length === 0) return alert('Cart empty');
+    document.getElementById('customerModal').querySelector('.bank-info').innerHTML += `<div style="margin-top:10px"><b>Choose WhatsApp Number:</b><br>
+    <label><input type="radio" name="waNum" value="27682547352" checked> 0682547352</label><br>
+    <label><input type="radio" name="waNum" value="27698949596"> 0698949596</label></div>`;
+    document.getElementById('customerModal').style.display = 'flex';
+  }
+
   window.sendQuote = () => {
     let name = document.getElementById('custName').value.trim();
     let phone = document.getElementById('custPhone').value.trim();
     let email = document.getElementById('custEmail').value.trim();
+    let selectedWA = document.querySelector('input[name="waNum"]:checked').value;
     if(!name ||!phone) return alert('Please enter Name and Phone');
 
     let itemsText = cart.map(i=>`${i.name} x${i.qty} = R${i.price*i.qty}`).join('%0A');
     let total = cart.reduce((a,b)=>a+b.qty*b.price,0);
-    let msg = `*NEW SERVICE REQUEST - ${COMPANY_NAME}*%0A%0A*Name:* ${name}%0A*Phone:* ${phone}%0A*Email:* ${email}%0A%0A*The Order:*%0A${itemsText}%0A%0A*Total: R${total.toFixed(2)}*`;
+    let orderData = { customerName:name, customerPhone:phone, customerEmail:email, items:cart, total:total, status:'Pending', date:Date.now() };
+    set(ref(db, 'twinz_worldtier/requests/' + Date.now()), orderData); // AUTOSYNC
 
-    window.open(`https://wa.me/${BUSINESS_WHATSAPP}?text=${msg}`, '_blank');
+    let msg = `*NEW SERVICE REQUEST - ${COMPANY_NAME}*%0A%0A*Name:* ${name}%0A*Phone:* ${phone}%0A*Email:* ${email}%0A%0A*The Order:*%0A${itemsText}%0A%0A*Total: R${total.toFixed(2)}*`;
+    window.open(`https://wa.me/${selectedWA}?text=${msg}`, '_blank');
     cart = []; updateCart(); renderProducts(); renderClientProducts();
     document.getElementById('customerModal').style.display='none';
-    document.getElementById('custName').value='';
-    document.getElementById('custPhone').value='';
-    document.getElementById('custEmail').value='';
-    alert('✅ Request sent to WhatsApp!')
+    document.getElementById('custName').value=''; document.getElementById('custPhone').value=''; document.getElementById('custEmail').value='';
+    alert('✅ Request sent & saved to Admin!')
   }
 
   window.downloadReport = () => {
     const doc = new jsPDF(); doc.text(`${COMPANY_NAME} Report`, 10, 10);
-    doc.text(`Reg: ${COMPANY_REG}`, 10, 16);
-    doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 10, 22);
-    doc.text(`Email: ${COMPANY_EMAIL}`, 10, 28);
-    doc.text(`Total Services: ${Object.keys(products).length}`, 10, 35);
-    doc.text(`Total Requests: ${Object.values(products).reduce((a,b)=>a+(b.stock||0),0)}`, 10, 41);
-    doc.text(`Pending Requests: ${Object.values(orders).filter(o=>o.status=='Pending').length}`, 10, 47);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 10, 53); doc.save("TWINZ-Report.pdf");
+    doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 10, 16);
+    doc.save("TWINZ-Report.pdf");
   }
 
   window.downloadCSV = () => {
@@ -712,7 +708,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setClientLink(){ let link = window.location.origin + window.location.pathname + '?client=1'; if(document.getElementById('clientShareLink')) document.getElementById('clientShareLink').value = link; }
   window.copyClientLink = () => { let link = document.getElementById('clientShareLink'); link.select(); document.execCommand('copy'); alert('Service link copied! 📋'); }
-  window.shareClientWhatsApp = () => { let link = document.getElementById('clientShareLink').value; let msg = `💼 ${COMPANY_NAME} 💼\n\nRequest Business Services:\n${link}\n\nWiFi | Web | App | Products\n📧 ${COMPANY_EMAIL}`; window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`); }
+  window.shareClientWhatsApp = () => { let link = document.getElementById('clientShareLink').value; let msg = `💼 ${COMPANY_NAME} 💼\n\nRequest Business Services:\n${link}`; window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`); }
   window.toggleDark = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); }
   if(localStorage.getItem('darkMode')==='true') document.body.classList.add('dark-mode');
 });
