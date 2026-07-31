@@ -77,12 +77,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:999}
 .modal-content{background:var(--card);padding:20px;border-radius:15px;width:90%;max-width:400px}
 .vin-result{background:#e8f5e9;padding:10px;border-radius:8px;margin-top:10px;font-size:12px}
-@media(max-width:600px){
-.grid{grid-template-columns:1fr!important}
-.stats{grid-template-columns:repeat(2,1fr)}
-.tabs{font-size:12px}
-.tab{padding:8px 10px}
-.card-imgs img{width:38px;height:38px}
+.portfolio-link{display:inline-block;margin-top:5px;font-size:11px;color:var(--accent);text-decoration:underline}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -96,7 +91,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 
 <div id="quickInvoiceModal" class="modal"> <div class="modal-content"> <h3>🧾 Quick Invoice - Walk In</h3> <input type="text" id="quickInvName" placeholder="Customer Name"> <input type="tel" id="quickInvPhone" placeholder="Customer Phone"> <input type="email" id="quickInvEmail" placeholder="Customer Email"> <input type="text" id="quickInvItem" placeholder="Service Name"> <input type="number" id="quickInvQty" placeholder="Qty" value="1"> <input type="number" id="quickInvPrice" placeholder="Price R"> <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="quickInvTax"> Add 15% VAT</label> <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="quickInvPaid" checked> Mark as PAID</label> <button class="btn" onclick="downloadQuickInvoice()" style="width:100%">Download Invoice PDF</button> <button class="btn-gray" onclick="document.getElementById('quickInvoiceModal').style.display='none'" style="width:100%;margin-top:8px">Cancel</button> </div> </div>
 <div id="invoiceModal" class="modal"> <div class="modal-content"> <h3>📄 Edit Invoice Details</h3> <input type="text" id="invCustName" placeholder="Customer Name"> <input type="tel" id="invCustPhone" placeholder="Customer Phone"> <input type="email" id="invCustEmail" placeholder="Customer Email"> <input type="text" id="invCustAddress" placeholder="Customer Address"> <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="invTaxToggle"> Add 15% VAT</label> <label style="display:flex;align-items:center;gap:8px;margin:10px 0"><input type="checkbox" id="invPaidToggle"> Mark as PAID</label> <button class="btn" onclick="downloadFinalInvoice()" style="width:100%">Download Invoice PDF</button> <button class="btn-gray" onclick="document.getElementById('invoiceModal').style.display='none'" style="width:100%;margin-top:8px">Cancel</button> </div> </div>
-<div id="customerModal" class="modal"> <div class="modal-content"> <h3>Customer Details</h3> <input type="text" id="custName" placeholder="Your Name"> <input type="tel" id="custPhone" placeholder="Your Phone Number"> <input type="email" id="custEmail" placeholder="Your Email Address"> <div class="bank-info"><b>🏦 Banking Details:</b><br>Standard Bank<br>Acc: 10264594434<br>Branch: 006145<br>Send proof to WhatsApp after request</div> <button class="btn" onclick="sendQuote()" style="width:100%">Request via WhatsApp</button> <button class="btn-gray" onclick="document.getElementById('customerModal').style.display='none'" style="width:100%;margin-top:8px">Cancel</button> </div> </div>
+<div id="customerModal" class="modal"> <div class="modal-content"> <h3>Customer Details</h3> <input type="text" id="custName" placeholder="Your Name"> <input type="tel" id="custPhone" placeholder="Your Phone Number"> <input type="email" id="custEmail" placeholder="Your Email Address"> <div class="bank-info"><b>🏦 Banking Details:</b><br>Standard Bank<br>Acc: 10264594434<br>Branch: 006145<br><b>📞 0682547352 | 0698949596</b><br><b>📧 twinz.cooperate.services@gmail.com</b><br>Send proof to WhatsApp after request</div> <button class="btn" onclick="sendQuote()" style="width:100%">Request via WhatsApp</button> <button class="btn-gray" onclick="document.getElementById('customerModal').style.display='none'" style="width:100%;margin-top:8px">Cancel</button> </div> </div>
 
 <div id="clientView" style="display:none">
   <div class="client-header">
@@ -114,6 +109,8 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
       <button onclick="filterCat('Consulting', event)">Consulting</button>
       <button onclick="filterCat('Admin', event)">Admin</button>
       <button onclick="filterCat('Projects', event)">Projects</button>
+      <button onclick="filterCat('Tech', event)">Tech</button>
+      <button onclick="filterCat('Products', event)">Products</button>
       <button onclick="filterCat('VIN', event)">VIN Check</button>
     </div>
     <div id="vinCheck" style="display:none" class="admin">
@@ -131,7 +128,8 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
   </div>
   <footer class="site-footer">
     <div class="footer-title">TWINZ COOPERATE SERVICES PTY LTD</div>
-    <div class="footer-line">Reg: 2024/444303/07 | 📧 <a href="mailto:ceo@twinz.co.za">ceo@twinz.co.za</a></div>
+    <div class="footer-line">Reg: 2024/444303/07 | 📧 <a href="mailto:twinz.cooperate.services@gmail.com">twinz.cooperate.services@gmail.com</a></div>
+    <div class="footer-line">📞 0682547352 | 0698949596</div>
     <div class="footer-line">📍 Limpopo Burgersfort 1150, Praktiseer Ext 2, Stand 3211 | P.O Box 638</div>
     <div class="footer-line">🏦 Standard Bank: 10264594434 | Branch: 006145 | Supply: Nationwide & Abroad</div>
     <div class="footer-copy">© 2026 TWINZ COOPERATE SERVICES. Business Solutions That Work.</div>
@@ -164,6 +162,8 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
       <button onclick="filterCat('Consulting', event)">Consulting</button>
       <button onclick="filterCat('Admin', event)">Admin</button>
       <button onclick="filterCat('Projects', event)">Projects</button>
+      <button onclick="filterCat('Tech', event)">Tech</button>
+      <button onclick="filterCat('Products', event)">Products</button>
     </div>
   </div>
   <div class="container">
@@ -190,6 +190,8 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
           <b>Reg:</b> 2024/444303/07<br>
           <b>📍 Address:</b> Limpopo Burgersfort 1150, Praktiseer Ext 2, Stand 3211<br>
           <b>📮 P.O Box:</b> 638<br>
+          <b>📞</b> 0682547352 | 0698949596<br>
+          <b>📧</b> twinz.cooperate.services@gmail.com<br>
           <b>🌍 Supply:</b> Nationwide & Abroad<br>
           <b>🏦 Bank:</b> Standard Bank | Acc: 10264594434 | Branch: 006145
         </div>
@@ -209,9 +211,10 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
         <button class="btn-purple" onclick="seedDatabase()">⚡ Load Twinz Services</button>
         <input type="text" id="pName" placeholder="Service Name">
         <select id="pCat">
-          <option>Consulting</option><option>Admin</option><option>Projects</option>
+          <option>Consulting</option><option>Admin</option><option>Projects</option><option>Tech</option><option>Products</option>
         </select>
         <input type="text" id="pImg" placeholder="Image URL">
+        <input type="text" id="pPortfolio" placeholder="Portfolio/Demo Link URL">
         <input type="number" id="pPrice" placeholder="Price R">
         <input type="number" id="pOldPrice" placeholder="Old Price R">
         <input type="number" id="pStock" placeholder="Stock Qty">
@@ -244,7 +247,8 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
   </div>
   <footer class="site-footer">
     <div class="footer-title">TWINZ COOPERATE SERVICES PTY LTD</div>
-    <div class="footer-line">Reg: 2024/444303/07 | 📧 <a href="mailto:ceo@twinz.co.za">ceo@twinz.co.za</a></div>
+    <div class="footer-line">Reg: 2024/444303/07 | 📧 <a href="mailto:twinz.cooperate.services@gmail.com">twinz.cooperate.services@gmail.com</a></div>
+    <div class="footer-line">📞 0682547352 | 0698949596</div>
     <div class="footer-line">📍 Limpopo Burgersfort 1150, Praktiseer Ext 2, Stand 3211 | P.O Box 638</div>
     <div class="footer-line">🏦 Standard Bank: 10264594434 | Branch: 006145 | Supply: Nationwide & Abroad</div>
     <div class="footer-copy">© 2026 TWINZ COOPERATE SERVICES. Business Solutions That Work.</div>
@@ -277,6 +281,9 @@ const COMPANY_ACC = "10264594434";
 const COMPANY_BRANCH = "006145";
 const COMPANY_ADDRESS = "Limpopo Burgersfort 1150, Praktiseer Ext 2, Stand 3211";
 const COMPANY_PO = "P.O Box 638";
+const COMPANY_EMAIL = "twinz.cooperate.services@gmail.com";
+const COMPANY_PHONE1 = "0682547352";
+const COMPANY_PHONE2 = "0698949596";
 
 document.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -333,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const cartTotal = document.getElementById('cartTotal');
   const clientCartTotal = document.getElementById('clientCartTotal');
   const pName = document.getElementById('pName'); const pCat = document.getElementById('pCat');
-  const pImg = document.getElementById('pImg');
+  const pImg = document.getElementById('pImg'); const pPortfolio = document.getElementById('pPortfolio');
   const pPrice = document.getElementById('pPrice');
   const pOldPrice = document.getElementById('pOldPrice'); const pStock = document.getElementById('pStock');
   const pDesc = document.getElementById('pDesc'); const saveBtn = document.getElementById('saveBtn');
@@ -415,8 +422,9 @@ document.addEventListener('DOMContentLoaded', () => {
       let imgs = getImages(p); let mainImg = imgs[0];
       let extraImgs = imgs.map((u,i)=>`<img src="${u}" class="${i==0?'active':''}" onclick="switchImage('${id}','${u}',this)" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
+      let portfolioLink = p.portfolio? `<a href="${p.portfolio}" target="_blank" class="portfolio-link">🔗 View Portfolio/Demo</a>` : '';
       let cartBtn = p.stock > 0? getCartControls(id) : `<button class="btn-oos" disabled>Unavailable</button>`;
-      clientProductGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div>${cartBtn}</div>`;
+      clientProductGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}${portfolioLink}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div>${cartBtn}</div>`;
     })
   }
 
@@ -432,8 +440,9 @@ document.addEventListener('DOMContentLoaded', () => {
       let imgs = getImages(p); let mainImg = imgs[0];
       let extraImgs = imgs.map((u,i)=>`<img src="${u}" class="${i==0?'active':''}" onclick="switchImage('${id}','${u}',this)" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
+      let portfolioLink = p.portfolio? `<a href="${p.portfolio}" target="_blank" class="portfolio-link">🔗 View Portfolio/Demo</a>` : '';
       let cartBtn = p.stock > 0? getCartControls(id) : `<button class="btn-oos" disabled>Unavailable</button>`;
-      productGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><div class="stock ${p.stock<10?'stock-low':''}">Stock: ${p.stock}</div>${cartBtn}</div>`;
+      productGrid.innerHTML += `<div class="card" id="card_${id}"><img id="main_${id}" src="${mainImg}" loading="lazy" onerror="this.onerror=null;this.src='https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png'"><div class="card-imgs">${extraImgs}</div><h4>${p.name}</h4>${brands}${portfolioLink}<div class="price">R${p.price} ${p.oldPrice? `<span class="old-price">R${p.oldPrice}</span>`:''}</div><div class="stock ${p.stock<10?'stock-low':''}">Stock: ${p.stock}</div>${cartBtn}</div>`;
     })
   }
 
@@ -453,7 +462,8 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.entries(products).filter(([id,p])=>{
       return p.name.toLowerCase().includes(searchTerm) || p.category.toLowerCase().includes(searchTerm)
     }).forEach(([id,p])=>{
-      productList.innerHTML += `<div style="padding:10px;border:1px solid var(--border);border-radius:8px;margin:5px 0;background:#fafafa"><b>${p.name}</b> - R${p.price} - Stock: ${p.stock} - <small>${p.category}</small><div style="float:right;gap:5px;display:flex"><button onclick="editProduct('${id}')" class="btn-blue" style="padding:5px 10px;font-size:12px">Edit</button>${currentUser.role== 'ceo'? `<button onclick="deleteProduct('${id}')" class="btn-danger" style="padding:5px 10px;font-size:12px">Del</button>` : ''}</div></div>`;
+      let portfolioBtn = p.portfolio? `<a href="${p.portfolio}" target="_blank" class="portfolio-link">Portfolio</a>` : '';
+      productList.innerHTML += `<div style="padding:10px;border:1px solid var(--border);border-radius:8px;margin:5px 0;background:#fafafa"><b>${p.name}</b> - R${p.price} - Stock: ${p.stock} - <small>${p.category}</small> ${portfolioBtn}<div style="float:right;gap:5px;display:flex"><button onclick="editProduct('${id}')" class="btn-blue" style="padding:5px 10px;font-size:12px">Edit</button>${currentUser.role== 'ceo'? `<button onclick="deleteProduct('${id}')" class="btn-danger" style="padding:5px 10px;font-size:12px">Del</button>` : ''}</div></div>`;
     })
     if(productList.innerHTML === '') productList.innerHTML = '<p style="text-align:center;color:var(--muted)">No services found</p>'
   }
@@ -505,13 +515,14 @@ document.addEventListener('DOMContentLoaded', () => {
     doc.setFontSize(9); doc.text(`Reg: ${COMPANY_REG}`, 10, 22);
     doc.text(`${COMPANY_ADDRESS} | ${COMPANY_PO}`, 10, 27);
     doc.text(`Bank: ${COMPANY_BANK} | Acc: ${COMPANY_ACC} | Branch: ${COMPANY_BRANCH}`, 10, 32);
-    doc.line(10, 36, 200, 36);
+    doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2} | Email: ${COMPANY_EMAIL}`, 10, 37);
+    doc.line(10, 41, 200, 41);
     doc.setFontSize(11); doc.setFont(undefined, 'normal');
-    doc.text(`Name: ${custName}`, 10, 43);
-    doc.text(`Phone: ${custPhone}`, 10, 49);
-    doc.text(`Email: ${custEmail}`, 10, 55);
-    doc.text(`The Order:`, 10, 61);
-    let y = 67;
+    doc.text(`Name: ${custName}`, 10, 48);
+    doc.text(`Phone: ${custPhone}`, 10, 54);
+    doc.text(`Email: ${custEmail}`, 10, 60);
+    doc.text(`The Order:`, 10, 66);
+    let y = 72;
     o.items.forEach(i=>{ doc.text(`- ${i.name} x${i.qty} = R${i.price*i.qty}`, 12, y); y+=7; });
     doc.text(`Total: R${grandTotal.toFixed(2)}`, 10, y+3);
     y+=12; doc.text(`Send proof to WhatsApp: ${BUSINESS_WHATSAPP}`, 10, y);
@@ -540,21 +551,21 @@ document.addEventListener('DOMContentLoaded', () => {
     doc.setFontSize(16); doc.setFont(undefined, 'bold'); doc.text(COMPANY_NAME, 10, 15);
     doc.setFontSize(9); doc.text(`Reg: ${COMPANY_REG}`, 10, 22);
     doc.text(`${COMPANY_ADDRESS} | ${COMPANY_PO}`, 10, 27);
+    doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 10, 32);
     doc.setFontSize(11); doc.setFont(undefined, 'normal');
-    doc.text(`Name: ${name}`, 10, 35);
-    doc.text(`Phone: ${phone}`, 10, 41);
-    doc.text(`Email: ${email}`, 10, 47);
-    doc.text(`The Order:`, 10, 53);
-    doc.text(`- ${item} x${qty} = R${subtotal}`, 12, 59);
-    doc.text(`Total: R${grandTotal.toFixed(2)}`, 10, 65);
-    doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC}`, 10, 71);
+    doc.text(`Name: ${name}`, 10, 40);
+    doc.text(`Phone: ${phone}`, 10, 46);
+    doc.text(`Email: ${email}`, 10, 52);
+    doc.text(`The Order:`, 10, 58);
+    doc.text(`- ${item} x${qty} = R${subtotal}`, 12, 64);
+    doc.text(`Total: R${grandTotal.toFixed(2)}`, 10, 70);
+    doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC}`, 10, 76);
 
     doc.save(`TWINZ-QuickInvoice-${invId}.pdf`);
     document.getElementById('quickInvoiceModal').style.display='none';
     alert('✅ Walk-In Invoice saved!')
   }
 
-  // VIN DECODER FUNCTIONS
   function basicVINDecode(vin){
     if(vin.length!== 17) return null;
     let wmi = vin.substring(0,3);
@@ -597,20 +608,27 @@ document.addEventListener('DOMContentLoaded', () => {
     resultDiv.style.display='block';
   }
 
-  window.editProduct = (id) => { if(currentUser.role == 'reception' || currentUser.role == 'sales') return alert('No permission'); let p = products[id]; editingId = id; pName.value = p.name; pCat.value = p.category; pImg.value = p.img; pPrice.value = p.price; pOldPrice.value = p.oldPrice; pStock.value = p.stock; pDesc.value = p.desc; formTitle.innerText = "✏️ Editing: " + p.name; saveBtn.innerText = "Update Service"; saveBtn.style.background = "var(--blue)"; cancelBtn.style.display = "block"; document.getElementById('tab-products').scrollIntoView(); }
-  window.cancelEdit = () => { editingId = null; [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); formTitle.innerText = "➕ Add Service"; saveBtn.innerText = "Save Service"; saveBtn.style.background = "var(--accent)"; cancelBtn.style.display = "none"; }
-  window.saveProduct = () => { if(currentUser.role == 'reception' || currentUser.role == 'sales') return alert('No permission'); let productData = { name: pName.value.trim(), category: pCat.value, img: pImg.value.trim() || 'https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png', price: Number(pPrice.value) || 0, oldPrice: Number(pOldPrice.value) || 0, stock: Number(pStock.value) || 0, desc: pDesc.value.trim() }; if(!productData.name){ return alert('Please enter service name') } if(editingId){ set(ref(db, 'twinz_worldtier/categories/' + editingId), productData).then(()=>{ alert('Service Updated!'); cancelEdit(); }).catch(err=> alert('Error: ' + err.message)); } else { let id = Date.now().toString(); set(ref(db, 'twinz_worldtier/categories/' + id), productData).then(()=>{ [pName,pImg,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); }).catch(err=> alert('Error: ' + err.message)); } }
+  window.editProduct = (id) => { if(currentUser.role == 'reception' || currentUser.role == 'sales') return alert('No permission'); let p = products[id]; editingId = id; pName.value = p.name; pCat.value = p.category; pImg.value = p.img; pPortfolio.value = p.portfolio || ''; pPrice.value = p.price; pOldPrice.value = p.oldPrice; pStock.value = p.stock; pDesc.value = p.desc; formTitle.innerText = "✏️ Editing: " + p.name; saveBtn.innerText = "Update Service"; saveBtn.style.background = "var(--blue)"; cancelBtn.style.display = "block"; document.getElementById('tab-products').scrollIntoView(); }
+  window.cancelEdit = () => { editingId = null; [pName,pImg,pPortfolio,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); formTitle.innerText = "➕ Add Service"; saveBtn.innerText = "Save Service"; saveBtn.style.background = "var(--accent)"; cancelBtn.style.display = "none"; }
+  window.saveProduct = () => { if(currentUser.role == 'reception' || currentUser.role == 'sales') return alert('No permission'); let productData = { name: pName.value.trim(), category: pCat.value, img: pImg.value.trim() || 'https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png', portfolio: pPortfolio.value.trim(), price: Number(pPrice.value) || 0, oldPrice: Number(pOldPrice.value) || 0, stock: Number(pStock.value) || 0, desc: pDesc.value.trim() }; if(!productData.name){ return alert('Please enter service name') } if(editingId){ set(ref(db, 'twinz_worldtier/categories/' + editingId), productData).then(()=>{ alert('Service Updated!'); cancelEdit(); }).catch(err=> alert('Error: ' + err.message)); } else { let id = Date.now().toString(); set(ref(db, 'twinz_worldtier/categories/' + id), productData).then(()=>{ [pName,pImg,pPortfolio,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); }).catch(err=> alert('Error: ' + err.message)); } }
 
   function buildStockList(){ stockList.innerHTML = ''; Object.entries(products).forEach(([id,p])=>{ stockList.innerHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border);border-radius:8px;margin:5px 0"><div><b>${p.name}</b><br><small class="${p.stock<10?'stock-low':''}">Stock: ${p.stock}</small></div><div><input type="number" id="stock_${id}" value="0" style="width:80px"><button class="btn-green" onclick="updateStock('${id}')">+ Add</button></div></div>`; }) }
 
-  // TWINZ SERVICES - PRICES EDITABLE
   window.seedDatabase = () => {
     if(currentUser.role!= 'ceo' && currentUser.role!= 'manager') return alert('No permission');
     const defaultData = [
-      {name:"Business Registration", category:"Admin", price:1200, stock:100, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"CIPC, SARS, UIF"},
-      {name:"Consulting Session", category:"Consulting", price:850, stock:50, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"1 Hour Business Consulting"},
-      {name:"Project Proposal", category:"Projects", price:2500, stock:30, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Full proposal writing"},
-      {name:"Tender Document", category:"Admin", price:1800, stock:40, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Tender submission pack"}
+      {name:"Business Registration", category:"Admin", price:1200, stock:100, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"CIPC, SARS, UIF", portfolio:""},
+      {name:"Consulting Session", category:"Consulting", price:850, stock:50, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"1 Hour Business Consulting", portfolio:""},
+      {name:"Project Proposal", category:"Projects", price:2500, stock:30, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Full proposal writing", portfolio:""},
+      {name:"Tender Document", category:"Admin", price:1800, stock:40, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Tender submission pack", portfolio:""},
+      {name:"WiFi Installation", category:"Tech", price:1500, stock:20, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Home & Office WiFi Setup", portfolio:""},
+      {name:"Computer Parts", category:"Tech", price:500, stock:100, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"RAM, SSD, Motherboards", portfolio:""},
+      {name:"Diagnostic Service", category:"Tech", price:350, stock:50, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"PC & Vehicle Diagnostics", portfolio:""},
+      {name:"Web Development", category:"Tech", price:5000, stock:10, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Custom Websites", portfolio:"https://yourportfolio.com/web"},
+      {name:"App Development", category:"Tech", price:8000, stock:10, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Mobile & Web Apps", portfolio:"https://yourportfolio.com/app"},
+      {name:"Potatoes", category:"Products", price:80, stock:200, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"10kg Bag", portfolio:""},
+      {name:"Atchar", category:"Products", price:45, stock:150, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"500ml Bottle", portfolio:""},
+      {name:"Tomatoes", category:"Products", price:60, stock:180, img:"https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png", desc:"Box", portfolio:""}
     ];
     defaultData.forEach(p=>{ let id = Date.now().toString() + Math.random(); set(ref(db, 'twinz_worldtier/categories/' + id), p); });
     alert('✅ Twinz Services loaded!')
@@ -663,10 +681,12 @@ document.addEventListener('DOMContentLoaded', () => {
   window.downloadReport = () => {
     const doc = new jsPDF(); doc.text(`${COMPANY_NAME} Report`, 10, 10);
     doc.text(`Reg: ${COMPANY_REG}`, 10, 16);
-    doc.text(`Total Services: ${Object.keys(products).length}`, 10, 23);
-    doc.text(`Total Requests: ${Object.values(products).reduce((a,b)=>a+(b.stock||0),0)}`, 10, 30);
-    doc.text(`Pending Requests: ${Object.values(orders).filter(o=>o.status=='Pending').length}`, 10, 37);
-    doc.text(`Generated: ${new Date().toLocaleString()}`, 10, 44); doc.save("TWINZ-Report.pdf");
+    doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 10, 22);
+    doc.text(`Email: ${COMPANY_EMAIL}`, 10, 28);
+    doc.text(`Total Services: ${Object.keys(products).length}`, 10, 35);
+    doc.text(`Total Requests: ${Object.values(products).reduce((a,b)=>a+(b.stock||0),0)}`, 10, 41);
+    doc.text(`Pending Requests: ${Object.values(orders).filter(o=>o.status=='Pending').length}`, 10, 47);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 10, 53); doc.save("TWINZ-Report.pdf");
   }
 
   window.downloadCSV = () => {
@@ -682,7 +702,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setClientLink(){ let link = window.location.origin + window.location.pathname + '?client=1'; if(document.getElementById('clientShareLink')) document.getElementById('clientShareLink').value = link; }
   window.copyClientLink = () => { let link = document.getElementById('clientShareLink'); link.select(); document.execCommand('copy'); alert('Service link copied! 📋'); }
-  window.shareClientWhatsApp = () => { let link = document.getElementById('clientShareLink').value; let msg = `💼 ${COMPANY_NAME} 💼\n\nRequest Business Services:\n${link}\n\nConsulting | Admin | Projects\n📧 ceo@twinz.co.za`; window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`); }
+  window.shareClientWhatsApp = () => { let link = document.getElementById('clientShareLink').value; let msg = `💼 ${COMPANY_NAME} 💼\n\nRequest Business Services:\n${link}\n\nWiFi | Web | App | Products\n📧 ${COMPANY_EMAIL}`; window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`); }
   window.toggleDark = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); }
   if(localStorage.getItem('darkMode')==='true') document.body.classList.add('dark-mode');
 });
