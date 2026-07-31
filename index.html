@@ -501,37 +501,80 @@ document.addEventListener('DOMContentLoaded', () => {
     img.src = url;
   }
 
-  window.downloadFinalInvoice = () => {
+window.downloadFinalInvoice = () => {
     let o = orders[currentInvoiceId];
     let custName = document.getElementById('invCustName').value || o.customerName || 'Guest';
     let custPhone = document.getElementById('invCustPhone').value || o.customerPhone || '';
     let custEmail = document.getElementById('invCustEmail').value || o.customerEmail || '';
-    let addTax = document.getElementById('invTaxToggle').checked; let isPaid = document.getElementById('invPaidToggle').checked;
-    let subtotal = o.total; let tax = addTax? subtotal * 0.15 : 0; let grandTotal = subtotal + tax;
+    let addTax = document.getElementById('invTaxToggle').checked;
+    let subtotal = o.total;
+    let tax = addTax? subtotal * 0.15 : 0;
+    let grandTotal = subtotal + tax;
+
     const doc = new jsPDF();
-    loadImageToPDF(doc, COMPANY_LOGO, 10, 10, 25, 25, () => {
-      doc.setFontSize(14); doc.setFont(undefined, 'bold'); doc.text(COMPANY_NAME, 40, 18);
-      doc.setFontSize(8); doc.text(`Reg: ${COMPANY_REG}`, 40, 23);
-      doc.text(`${COMPANY_ADDRESS} | ${COMPANY_PO}`, 40, 27);
-      doc.text(`Bank: ${COMPANY_BANK} | Acc: ${COMPANY_ACC}`, 40, 31);
-      doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 40, 35);
-      doc.setFontSize(16); doc.setFont(undefined, 'bold'); doc.text("TAX INVOICE", 150, 20);
-      doc.setFontSize(9); doc.text(`Invoice #: ${currentInvoiceId.slice(-6)}`, 150, 26);
-      doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 150, 30);
-      doc.line(10, 45, 200, 45);
-      doc.setFontSize(10); doc.text("BILL TO:", 10, 52); doc.setFontSize(9);
-      doc.text(custName, 10, 57); doc.text(custPhone, 10, 61); doc.text(custEmail, 10, 65);
-      let y = 75; doc.setFont(undefined, 'bold');
-      doc.text("Service", 10, y); doc.text("Qty", 100, y); doc.text("Rate", 130, y); doc.text("Amount", 170, y);
-      y += 5; doc.line(10, y, 200, y); y += 7; doc.setFont(undefined, 'normal');
-      o.items.forEach(i=>{ doc.text(i.name.substring(0,35), 10, y); doc.text(i.qty.toString(), 100, y); doc.text(`R${i.price}`, 130, y); doc.text(`R${i.price*i.qty}`, 170, y); y += 6; });
-      y += 3; doc.line(130, y, 200, y); y += 6; doc.text(`Subtotal: R${subtotal.toFixed(2)}`, 130, y); y += 6;
-      if(addTax){ doc.text(`VAT 15%: R${tax.toFixed(2)}`, 130, y); y += 6; }
-      doc.setFont(undefined, 'bold'); doc.text(`TOTAL: R${grandTotal.toFixed(2)}`, 130, y);
+
+    loadImageToPDF(doc, COMPANY_LOGO, 14, 12, 18, 18, () => {
+      // HEADER
+      doc.setFontSize(12); doc.setFont(undefined, 'bold');
+      doc.text(COMPANY_NAME, 36, 16);
       doc.setFontSize(8); doc.setFont(undefined, 'normal');
-      doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC} | WhatsApp: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 105, 270, {align: "center"});
-      doc.text("Thank you for choosing TWINZ COOPERATE SERVICES", 105, 280, {align: "center"});
-      doc.save(`TWINZ-Invoice-${currentInvoiceId.slice(-6)}.pdf`); document.getElementById('invoiceModal').style.display='none';
+      doc.text(`Reg: ${COMPANY_REG}`, 36, 21);
+      doc.text(`${COMPANY_ADDRESS} | ${COMPANY_PO}`, 36, 25);
+      doc.text(`Bank: ${COMPANY_BANK} | Acc: ${COMPANY_ACC}`, 36, 29);
+      doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 36, 33);
+
+      // TAX INVOICE RIGHT
+      doc.setFontSize(14); doc.setFont(undefined, 'bold');
+      doc.text("TAX INVOICE", 160, 16, {align: "right"});
+      doc.setFontSize(9); doc.setFont(undefined, 'normal');
+      doc.text(`Invoice #: ${currentInvoiceId.slice(-6)}`, 160, 21, {align: "right"});
+      doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 160, 25, {align: "right"});
+
+      doc.line(14, 40, 196, 40); // line
+
+      // BILL TO
+      doc.setFontSize(10); doc.setFont(undefined, 'bold'); doc.text("BILL TO:", 14, 47);
+      doc.setFontSize(9); doc.setFont(undefined, 'normal');
+      doc.text(custName, 14, 52);
+      doc.text(custPhone, 14, 56);
+      doc.text(custEmail, 14, 60);
+
+      // TABLE HEADER
+      let y = 72;
+      doc.setFont(undefined, 'bold');
+      doc.text("Service", 14, y);
+      doc.text("Qty", 110, y, {align: "right"});
+      doc.text("Rate", 145, y, {align: "right"});
+      doc.text("Amount", 195, y, {align: "right"});
+      y += 3; doc.line(14, y, 196, y); y += 6;
+      doc.setFont(undefined, 'normal');
+
+      // TABLE ROWS
+      o.items.forEach(i=>{
+        doc.text(i.name.substring(0,40), 14, y);
+        doc.text(i.qty.toString(), 110, y, {align: "right"});
+        doc.text(`R${i.price.toLocaleString()}`, 145, y, {align: "right"});
+        doc.text(`R${(i.price*i.qty).toLocaleString()}`, 195, y, {align: "right"});
+        y += 7;
+      });
+
+      y += 2; doc.line(120, y, 196, y); y += 6;
+      doc.text(`Subtotal: R${subtotal.toLocaleString()}.00`, 195, y, {align: "right"});
+      y += 6;
+      if(addTax){
+        doc.text(`VAT 15%: R${tax.toLocaleString()}.00`, 195, y, {align: "right"});
+        y += 6;
+      }
+      doc.setFont(undefined, 'bold');
+      doc.text(`TOTAL: R${grandTotal.toLocaleString()}.00`, 195, y, {align: "right"});
+
+      // FOOTER
+      doc.setFontSize(8); doc.setFont(undefined, 'normal');
+      doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC} | WhatsApp: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 105, 280, {align: "center"});
+      doc.text("Thank you for choosing TWINZ COOPERATE SERVICES", 105, 286, {align: "center"});
+
+      doc.save(`TWINZ-Invoice-${currentInvoiceId.slice(-6)}.pdf`);
+      document.getElementById('invoiceModal').style.display='none';
     });
   }
 
@@ -552,14 +595,40 @@ document.addEventListener('DOMContentLoaded', () => {
     let invId = Date.now().toString().slice(-6);
 
     const doc = new jsPDF();
-    loadImageToPDF(doc, COMPANY_LOGO, 10, 10, 25, 25, () => {
-      doc.setFontSize(14); doc.setFont(undefined, 'bold'); doc.text(COMPANY_NAME, 40, 18);
-      doc.setFontSize(8); doc.text(`Reg: ${COMPANY_REG}`, 40, 23);
-      doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 40, 27);
-      doc.setFontSize(16); doc.setFont(undefined, 'bold'); doc.text("TAX INVOICE", 150, 20);
-      doc.setFontSize(10); doc.text(`Name: ${name}`, 10, 50); doc.text(`Phone: ${phone}`, 10, 55); doc.text(`Email: ${email}`, 10, 60);
-      doc.text(`- ${item} x${qty} = R${subtotal}`, 10, 70);
-      doc.text(`Total: R${grandTotal.toFixed(2)}`, 10, 80);
+    loadImageToPDF(doc, COMPANY_LOGO, 14, 12, 18, 18, () => {
+      doc.setFontSize(12); doc.setFont(undefined, 'bold');
+      doc.text(COMPANY_NAME, 36, 16);
+      doc.setFontSize(8); doc.setFont(undefined, 'normal');
+      doc.text(`Reg: ${COMPANY_REG}`, 36, 21);
+      doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 36, 25);
+
+      doc.setFontSize(14); doc.setFont(undefined, 'bold');
+      doc.text("TAX INVOICE", 160, 16, {align: "right"});
+      doc.setFontSize(9);
+      doc.text(`Invoice #: ${invId}`, 160, 21, {align: "right"});
+      doc.text(`Date: ${new Date().toLocaleDateString()}`, 160, 25, {align: "right"});
+
+      doc.line(14, 32, 196, 32);
+
+      doc.setFontSize(10); doc.setFont(undefined, 'bold'); doc.text("BILL TO:", 14, 39);
+      doc.setFontSize(9); doc.setFont(undefined, 'normal');
+      doc.text(`Name: ${name}`, 14, 44);
+      doc.text(`Phone: ${phone}`, 14, 48);
+      doc.text(`Email: ${email}`, 14, 52);
+
+      let y = 64;
+      doc.setFont(undefined, 'bold');
+      doc.text("Service", 14, y); doc.text("Qty", 110, y, {align: "right"}); doc.text("Rate", 145, y, {align: "right"}); doc.text("Amount", 195, y, {align: "right"});
+      y += 3; doc.line(14, y, 196, y); y += 6; doc.setFont(undefined, 'normal');
+      doc.text(item.substring(0,40), 14, y); doc.text(qty.toString(), 110, y, {align: "right"}); doc.text(`R${price.toLocaleString()}`, 145, y, {align: "right"}); doc.text(`R${subtotal.toLocaleString()}`, 195, y, {align: "right"});
+
+      y += 10; doc.line(120, y, 196, y); y += 6;
+      doc.text(`TOTAL: R${grandTotal.toLocaleString()}.00`, 195, y, {align: "right"});
+
+      doc.setFontSize(8);
+      doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC} | WhatsApp: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 105, 280, {align: "center"});
+      doc.text("Thank you for choosing TWINZ COOPERATE SERVICES", 105, 286, {align: "center"});
+
       doc.save(`TWINZ-QuickInvoice-${invId}.pdf`);
       document.getElementById('quickInvoiceModal').style.display='none';
       alert('✅ Walk-In Invoice saved!')
