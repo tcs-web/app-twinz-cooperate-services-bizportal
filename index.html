@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TWINZ COOPERATE SERVICES | BUSINESS SOLUTIONS</title>
-<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVHdpbnogQ29vcGVyYXRlIFNlcnZpY2VzIiwic2hvcnRfbmFtZSI6IlRXSU5aIiwgInN0YXJ0X3VybCI6IiIsICJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMDA2QkM0IiwidGhlbWVfY29sb3IiOiIjMDA0Qjk0IiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vaS5pYmIuY28vTFhwUmRNOFEvSU1HLTIwMjYwNjE3LVdBMDAxMS5wbmciLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dfQ==">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVHdpbnogQ29vcGVyYXRlIFNlcnZpY2VzIiwic2hvcnRfbmFtZSI6IlRXSU5aIiwgInN0YXJ0X3VybCI6IiIsICJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMDA2QkM0IiwidGhlbWVfY29sb3IiOiIjMDA0Qjk0IiwiaWNvbnMiOlt7InNyYyI6Imh0dHBzOi8vaS5pYmIuY28vaiBRcEQwRnQvSU1HLTIwMjYwNjA1LVdBMDAwMi5wbmciLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dfQ==">
 <meta name="theme-color" content="#004B94">
-<link rel="apple-touch-icon" href="https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png">
+<link rel="apple-touch-icon" href="https://i.ibb.co/jPQpD0Ft/IMG-20260605-WA0002.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
@@ -76,7 +76,6 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 .dark-mode{--bg:#1a1a1a;--card:#2d3436;--text:#fff;--border:#444}
 .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);display:none;justify-content:center;align-items:center;z-index:999}
 .modal-content{background:var(--card);padding:20px;border-radius:15px;width:90%;max-width:400px}
-.vin-result{background:#e8f5e9;padding:10px;border-radius:8px;margin-top:10px;font-size:12px}
 .portfolio-link{display:inline-block;margin-right:8px;margin-top:5px;font-size:11px;color:var(--accent);text-decoration:underline}
 .wa-choice{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:8px}
 .wa-choice label{display:flex;align-items:center;gap:8px;margin:5px 0;font-weight:600;cursor:pointer}
@@ -97,14 +96,14 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 
 <div id="clientView" style="display:none">
   <div class="client-header">
-    <img src="https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png" class="logo" style="margin:0 auto">
+    <img src="https://i.ibb.co/jPQpD0Ft/IMG-20260605-WA0002.png" class="logo" style="margin:0 auto">
     <h2>TWINZ COOPERATE SERVICES PTY LTD</h2>
     <div class="search-box" style="max-width:500px;margin:10px auto"><input type="text" id="clientSearchInput" placeholder="Search services..." onkeyup="searchProducts()"></div>
   </div>
   <div class="container">
     <div class="client-link"><b>📲 Share this with customers:</b><br><code id="clientLink"></code></div>
     <div class="banner">💼 BUSINESS SOLUTIONS & SERVICES 💼</div>
-    <div class="bank-info"><b>📍 Address:</b> Limpopo Burgersfort 1150, Praktiseer Ext 2, Stand 3211 | P.O Box 638<br><b>🌍 Supply:</b> Nationwide & Abroad</div>
+    <div class="bank-info"><b>📍 Address:</b> Limpopo Burgersfort 1150, Praktiseer Ext 02, Stand 3211 | P.O Box 638<br><b>🌍 Supply:</b> Nationwide & Abroad</div>
     <div class="bank-info"><b>🏦 Bank:</b> Standard Bank | Acc: 10264594434 | Branch: 006145</div>
     <div class="nav-cats">
       <button onclick="filterCat('All', event)" class="active">All</button>
@@ -113,13 +112,6 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
       <button onclick="filterCat('Projects', event)">Projects</button>
       <button onclick="filterCat('Tech', event)">Tech</button>
       <button onclick="filterCat('Products', event)">Products</button>
-      <button onclick="filterCat('VIN', event)">VIN Check</button>
-    </div>
-    <div id="vinCheck" style="display:none" class="admin">
-      <h3>🚗 VIN Decoder</h3>
-      <input type="text" id="vinInput" placeholder="Enter 17 Character VIN" maxlength="17">
-      <button class="btn" onclick="decodeVIN()" style="width:100%">Decode VIN</button>
-      <div id="vinResult" class="vin-result" style="display:none"></div>
     </div>
     <h2 style="margin:20px 0">📋 Services & Pricing</h2>
     <div class="grid" id="clientProductGrid"><div class="loading">Loading services...</div></div>
@@ -132,7 +124,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
     <div class="footer-title">TWINZ COOPERATE SERVICES PTY LTD</div>
     <div class="footer-line">Reg: 2024/444303/07 | 📧 <a href="mailto:twinz.cooperate.services@gmail.com">twinz.cooperate.services@gmail.com</a></div>
     <div class="footer-line">📞 0682547352 | 0698949596</div>
-    <div class="footer-line">📍 Limpopo Burgersfort 1150, Praktiseer Ext 2, Stand 3211 | P.O Box 638</div>
+    <div class="footer-line">📍 Limpopo Burgersfort 1150, Praktiseer Ext 02, Stand 3211 | P.O Box 638</div>
     <div class="footer-line">🏦 Standard Bank: 10264594434 | Branch: 006145 | Supply: Nationwide & Abroad</div>
     <div class="footer-copy">© 2026 TWINZ COOPERATE SERVICES. Business Solutions That Work.</div>
   </footer>
@@ -140,7 +132,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 
 <div id="loginScreen">
   <div class="login-box">
-    <img src="https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png" style="width:90px;margin:0 auto;display:block;border-radius:15px">
+    <img src="https://i.ibb.co/jPQpD0Ft/IMG-20260605-WA0002.png" style="width:90px;margin:0 auto;display:block;border-radius:15px">
     <h2>TWINZ BIZPORTAL</h2>
     <div id="loginError" class="error"></div>
     <input type="email" id="loginEmail" placeholder="Email">
@@ -152,7 +144,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 <div id="app" style="display:none">
   <div class="header">
     <div class="header-top">
-      <img src="https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png" class="logo">
+      <img src="https://i.ibb.co/jPQpD0Ft/IMG-20260605-WA0002.png" class="logo">
       <div class="search-box"><input type="text" id="searchInput" placeholder="Search services..." onkeyup="searchProducts()"></div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="btn" style="padding:5px 10px;font-size:12px;background:#fff;color:var(--blue)" onclick="toggleDark()">🌙</button>
@@ -176,7 +168,6 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
         <div class="tab" onclick="showTab('products', this)">Services</div>
         <div class="tab" onclick="showTab('stock', this)">Stock</div>
         <div class="tab" onclick="showTab('orders', this)">Requests</div>
-        <div class="tab" onclick="showTab('vin', this)">VIN Decoder</div>
         <div class="tab" id="usersTab" onclick="showTab('users', this)">Users</div>
         <div class="tab" onclick="showTab('reports', this)">Reports</div>
       </div>
@@ -187,16 +178,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
           <div class="stat-card"><h4 id="statStock">0</h4><small>Total Requests</small></div>
           <div class="stat-card"><h4 id="statOrders">0</h4><small>Pending Requests</small></div>
         </div>
-        <div class="bank-info">
-          <b>TWINZ COOPERATE SERVICES PTY LTD</b><br>
-          <b>Reg:</b> 2024/444303/07<br>
-          <b>📍 Address:</b> Limpopo Burgersfort 1150, Praktiseer Ext 2, Stand 3211<br>
-          <b>📮 P.O Box:</b> 638<br>
-          <b>📞</b> 0682547352 | 0698949596<br>
-          <b>📧</b> twinz.cooperate.services@gmail.com<br>
-          <b>🌍 Supply:</b> Nationwide & Abroad<br>
-          <b>🏦 Bank:</b> Standard Bank | Acc: 10264594434 | Branch: 006145
-        </div>
+        <div class="bank-info"><b>🏦 Business Account:</b> Standard Bank 10264594434 | Branch: 006145<br><b>📱 Orders WhatsApp:</b> 0682547352 | 0698949596</div>
         <button class="btn-blue" onclick="document.getElementById('quickInvoiceModal').style.display='flex'" style="margin-bottom:15px">🧾 Quick Invoice</button>
         <div class="admin" style="background:#e3f2fd;border-left:4px solid var(--blue);margin-top:15px">
           <h4>📲 Share Customer Service Link</h4>
@@ -232,12 +214,6 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
       </div>
       <div id="tab-stock" style="display:none"><h3>📦 Stock Management</h3><div id="stockList"></div></div>
       <div id="tab-orders" style="display:none"><h3>📦 Customer Requests</h3><div id="ordersList">Loading requests...</div></div>
-      <div id="tab-vin" style="display:none">
-        <h3>🚗 VIN Decoder</h3>
-        <input type="text" id="adminVinInput" placeholder="Enter 17 Character VIN" maxlength="17">
-        <button class="btn" onclick="adminDecodeVIN()" style="width:100%;margin-top:8px">Decode VIN</button>
-        <div id="adminVinResult" class="vin-result" style="display:none"></div>
-      </div>
       <div id="tab-users" style="display:none"><h3>👥 Users & Roles</h3><p><b>CEO:</b> ceo@twinz.co.za</p><p><b>Manager:</b> manager@twinz.co.za</p><p><b>Reception:</b> reception@twinz.co.za</p><p><b>Sales:</b> sales@twinz.co.za</p></div>
       <div id="tab-reports" style="display:none"><h3>📊 Reports</h3><button class="btn-purple" onclick="downloadReport()">Download PDF Report</button> <button class="btn-green" onclick="downloadCSV()">Download CSV Spreadsheet</button></div>
     </div>
@@ -252,7 +228,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
     <div class="footer-title">TWINZ COOPERATE SERVICES PTY LTD</div>
     <div class="footer-line">Reg: 2024/444303/07 | 📧 <a href="mailto:twinz.cooperate.services@gmail.com">twinz.cooperate.services@gmail.com</a></div>
     <div class="footer-line">📞 0682547352 | 0698949596</div>
-    <div class="footer-line">📍 Limpopo Burgersfort 1150, Praktiseer Ext 2, Stand 3211 | P.O Box 638</div>
+    <div class="footer-line">📍 Limpopo Burgersfort 1150, Praktiseer Ext 02, Stand 3211 | P.O Box 638</div>
     <div class="footer-line">🏦 Standard Bank: 10264594434 | Branch: 006145 | Supply: Nationwide & Abroad</div>
     <div class="footer-copy">© 2026 TWINZ COOPERATE SERVICES. Business Solutions That Work.</div>
   </footer>
@@ -276,18 +252,17 @@ const firebaseConfig = {
   measurementId: "G-5J9KWSGP7C"
 };
 
-const BUSINESS_WHATSAPP = "27682547352";
 const COMPANY_NAME = "TWINZ COOPERATE SERVICES PTY LTD";
 const COMPANY_REG = "2024/444303/07";
 const COMPANY_BANK = "Standard Bank";
 const COMPANY_ACC = "10264594434";
 const COMPANY_BRANCH = "006145";
-const COMPANY_ADDRESS = "Limpopo Burgersfort 1150, Praktiseer Ext 2, Stand 3211";
+const COMPANY_ADDRESS = "Limpopo Burgersfort 1150, Praktiseer Ext 02, Stand 3211";
 const COMPANY_PO = "P.O Box 638";
 const COMPANY_EMAIL = "twinz.cooperate.services@gmail.com";
 const COMPANY_PHONE1 = "0682547352";
 const COMPANY_PHONE2 = "0698949596";
-const COMPANY_LOGO = "https://i.ibb.co/LXpRdM8Q/IMG-20260617-WA0011.png";
+const COMPANY_LOGO = "https://i.ibb.co/jPQpD0Ft/IMG-20260605-WA0002.png";
 
 document.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -375,7 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('userRole').innerText = currentUser.role.toUpperCase();
       document.getElementById('userRole').className = 'role-badge role-' + currentUser.role;
       if(currentUser.role == 'reception' || currentUser.role == 'sales') document.getElementById('usersTab').style.display = 'none';
-
+      
       const snapshot = await get(productsRef);
       if(!snapshot.exists()){
         seedDatabase();
@@ -388,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.showTab = (tab, el) => {
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     el.classList.add('active');
-    ['dashboard','products','stock','orders','vin','users','reports'].forEach(t=>{
+    ['dashboard','products','stock','orders','users','reports'].forEach(t=>{
       document.getElementById('tab-'+t).style.display = t==tab?'block':'none'
     })
   }
@@ -413,21 +388,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderPortfolioLinks(p){
     let links = '';
-    if(p.portfolio1) links += `<a href="${p.portfolio1}" target="_blank" class="portfolio-link">🔗 Portfolio 1</a>`;
-    if(p.portfolio2) links += `<a href="${p.portfolio2}" target="_blank" class="portfolio-link">🔗 Portfolio 2</a>`;
+    if(p.portfolio1) links += `<a href="${p.portfolio1}" target="_blank" class="portfolio-link">🔗 Demo 1</a>`;
+    if(p.portfolio2) links += `<a href="${p.portfolio2}" target="_blank" class="portfolio-link">🔗 Demo 2</a>`;
     return links;
   }
 
   function renderClientProducts(){
     if(!isClientMode) return;
     clientProductGrid.innerHTML = '';
-    if(currentFilter == 'VIN'){
-      document.getElementById('vinCheck').style.display = 'block';
-      clientProductGrid.innerHTML = '';
-      return;
-    } else {
-      document.getElementById('vinCheck').style.display = 'none';
-    }
     if(Object.keys(products).length === 0){ clientProductGrid.innerHTML = `<p style="text-align:center;grid-column:1/-1">Loading services...</p>`; return; }
     Object.entries(products).filter(([id,p])=>{ let matchCat = currentFilter == 'All' || p.category == currentFilter; let matchSearch = p.name.toLowerCase().includes(clientSearchInput.value.toLowerCase()); return matchCat && matchSearch; }).forEach(([id,p])=>{
       let imgs = getImages(p); let mainImg = imgs[0];
@@ -443,11 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(isClientMode) return;
     productGrid.innerHTML = '';
     if(Object.keys(products).length === 0){ productGrid.innerHTML = `<p style="text-align:center;grid-column:1/-1">No services yet. Click "Load Twinz Services"</p>`; return; }
-    Object.entries(products).filter(([id,p])=>{
-      let matchCat = currentFilter == 'All' || p.category == currentFilter;
-      let matchSearch = p.name.toLowerCase().includes(searchInput.value.toLowerCase());
-      return matchCat && matchSearch;
-    }).forEach(([id,p])=>{
+    Object.entries(products).filter(([id,p])=>{ let matchCat = currentFilter == 'All' || p.category == currentFilter; let matchSearch = p.name.toLowerCase().includes(searchInput.value.toLowerCase()); return matchCat && matchSearch; }).forEach(([id,p])=>{
       let imgs = getImages(p); let mainImg = imgs[0];
       let extraImgs = imgs.map((u,i)=>`<img src="${u}" class="${i==0?'active':''}" onclick="switchImage('${id}','${u}',this)" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
@@ -470,12 +434,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if(currentUser.role == 'reception' || currentUser.role == 'sales') return;
     productList.innerHTML = '';
     let searchTerm = adminSearch.value.toLowerCase();
-    Object.entries(products).filter(([id,p])=>{
-      return p.name.toLowerCase().includes(searchTerm) || p.category.toLowerCase().includes(searchTerm)
-    }).forEach(([id,p])=>{
+    Object.entries(products).filter(([id,p])=>{ return p.name.toLowerCase().includes(searchTerm) || p.category.toLowerCase().includes(searchTerm) }).forEach(([id,p])=>{
       let portfolioBtns = '';
-      if(p.portfolio1) portfolioBtns += `<a href="${p.portfolio1}" target="_blank" class="portfolio-link">Demo 1</a>`;
-      if(p.portfolio2) portfolioBtns += `<a href="${p.portfolio2}" target="_blank" class="portfolio-link">Demo 2</a>`;
+      if(p.portfolio1) portfolioBtns += `<a href="${p.portfolio1}" target="_blank" class="portfolio-link">Demo1</a>`;
+      if(p.portfolio2) portfolioBtns += `<a href="${p.portfolio2}" target="_blank" class="portfolio-link">Demo2</a>`;
       productList.innerHTML += `<div style="padding:10px;border:1px solid var(--border);border-radius:8px;margin:5px 0;background:#fafafa"><b>${p.name}</b> - R${p.price} - Stock: ${p.stock} - <small>${p.category}</small> ${portfolioBtns}<div style="float:right;gap:5px;display:flex"><button onclick="editProduct('${id}')" class="btn-blue" style="padding:5px 10px;font-size:12px">Edit</button>${currentUser.role== 'ceo'? `<button onclick="deleteProduct('${id}')" class="btn-danger" style="padding:5px 10px;font-size:12px">Del</button>` : ''}</div></div>`;
     })
     if(productList.innerHTML === '') productList.innerHTML = '<p style="text-align:center;color:var(--muted)">No services found</p>'
@@ -518,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadImageToPDF(doc, url, x, y, w, h, callback){
     const img = new Image(); img.crossOrigin = "anonymous";
     img.onload = () => { doc.addImage(img, 'PNG', x, y, w, h); callback(); }
-    img.onerror = () => callback(); // continue even if logo fails
+    img.onerror = () => callback();
     img.src = url;
   }
 
@@ -529,50 +491,30 @@ document.addEventListener('DOMContentLoaded', () => {
     let custEmail = document.getElementById('invCustEmail').value || o.customerEmail || '';
     let addTax = document.getElementById('invTaxToggle').checked; let isPaid = document.getElementById('invPaidToggle').checked;
     let subtotal = o.total; let tax = addTax? subtotal * 0.15 : 0; let grandTotal = subtotal + tax;
-
     const doc = new jsPDF();
     loadImageToPDF(doc, COMPANY_LOGO, 10, 10, 25, 25, () => {
       doc.setFontSize(14); doc.setFont(undefined, 'bold'); doc.text(COMPANY_NAME, 40, 18);
-      doc.setFontSize(8); doc.setFont(undefined, 'normal');
-      doc.text(`Reg: ${COMPANY_REG}`, 40, 23);
+      doc.setFontSize(8); doc.text(`Reg: ${COMPANY_REG}`, 40, 23);
       doc.text(`${COMPANY_ADDRESS} | ${COMPANY_PO}`, 40, 27);
       doc.text(`Bank: ${COMPANY_BANK} | Acc: ${COMPANY_ACC}`, 40, 31);
       doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 40, 35);
-      doc.text(`Email: ${COMPANY_EMAIL}`, 40, 39);
-
-      doc.setFontSize(16); doc.setFont(undefined, 'bold'); doc.text('TAX INVOICE', 150, 20);
+      doc.setFontSize(16); doc.setFont(undefined, 'bold'); doc.text("TAX INVOICE", 150, 20);
       doc.setFontSize(9); doc.text(`Invoice #: ${currentInvoiceId.slice(-6)}`, 150, 26);
-      doc.text(`Date: ${new Date().toISOString().split('T')[0]}`, 150, 30);
-
+      doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 150, 30);
       doc.line(10, 45, 200, 45);
-      doc.setFontSize(10); doc.text('BILL TO:', 10, 52);
-      doc.setFont(undefined, 'normal');
-      doc.text(custName, 10, 57);
-      doc.text(custPhone, 10, 61);
-      doc.text(custEmail, 10, 65);
-
-      let y = 75;
-      doc.setFont(undefined, 'bold');
-      doc.text('Description', 10, y); doc.text('Qty', 100, y); doc.text('Rate', 130, y); doc.text('Amount', 170, y);
-      doc.line(10, y+2, 200, y+2); y+=7;
-      doc.setFont(undefined, 'normal');
-      o.items.forEach(i=>{
-        doc.text(i.name, 10, y);
-        doc.text(i.qty.toString(), 100, y);
-        doc.text(`R${i.price}`, 130, y);
-        doc.text(`R${i.price*i.qty}`, 170, y);
-        y+=6;
-      });
-      y+=3; doc.line(130, y, 200, y); y+=6;
-      doc.text(`Subtotal: R${subtotal.toFixed(2)}`, 130, y); y+=6;
-      if(addTax) { doc.text(`VAT 15%: R${tax.toFixed(2)}`, 130, y); y+=6; }
+      doc.setFontSize(10); doc.text("BILL TO:", 10, 52); doc.setFontSize(9);
+      doc.text(custName, 10, 57); doc.text(custPhone, 10, 61); doc.text(custEmail, 10, 65);
+      let y = 75; doc.setFont(undefined, 'bold');
+      doc.text("Service", 10, y); doc.text("Qty", 100, y); doc.text("Rate", 130, y); doc.text("Amount", 170, y);
+      y += 5; doc.line(10, y, 200, y); y += 7; doc.setFont(undefined, 'normal');
+      o.items.forEach(i=>{ doc.text(i.name.substring(0,35), 10, y); doc.text(i.qty.toString(), 100, y); doc.text(`R${i.price}`, 130, y); doc.text(`R${i.price*i.qty}`, 170, y); y += 6; });
+      y += 3; doc.line(130, y, 200, y); y += 6; doc.text(`Subtotal: R${subtotal.toFixed(2)}`, 130, y); y += 6;
+      if(addTax){ doc.text(`VAT 15%: R${tax.toFixed(2)}`, 130, y); y += 6; }
       doc.setFont(undefined, 'bold'); doc.text(`TOTAL: R${grandTotal.toFixed(2)}`, 130, y);
-      y+=15; doc.setFontSize(8); doc.setFont(undefined, 'italic');
-      doc.text(`Send proof to WhatsApp: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 10, y);
-      doc.text('Thank you for choosing TWINZ COOPERATE SERVICES', 105, 285, {align:'center'});
-
-      doc.save(`TWINZ-Invoice-${currentInvoiceId.slice(-6)}.pdf`);
-      document.getElementById('invoiceModal').style.display='none';
+      doc.setFontSize(8); doc.setFont(undefined, 'normal');
+      doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC} | WhatsApp: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 105, 270, {align: "center"});
+      doc.text("Thank you for choosing TWINZ COOPERATE SERVICES", 105, 280, {align: "center"});
+      doc.save(`TWINZ-Invoice-${currentInvoiceId.slice(-6)}.pdf`); document.getElementById('invoiceModal').style.display='none';
     });
   }
 
@@ -597,11 +539,8 @@ document.addEventListener('DOMContentLoaded', () => {
       doc.setFontSize(14); doc.setFont(undefined, 'bold'); doc.text(COMPANY_NAME, 40, 18);
       doc.setFontSize(8); doc.text(`Reg: ${COMPANY_REG}`, 40, 23);
       doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 40, 27);
-      doc.setFontSize(16); doc.text('TAX INVOICE', 150, 20);
-      doc.setFontSize(10); doc.setFont(undefined, 'normal');
-      doc.text(`Name: ${name}`, 10, 50);
-      doc.text(`Phone: ${phone}`, 10, 55);
-      doc.text(`Email: ${email}`, 10, 60);
+      doc.setFontSize(16); doc.setFont(undefined, 'bold'); doc.text("TAX INVOICE", 150, 20);
+      doc.setFontSize(10); doc.text(`Name: ${name}`, 10, 50); doc.text(`Phone: ${phone}`, 10, 55); doc.text(`Email: ${email}`, 10, 60);
       doc.text(`- ${item} x${qty} = R${subtotal}`, 10, 70);
       doc.text(`Total: R${grandTotal.toFixed(2)}`, 10, 80);
       doc.save(`TWINZ-QuickInvoice-${invId}.pdf`);
@@ -610,48 +549,45 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function basicVINDecode(vin){
-    if(vin.length!== 17) return null;
-    let wmi = vin.substring(0,3);
-    let yearChar = vin[9];
-    let year = 2010 + "ABCDEFGHJKLMNPRSTUVWXYZ123456789".indexOf(yearChar);
-    return {
-      country: wmi[0] == '1' || wmi[0] == '4' || wmi[0] == '5'? 'USA' : wmi[0] == 'J'? 'Japan' : wmi[0] == 'W'? 'Germany' : 'Other',
-      year: year > 2000? year : "N/A"
-    }
-  }
-
-  window.decodeVIN = () => {
-    let vin = document.getElementById('vinInput').value.toUpperCase().trim();
-    let resultDiv = document.getElementById('vinResult');
-    if(vin.length!== 17){ resultDiv.innerHTML = '❌ VIN must be 17 characters'; resultDiv.style.display='block'; return; }
-    let data = basicVINDecode(vin);
-    resultDiv.innerHTML = data? `<b>VIN:</b> ${vin}<br><b>Country:</b> ${data.country}<br><b>Year:</b> ${data.year}` : '❌ Invalid VIN';
-    resultDiv.style.display='block';
-  }
-
-  window.adminDecodeVIN = window.decodeVIN;
-
   window.editProduct = (id) => { if(currentUser.role == 'reception' || currentUser.role == 'sales') return alert('No permission'); let p = products[id]; editingId = id; pName.value = p.name; pCat.value = p.category; pImg.value = p.img; pPortfolio1.value = p.portfolio1 || ''; pPortfolio2.value = p.portfolio2 || ''; pPrice.value = p.price; pOldPrice.value = p.oldPrice; pStock.value = p.stock; pDesc.value = p.desc; formTitle.innerText = "✏️ Editing: " + p.name; saveBtn.innerText = "Update Service"; saveBtn.style.background = "var(--blue)"; cancelBtn.style.display = "block"; document.getElementById('tab-products').scrollIntoView(); }
   window.cancelEdit = () => { editingId = null; [pName,pImg,pPortfolio1,pPortfolio2,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); formTitle.innerText = "➕ Add Service"; saveBtn.innerText = "Save Service"; saveBtn.style.background = "var(--accent)"; cancelBtn.style.display = "none"; }
   window.saveProduct = () => { if(currentUser.role == 'reception' || currentUser.role == 'sales') return alert('No permission'); let productData = { name: pName.value.trim(), category: pCat.value, img: pImg.value.trim() || COMPANY_LOGO, portfolio1: pPortfolio1.value.trim(), portfolio2: pPortfolio2.value.trim(), price: Number(pPrice.value) || 0, oldPrice: Number(pOldPrice.value) || 0, stock: Number(pStock.value) || 0, desc: pDesc.value.trim() }; if(!productData.name){ return alert('Please enter service name') } if(editingId){ set(ref(db, 'twinz_worldtier/categories/' + editingId), productData).then(()=>{ alert('Service Updated!'); cancelEdit(); }).catch(err=> alert('Error: ' + err.message)); } else { let id = Date.now().toString(); set(ref(db, 'twinz_worldtier/categories/' + id), productData).then(()=>{ [pName,pImg,pPortfolio1,pPortfolio2,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); }).catch(err=> alert('Error: ' + err.message)); } }
 
   function buildStockList(){ stockList.innerHTML = ''; Object.entries(products).forEach(([id,p])=>{ stockList.innerHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border);border-radius:8px;margin:5px 0"><div><b>${p.name}</b><br><small class="${p.stock<10?'stock-low':''}">Stock: ${p.stock}</small></div><div><input type="number" id="stock_${id}" value="0" style="width:80px"><button class="btn-green" onclick="updateStock('${id}')">+ Add</button></div></div>`; }) }
 
+  // TWINZ SERVICES - PRICES EDITABLE
   window.seedDatabase = () => {
     if(currentUser.role!= 'ceo' && currentUser.role!= 'manager') return alert('No permission');
     const defaultData = [
-      {name:"Web Development", category:"Tech", price:5000, stock:10, img:COMPANY_LOGO, desc:"Custom Websites", portfolio1:"https://yourportfolio.com/web1", portfolio2:"https://yourportfolio.com/web2"}
+      {name:"WiFi Installation", category:"Tech", price:1200, stock:50, img:COMPANY_LOGO, desc:"Installation", portfolio1:"https://yourportfolio.com/wifi1", portfolio2:"https://yourportfolio.com/wifi2"},
+      {name:"Computer Parts", category:"Products", price:800, stock:100, img:COMPANY_LOGO, desc:"RAM, SSD, etc"},
+      {name:"Diagnostic", category:"Tech", price:350, stock:100, img:COMPANY_LOGO, desc:"PC Diagnostic"},
+      {name:"Web Development", category:"Projects", price:5000, stock:10, img:COMPANY_LOGO, desc:"Website", portfolio1:"https://yourportfolio.com/web1", portfolio2:"https://yourportfolio.com/web2"},
+      {name:"App Development", category:"Projects", price:8000, stock:10, img:COMPANY_LOGO, desc:"Mobile App", portfolio1:"https://yourportfolio.com/app1", portfolio2:"https://yourportfolio.com/app2"},
+      {name:"Potatoes", category:"Products", price:150, stock:200, img:COMPANY_LOGO, desc:"10kg Bag"},
+      {name:"Atchar", category:"Products", price:45, stock:200, img:COMPANY_LOGO, desc:"500ml Bottle"},
+      {name:"Tomatoes", category:"Products", price:80, stock:200, img:COMPANY_LOGO, desc:"7kg Box"}
     ];
     defaultData.forEach(p=>{ let id = Date.now().toString() + Math.random(); set(ref(db, 'twinz_worldtier/categories/' + id), p); });
-    alert('✅ Twinz Services loaded!')
+    alert('✅ Twinz Services loaded! All prices editable')
   }
 
   window.deleteProduct = (id) => { if(currentUser.role!= 'ceo') return alert('CEO only'); if(confirm('Delete this service?')) remove(ref(db, 'twinz_worldtier/categories/' + id)) }
   window.updateStock = (id) => { let add = parseInt(document.getElementById('stock_'+id).value); set(ref(db, 'twinz_worldtier/categories/' + id + '/stock'), (products[id].stock||0) + add); document.getElementById('stock_'+id).value = 0; }
 
   window.addToCart = (id) => { let p = products[id]; let item = cart.find(x=>x.id==id); if(item){ item.qty++ } else { cart.push({id,name:p.name,price:p.price,qty:1,category:p.category}) } updateCart(); renderProducts(); renderClientProducts(); }
-  window.decreaseQty = (id) => { let item = cart.find(x=>x.id==id); if(item){ item.qty--; if(item.qty <= 0){ cart = cart.filter(x=>x.id!=id); } updateCart(); renderProducts(); renderClientProducts(); } }
+  window.decreaseQty = (id) => {
+    let item = cart.find(x=>x.id==id);
+    if(item){
+      item.qty--;
+      if(item.qty <= 0){
+        cart = cart.filter(x=>x.id!=id);
+      }
+    }
+    updateCart();
+    renderProducts();
+    renderClientProducts();
+  }
 
   function updateCart(){
     cartBar.style.display = cart.length?'block':'none'; clientCartBar.style.display = cart.length?'block':'none';
@@ -664,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(cart.length === 0) return alert('Cart empty');
     document.getElementById('waChoiceContainer').innerHTML = `
     <div class="wa-choice">
-      <b>Choose WhatsApp Number to Send Request:</b>
+      <b>Choose WhatsApp Number:</b>
       <label><input type="radio" name="waNum" value="27682547352" checked> 📞 0682547352</label>
       <label><input type="radio" name="waNum" value="27698949596"> 📞 0698949596</label>
     </div>`;
@@ -672,32 +608,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   window.sendQuote = () => {
-    let name = document.getElementById('custName').value.trim();
-    let phone = document.getElementById('custPhone').value.trim();
-    let email = document.getElementById('custEmail').value.trim();
+    let name = document.getElementById('custName').value.trim(); let phone = document.getElementById('custPhone').value.trim(); let email = document.getElementById('custEmail').value.trim();
     let selectedWA = document.querySelector('input[name="waNum"]:checked').value;
     if(!name ||!phone) return alert('Please enter Name and Phone');
-
-    let itemsText = cart.map(i=>`${i.name} x${i.qty} = R${i.price*i.qty}`).join('%0A');
-    let total = cart.reduce((a,b)=>a+b.qty*b.price,0);
-
-    // AUTOSYNC to Firebase
-    let orderId = Date.now().toString();
-    let orderData = { customerName:name, customerPhone:phone, customerEmail:email, items:cart, total:total, status:'Pending', date:Date.now() };
-    set(ref(db, 'twinz_worldtier/requests/' + orderId), orderData);
-
-    let msg = `*NEW SERVICE REQUEST - ${COMPANY_NAME}*%0A%0A*Name:* ${name}%0A*Phone:* ${phone}%0A*Email:* ${email}%0A%0A*The Order:*%0A${itemsText}%0A%0A*Total: R${total.toFixed(2)}*`;
-    window.open(`https://wa.me/${selectedWA}?text=${msg}`, '_blank');
+    const orderId = Date.now().toString();
+    const order = { user: isClientMode? name : currentUser.email, customerName: name, customerPhone: phone, customerEmail: email, items: cart, total: cart.reduce((a,b)=>a+b.qty*b.price,0), date: new Date().toISOString(), status: 'Pending' };
+    set(ref(db, 'twinz_worldtier/requests/' + orderId), order); // AUTOSYNC
+    let msg = `💼 ${COMPANY_NAME} REQUEST\nName: ${name}\nPhone: ${phone}\nEmail: ${email}\n` + cart.map(i=>`${i.name} x${i.qty} - R${i.price}`).join('\n') + `\nTotal: R${order.total}\n\n🏦 Bank: ${COMPANY_BANK} ${COMPANY_ACC}\n📱 Send proof to WhatsApp`;
+    window.open(`https://wa.me/${selectedWA}?text=${encodeURIComponent(msg)}`);
     cart = []; updateCart(); renderProducts(); renderClientProducts();
-    document.getElementById('customerModal').style.display='none';
-    document.getElementById('custName').value=''; document.getElementById('custPhone').value=''; document.getElementById('custEmail').value='';
-    alert('✅ Request sent & saved to Admin Dashboard!')
+    document.getElementById('customerModal').style.display='none'; document.getElementById('custName').value=''; document.getElementById('custPhone').value=''; document.getElementById('custEmail').value='';
+    alert('Request sent & saved to Admin!')
   }
 
   window.downloadReport = () => {
     const doc = new jsPDF(); doc.text(`${COMPANY_NAME} Report`, 10, 10);
-    doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 10, 16);
-    doc.save("TWINZ-Report.pdf");
+    doc.text(`Total Services: ${Object.keys(products).length}`, 10, 20);
+    doc.text(`Total Requests: ${Object.values(products).reduce((a,b)=>a+(b.stock||0),0)}`, 10, 30);
+    doc.text(`Pending: ${Object.values(orders).filter(o=>o.status=='Pending').length}`, 10, 40);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 10, 50); doc.save("TWINZ-Report.pdf");
   }
 
   window.downloadCSV = () => {
@@ -713,10 +642,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setClientLink(){ let link = window.location.origin + window.location.pathname + '?client=1'; if(document.getElementById('clientShareLink')) document.getElementById('clientShareLink').value = link; }
   window.copyClientLink = () => { let link = document.getElementById('clientShareLink'); link.select(); document.execCommand('copy'); alert('Service link copied! 📋'); }
-  window.shareClientWhatsApp = () => { let link = document.getElementById('clientShareLink').value; let msg = `💼 ${COMPANY_NAME} 💼\n\nRequest Business Services:\n${link}`; window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`); }
+  window.shareClientWhatsApp = () => { let link = document.getElementById('clientShareLink').value; let msg = `💼 ${COMPANY_NAME} 💼\n\nRequest services:\n${link}\n\n🏦 ${COMPANY_BANK}: ${COMPANY_ACC}\n📱 ${COMPANY_PHONE1} | ${COMPANY_PHONE2}\nBusiness Solutions That Work!`; window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`); }
   window.toggleDark = () => { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); }
   if(localStorage.getItem('darkMode')==='true') document.body.classList.add('dark-mode');
 });
+
+// FORCE CLEAR CACHE ONCE
+if('caches' in window){ caches.keys().then(names => names.forEach(name => caches.delete(name))); }
+if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())); }
+localStorage.clear(); sessionStorage.clear(); console.log("Cache cleared");
 </script>
 </body>
 </html>
