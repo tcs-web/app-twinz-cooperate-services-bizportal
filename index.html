@@ -79,6 +79,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 .portfolio-link{display:inline-block;margin-right:8px;margin-top:5px;font-size:11px;color:var(--accent);text-decoration:underline}
 .wa-choice{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:8px}
 .wa-choice label{display:flex;align-items:center;gap:8px;margin:5px 0;font-weight:600;cursor:pointer}
+.vin-result{background:#e8f5e9;padding:10px;border-radius:8px;margin-top:10px;font-size:12px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -112,6 +113,13 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
       <button onclick="filterCat('Projects', event)">Projects</button>
       <button onclick="filterCat('Tech', event)">Tech</button>
       <button onclick="filterCat('Products', event)">Products</button>
+      <button onclick="filterCat('VIN', event)">VIN Check</button>
+    </div>
+    <div id="vinCheck" style="display:none" class="admin">
+      <h3>🚗 VIN Decoder</h3>
+      <input type="text" id="vinInput" placeholder="Enter 17 Character VIN" maxlength="17">
+      <button class="btn" onclick="decodeVIN()" style="width:100%">Decode VIN</button>
+      <div id="vinResult" class="vin-result" style="display:none"></div>
     </div>
     <h2 style="margin:20px 0">📋 Services & Pricing</h2>
     <div class="grid" id="clientProductGrid"><div class="loading">Loading services...</div></div>
@@ -168,6 +176,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
         <div class="tab" onclick="showTab('products', this)">Services</div>
         <div class="tab" onclick="showTab('stock', this)">Stock</div>
         <div class="tab" onclick="showTab('orders', this)">Requests</div>
+        <div class="tab" onclick="showTab('vin', this)">VIN Decoder</div>
         <div class="tab" id="usersTab" onclick="showTab('users', this)">Users</div>
         <div class="tab" onclick="showTab('reports', this)">Reports</div>
       </div>
@@ -214,6 +223,12 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
       </div>
       <div id="tab-stock" style="display:none"><h3>📦 Stock Management</h3><div id="stockList"></div></div>
       <div id="tab-orders" style="display:none"><h3>📦 Customer Requests</h3><div id="ordersList">Loading requests...</div></div>
+      <div id="tab-vin" style="display:none">
+        <h3>🚗 VIN Decoder</h3>
+        <input type="text" id="adminVinInput" placeholder="Enter 17 Character VIN" maxlength="17">
+        <button class="btn" onclick="adminDecodeVIN()" style="width:100%;margin-top:8px">Decode VIN</button>
+        <div id="adminVinResult" class="vin-result" style="display:none"></div>
+      </div>
       <div id="tab-users" style="display:none"><h3>👥 Users & Roles</h3><p><b>CEO:</b> ceo@twinz.co.za</p><p><b>Manager:</b> manager@twinz.co.za</p><p><b>Reception:</b> reception@twinz.co.za</p><p><b>Sales:</b> sales@twinz.co.za</p></div>
       <div id="tab-reports" style="display:none"><h3>📊 Reports</h3><button class="btn-purple" onclick="downloadReport()">Download PDF Report</button> <button class="btn-green" onclick="downloadCSV()">Download CSV Spreadsheet</button></div>
     </div>
@@ -350,7 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('userRole').innerText = currentUser.role.toUpperCase();
       document.getElementById('userRole').className = 'role-badge role-' + currentUser.role;
       if(currentUser.role == 'reception' || currentUser.role == 'sales') document.getElementById('usersTab').style.display = 'none';
-      
+
       const snapshot = await get(productsRef);
       if(!snapshot.exists()){
         seedDatabase();
@@ -363,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.showTab = (tab, el) => {
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     el.classList.add('active');
-    ['dashboard','products','stock','orders','users','reports'].forEach(t=>{
+    ['dashboard','products','stock','orders','vin','users','reports'].forEach(t=>{
       document.getElementById('tab-'+t).style.display = t==tab?'block':'none'
     })
   }
@@ -395,6 +410,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderClientProducts(){
     if(!isClientMode) return;
+    if(currentFilter == 'VIN'){ document.getElementById('vinCheck').style.display = 'block'; clientProductGrid.innerHTML = ''; return; }
+    else { document.getElementById('vinCheck').style.display = 'none'; }
     clientProductGrid.innerHTML = '';
     if(Object.keys(products).length === 0){ clientProductGrid.innerHTML = `<p style="text-align:center;grid-column:1/-1">Loading services...</p>`; return; }
     Object.entries(products).filter(([id,p])=>{ let matchCat = currentFilter == 'All' || p.category == currentFilter; let matchSearch = p.name.toLowerCase().includes(clientSearchInput.value.toLowerCase()); return matchCat && matchSearch; }).forEach(([id,p])=>{
@@ -549,13 +566,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function basicVINDecode(vin){
+    if(vin.length!== 17) return null;
+    let wmi = vin.substring(0,3);
+    let yearChar = vin[9];
+    const yearMap = "ABCDEFGHJKLMNPRSTUVWXYZ123456789";
+    let year = 2010 + yearMap.indexOf(yearChar);
+    return {
+      country: wmi[0] == '1' || wmi[0] == '4' || wmi[0] == '5'? 'USA' : wmi[0] == 'J'? 'Japan' : wmi[0] == 'W'? 'Germany' : wmi[0] == 'S'? 'UK' : 'Other',
+      year: year > 1990? year : "N/A"
+    }
+  }
+  window.decodeVIN = () => {
+    let vin = document.getElementById('vinInput').value.toUpperCase().trim();
+    let resultDiv = document.getElementById('vinResult');
+    if(vin.length!== 17){ resultDiv.innerHTML = '❌ VIN must be 17 characters'; resultDiv.style.display='block'; return; }
+    let data = basicVINDecode(vin);
+    resultDiv.innerHTML = data? `<b>VIN:</b> ${vin}<br><b>Country:</b> ${data.country}<br><b>Year:</b> ${data.year}` : '❌ Invalid VIN';
+    resultDiv.style.display='block';
+  }
+  window.adminDecodeVIN = () => {
+    let vin = document.getElementById('adminVinInput').value.toUpperCase().trim();
+    let resultDiv = document.getElementById('adminVinResult');
+    if(vin.length!== 17){ resultDiv.innerHTML = '❌ VIN must be 17 characters'; resultDiv.style.display='block'; return; }
+    let data = basicVINDecode(vin);
+    resultDiv.innerHTML = data? `<b>VIN:</b> ${vin}<br><b>Country:</b> ${data.country}<br><b>Year:</b> ${data.year}` : '❌ Invalid VIN';
+    resultDiv.style.display='block';
+  }
+
   window.editProduct = (id) => { if(currentUser.role == 'reception' || currentUser.role == 'sales') return alert('No permission'); let p = products[id]; editingId = id; pName.value = p.name; pCat.value = p.category; pImg.value = p.img; pPortfolio1.value = p.portfolio1 || ''; pPortfolio2.value = p.portfolio2 || ''; pPrice.value = p.price; pOldPrice.value = p.oldPrice; pStock.value = p.stock; pDesc.value = p.desc; formTitle.innerText = "✏️ Editing: " + p.name; saveBtn.innerText = "Update Service"; saveBtn.style.background = "var(--blue)"; cancelBtn.style.display = "block"; document.getElementById('tab-products').scrollIntoView(); }
   window.cancelEdit = () => { editingId = null; [pName,pImg,pPortfolio1,pPortfolio2,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); formTitle.innerText = "➕ Add Service"; saveBtn.innerText = "Save Service"; saveBtn.style.background = "var(--accent)"; cancelBtn.style.display = "none"; }
   window.saveProduct = () => { if(currentUser.role == 'reception' || currentUser.role == 'sales') return alert('No permission'); let productData = { name: pName.value.trim(), category: pCat.value, img: pImg.value.trim() || COMPANY_LOGO, portfolio1: pPortfolio1.value.trim(), portfolio2: pPortfolio2.value.trim(), price: Number(pPrice.value) || 0, oldPrice: Number(pOldPrice.value) || 0, stock: Number(pStock.value) || 0, desc: pDesc.value.trim() }; if(!productData.name){ return alert('Please enter service name') } if(editingId){ set(ref(db, 'twinz_worldtier/categories/' + editingId), productData).then(()=>{ alert('Service Updated!'); cancelEdit(); }).catch(err=> alert('Error: ' + err.message)); } else { let id = Date.now().toString(); set(ref(db, 'twinz_worldtier/categories/' + id), productData).then(()=>{ [pName,pImg,pPortfolio1,pPortfolio2,pPrice,pOldPrice,pStock,pDesc].forEach(i=>i.value=''); alert('Service Added!'); }).catch(err=> alert('Error: ' + err.message)); } }
 
   function buildStockList(){ stockList.innerHTML = ''; Object.entries(products).forEach(([id,p])=>{ stockList.innerHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid var(--border);border-radius:8px;margin:5px 0"><div><b>${p.name}</b><br><small class="${p.stock<10?'stock-low':''}">Stock: ${p.stock}</small></div><div><input type="number" id="stock_${id}" value="0" style="width:80px"><button class="btn-green" onclick="updateStock('${id}')">+ Add</button></div></div>`; }) }
 
-  // TWINZ SERVICES - PRICES EDITABLE
   window.seedDatabase = () => {
     if(currentUser.role!= 'ceo' && currentUser.role!= 'manager') return alert('No permission');
     const defaultData = [
@@ -613,7 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!name ||!phone) return alert('Please enter Name and Phone');
     const orderId = Date.now().toString();
     const order = { user: isClientMode? name : currentUser.email, customerName: name, customerPhone: phone, customerEmail: email, items: cart, total: cart.reduce((a,b)=>a+b.qty*b.price,0), date: new Date().toISOString(), status: 'Pending' };
-    set(ref(db, 'twinz_worldtier/requests/' + orderId), order); // AUTOSYNC
+    set(ref(db, 'twinz_worldtier/requests/' + orderId), order);
     let msg = `💼 ${COMPANY_NAME} REQUEST\nName: ${name}\nPhone: ${phone}\nEmail: ${email}\n` + cart.map(i=>`${i.name} x${i.qty} - R${i.price}`).join('\n') + `\nTotal: R${order.total}\n\n🏦 Bank: ${COMPANY_BANK} ${COMPANY_ACC}\n📱 Send proof to WhatsApp`;
     window.open(`https://wa.me/${selectedWA}?text=${encodeURIComponent(msg)}`);
     cart = []; updateCart(); renderProducts(); renderClientProducts();
