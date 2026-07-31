@@ -586,14 +586,30 @@ window.downloadFinalInvoice = () => {
     let qty = Number(document.getElementById('quickInvQty').value) || 1;
     let price = Number(document.getElementById('quickInvPrice').value) || 0;
     let addTax = document.getElementById('quickInvTax').checked;
+    let isPaid = document.getElementById('quickInvPaid').checked;
 
     if(!name ||!item ||!price) return alert('Please fill Name, Service and Price');
 
     let subtotal = qty * price;
     let tax = addTax? subtotal * 0.15 : 0;
     let grandTotal = subtotal + tax;
-    let invId = Date.now().toString().slice(-6);
+    let invId = Date.now().toString();
 
+    // 1. SAVE TO FIREBASE FIRST so it shows in Admin + CSV
+    const order = { 
+      user: 'Walk-In', 
+      customerName: name, 
+      customerPhone: phone, 
+      customerEmail: email, 
+      items: [{name: item, price: price, qty: qty, category: 'Walk-In'}], 
+      total: grandTotal, 
+      date: new Date().toISOString(), 
+      status: isPaid ? 'Completed' : 'Pending',
+      type: 'Walk-In Invoice' 
+    };
+    set(ref(db, 'twinz_worldtier/requests/' + invId), order);
+
+    // 2. THEN GENERATE PDF
     const doc = new jsPDF();
     loadImageToPDF(doc, COMPANY_LOGO, 14, 12, 18, 18, () => {
       doc.setFontSize(12); doc.setFont(undefined, 'bold');
@@ -605,7 +621,7 @@ window.downloadFinalInvoice = () => {
       doc.setFontSize(14); doc.setFont(undefined, 'bold');
       doc.text("TAX INVOICE", 160, 16, {align: "right"});
       doc.setFontSize(9);
-      doc.text(`Invoice #: ${invId}`, 160, 21, {align: "right"});
+      doc.text(`Invoice #: ${invId.slice(-6)}`, 160, 21, {align: "right"});
       doc.text(`Date: ${new Date().toLocaleDateString()}`, 160, 25, {align: "right"});
 
       doc.line(14, 32, 196, 32);
@@ -623,15 +639,20 @@ window.downloadFinalInvoice = () => {
       doc.text(item.substring(0,40), 14, y); doc.text(qty.toString(), 110, y, {align: "right"}); doc.text(`R${price.toLocaleString()}`, 145, y, {align: "right"}); doc.text(`R${subtotal.toLocaleString()}`, 195, y, {align: "right"});
 
       y += 10; doc.line(120, y, 196, y); y += 6;
+      if(addTax) {
+        doc.text(`Subtotal: R${subtotal.toLocaleString()}.00`, 195, y, {align: "right"}); y += 6;
+        doc.text(`VAT 15%: R${tax.toLocaleString()}.00`, 195, y, {align: "right"}); y += 6;
+      }
+      doc.setFont(undefined, 'bold');
       doc.text(`TOTAL: R${grandTotal.toLocaleString()}.00`, 195, y, {align: "right"});
 
       doc.setFontSize(8);
       doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC} | WhatsApp: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 105, 280, {align: "center"});
       doc.text("Thank you for choosing TWINZ COOPERATE SERVICES", 105, 286, {align: "center"});
 
-      doc.save(`TWINZ-QuickInvoice-${invId}.pdf`);
+      doc.save(`TWINZ-QuickInvoice-${invId.slice(-6)}.pdf`);
       document.getElementById('quickInvoiceModal').style.display='none';
-      alert('✅ Walk-In Invoice saved!')
+      alert('✅ Walk-In Invoice saved to Admin & PDF downloaded!')
     });
   }
 
