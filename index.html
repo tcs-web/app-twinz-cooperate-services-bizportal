@@ -107,13 +107,12 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
     <div class="bank-info"><b>📍 Address:</b> Limpopo Burgersfort 1150, Praktiseer Ext 02, Stand 3211 | P.O Box 638<br><b>🌍 Supply:</b> Nationwide & Abroad</div>
     <div class="bank-info"><b>🏦 Bank:</b> Standard Bank | Acc: 10264594434 | Branch: 006145</div>
     <div class="nav-cats">
-      <button onclick="filterCat('All', event)" class="active">All</button>
+      <!-- ALL BUTTON REMOVED -->
       <button onclick="filterCat('Consulting', event)">Consulting</button>
       <button onclick="filterCat('Admin', event)">Admin</button>
       <button onclick="filterCat('Projects', event)">Projects</button>
       <button onclick="filterCat('Tech', event)">Tech</button>
       <button onclick="filterCat('Products', event)">Products</button>
-      <button onclick="filterCat('VIN', event)">VIN Check</button>
     </div>
     <div id="vinCheck" style="display:none" class="admin">
       <h3>🚗 VIN Decoder</h3>
@@ -160,12 +159,13 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
       </div>
     </div>
     <div class="nav-cats">
-      <button onclick="filterCat('All', event)" class="active">All</button>
+      <!-- ALL BUTTON REMOVED -->
       <button onclick="filterCat('Consulting', event)">Consulting</button>
       <button onclick="filterCat('Admin', event)">Admin</button>
       <button onclick="filterCat('Projects', event)">Projects</button>
       <button onclick="filterCat('Tech', event)">Tech</button>
       <button onclick="filterCat('Products', event)">Products</button>
+      <button onclick="filterCat('VIN', event)">VIN Check</button>
     </div>
   </div>
   <div class="container">
@@ -289,7 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const productsRef = ref(db, 'twinz_worldtier/categories');
   const ordersRef = ref(db, 'twinz_worldtier/requests');
   let products = {}; let orders = {}; let cart = [];
-  let currentUser = {role:'reception'}; let currentFilter = 'All'; let editingId = null; let deferredPrompt; let currentInvoiceId = null;
+  let currentUser = {role:'reception'}; let currentFilter = 'Consulting'; let editingId = null; let deferredPrompt; let currentInvoiceId = null;
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -371,7 +371,8 @@ document.addEventListener('DOMContentLoaded', () => {
         seedDatabase();
       }
 
-      buildProductList(); buildStockList(); buildOrders(); updateDashboard(); setClientLink();
+      buildProductList(); buildStockList(); buildOrders(); updateDashboard(); setClientLink();// Auto click first category so it's active
+document.querySelector('.nav-cats button').click();
     } else { loginScreen.style.display = 'block'; appDiv.style.display = 'none'; }
   })
 
@@ -414,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
     else { document.getElementById('vinCheck').style.display = 'none'; }
     clientProductGrid.innerHTML = '';
     if(Object.keys(products).length === 0){ clientProductGrid.innerHTML = `<p style="text-align:center;grid-column:1/-1">Loading services...</p>`; return; }
-    Object.entries(products).filter(([id,p])=>{ let matchCat = currentFilter == 'All' || p.category == currentFilter; let matchSearch = p.name.toLowerCase().includes(clientSearchInput.value.toLowerCase()); return matchCat && matchSearch; }).forEach(([id,p])=>{
+    Object.entries(products).filter(([id,p])=>{ let matchCat = p.category == currentFilter; let matchSearch = p.name.toLowerCase().includes(clientSearchInput.value.toLowerCase()); return matchCat && matchSearch; }).forEach(([id,p])=>{
       let imgs = getImages(p); let mainImg = imgs[0];
       let extraImgs = imgs.map((u,i)=>`<img src="${u}" class="${i==0?'active':''}" onclick="switchImage('${id}','${u}',this)" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
@@ -428,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(isClientMode) return;
     productGrid.innerHTML = '';
     if(Object.keys(products).length === 0){ productGrid.innerHTML = `<p style="text-align:center;grid-column:1/-1">No services yet. Click "Load Twinz Services"</p>`; return; }
-    Object.entries(products).filter(([id,p])=>{ let matchCat = currentFilter == 'All' || p.category == currentFilter; let matchSearch = p.name.toLowerCase().includes(searchInput.value.toLowerCase()); return matchCat && matchSearch; }).forEach(([id,p])=>{
+    Object.entries(products).filter(([id,p])=>{ let matchCat = p.category == currentFilter; let matchSearch = p.name.toLowerCase().includes(searchInput.value.toLowerCase()); return matchCat && matchSearch; }).forEach(([id,p])=>{
       let imgs = getImages(p); let mainImg = imgs[0];
       let extraImgs = imgs.map((u,i)=>`<img src="${u}" class="${i==0?'active':''}" onclick="switchImage('${id}','${u}',this)" onerror="this.style.display='none'">`).join('');
       let brands = p.desc? p.desc.split(',').map(b=>`<span class="brand-tag">${b}</span>`).join('') : '';
