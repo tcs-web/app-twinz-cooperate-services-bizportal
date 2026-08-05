@@ -573,7 +573,16 @@ window.downloadFinalInvoice = () => {
       doc.setFontSize(8); doc.setFont(undefined, 'normal');
       doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC} | WhatsApp: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 105, 280, {align: "center"});
       doc.text("Thank you for choosing TWINZ COOPERATE SERVICES", 105, 286, {align: "center"});
-
+      
+// PAID STAMP FOR NORMAL INVOICES
+let isPaidNormal = document.getElementById('invPaidToggle').checked;
+if(isPaidNormal) {
+  doc.setFontSize(22);
+  doc.setTextColor(0, 184, 148); // green
+  doc.setFont(undefined, 'bold');
+  doc.text("PAID", 105, 120, {align: "center", angle: 45});
+  doc.setTextColor(0, 0, 0); // reset to black
+  }
       doc.save(`TWINZ-Invoice-${currentInvoiceId.slice(-6)}.pdf`);
       document.getElementById('invoiceModal').style.display='none';
     });
