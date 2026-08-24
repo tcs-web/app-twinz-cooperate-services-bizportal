@@ -18,9 +18,9 @@ html, body{overflow-x:hidden; width:100%}
 .search-box input{border:none;outline:none;width:100%;background:transparent;color:#000}
 .nav-cats{display:flex;gap:15px;overflow-x:auto;margin-top:10px;padding-bottom:5px;padding-right:15px}
 .nav-cats button{background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 12px;border-radius:20px;font-weight:600;cursor:pointer;white-space:nowrap}
-#clientView .nav-cats button{background:#fff!important;color:#2d3436!important;border:1px solid #dfe6e9!important;opacity:1!important;font-weight:600!important;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
-#clientView .nav-cats button:hover{background:var(--accent)!important;color:#fff!important;transform:translateY(-1px)}
-#clientView .nav-cats button.active{background:var(--accent)!important;color:#fff!important;border:1px solid var(--accent)!important;border-bottom:3px solid #000!important;font-weight:800!important;box-shadow:0 2px 6px rgba(0,107,196,0.3)}
+#clientView.nav-cats button{background:#fff!important;color:#2d3436!important;border:1px solid #dfe6e9!important;opacity:1!important;font-weight:600!important;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+#clientView.nav-cats button:hover{background:var(--accent)!important;color:#fff!important;transform:translateY(-1px)}
+#clientView.nav-cats button.active{background:var(--accent)!important;color:#fff!important;border:1px solid var(--accent)!important;border-bottom:3px solid #000!important;font-weight:800!important;box-shadow:0 2px 6px rgba(0,107,196,0.3)}
 .container{max-width:100%;margin:0 auto;padding:10px}
 .banner{background:linear-gradient(135deg,#004B94,#006BC4);color:#fff;padding:20px;border-radius:15px;text-align:center;margin:15px 0;font-weight:800;font-size:18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
@@ -80,6 +80,11 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 .wa-choice{margin-top:10px;padding:10px;background:#f5f5f5;border-radius:8px}
 .wa-choice label{display:flex;align-items:center;gap:8px;margin:5px 0;font-weight:600;cursor:pointer}
 .vin-result{background:#e8f5e9;padding:10px;border-radius:8px;margin-top:10px;font-size:12px}
+/* NEW BANK FEATURES */
+.income-card{background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;padding:15px;border-radius:12px;margin:8px 0}
+.score-circle{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;margin:10px auto;color:#fff}
+.note-card{background:#fffbe6;border-left:4px solid #fdcb6e;padding:10px;border-radius:8px;margin:8px 0;position:relative}
+.note-pinned{border-left:4px solid var(--purple);background:#f3f0ff}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -107,7 +112,6 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
     <div class="bank-info"><b>📍 Address:</b> Limpopo Burgersfort 1150, Praktiseer Ext 02, Stand 3211 | P.O Box 638<br><b>🌍 Supply:</b> Nationwide & Abroad</div>
     <div class="bank-info"><b>🏦 Bank:</b> Standard Bank | Acc: 10264594434 | Branch: 006145</div>
     <div class="nav-cats">
-      <!-- ALL BUTTON REMOVED -->
       <button onclick="filterCat('Consulting', event)">Consulting</button>
       <button onclick="filterCat('Admin', event)">Admin</button>
       <button onclick="filterCat('Projects', event)">Projects</button>
@@ -124,7 +128,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
     <div class="grid" id="clientProductGrid"><div class="loading">Loading services...</div></div>
   </div>
   <div class="cart-bar" id="clientCartBar">
-    <b>Cart: <span id="clientCartCount">0</span> | Total: R<span id="clientCartTotal">0</span></b>
+    <b>Cart: <span id="clientCartCount">0</span> | Total: R<span id="clientCartCount">0</span></b>
     <button class="btn" onclick="openCustomerModal()">Request Service</button>
   </div>
   <footer class="site-footer">
@@ -159,7 +163,6 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
       </div>
     </div>
     <div class="nav-cats">
-      <!-- ALL BUTTON REMOVED -->
       <button onclick="filterCat('Consulting', event)">Consulting</button>
       <button onclick="filterCat('Admin', event)">Admin</button>
       <button onclick="filterCat('Projects', event)">Projects</button>
@@ -173,6 +176,11 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
     <div class="admin" id="adminPanel">
       <div class="tabs">
         <div class="tab active" onclick="showTab('dashboard', this)">Dashboard</div>
+        <div class="tab" onclick="showTab('income', this)">💰 Income</div>
+        <div class="tab" onclick="showTab('tax', this)">🧮 Tax Helper</div>
+        <div class="tab" onclick="showTab('score', this)">🏦 Funding Score</div>
+        <div class="tab" onclick="showTab('vault', this)">📁 Vault</div>
+        <div class="tab" onclick="showTab('notes', this)">📝 Notes</div>
         <div class="tab" onclick="showTab('products', this)">Services</div>
         <div class="tab" onclick="showTab('stock', this)">Stock</div>
         <div class="tab" onclick="showTab('orders', this)">Requests</div>
@@ -199,6 +207,78 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
           </div>
         </div>
       </div>
+
+      <!-- 1. DAILY INCOME TRACKER -->
+      <div id="tab-income" style="display:none">
+        <h3>💰 Daily Income Tracker - FOR BANK</h3>
+        <div class="stats">
+          <div class="stat-card" style="background:linear-gradient(135deg,#00b894,#00cec9)"><h4 id="incomeToday">R0</h4><small>Today</small></div>
+          <div class="stat-card" style="background:linear-gradient(135deg,#0984e3,#74b9ff)"><h4 id="incomeWeek">R0</h4><small>This Week</small></div>
+          <div class="stat-card" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)"><h4 id="incomeMonth">R0</h4><small>This Month</small></div>
+        </div>
+        <div class="income-card"><b>Total All Time Income:</b> <span id="incomeAll">R0</span><br><small>Based on COMPLETED requests + Quick Invoices</small></div>
+        <div class="bank-info">💡 Banks love DAILY income. Show them this screen. Your income is tracked from every Completed order.</div>
+        <div id="incomeList"></div>
+      </div>
+
+      <!-- 2. TAX HELPER -->
+      <div id="tab-tax" style="display:none">
+        <h3>🧮 Simple Tax Helper - SA Small Business</h3>
+        <div class="bank-info">You make less than R50k/month. You are NOT required to charge VAT. Toggle VAT OFF for now. SARS limit is R1M per year.</div>
+        <div class="admin" style="background:#fffbe6">
+          <label><b>VAT Mode:</b></label>
+          <select id="vatMode" onchange="buildTaxHelper()"><option value="no">No VAT - Not Registered (Recommended for you)</option><option value="yes">Yes - VAT Registered 15%</option></select>
+          <div style="margin-top:15px">
+            <b>Estimated Turnover (12 months):</b> <span id="taxTurnover">R0</span><br>
+            <b>Status:</b> <span id="taxStatus"></span><br><br>
+            <b>Tax Breakdown:</b>
+            <div id="taxBreakdown" style="background:#f5f5f5;padding:10px;border-radius:8px;margin-top:8px"></div>
+          </div>
+          <div class="bank-info" style="margin-top:10px"><b>Invoice Footer:</b><br><span id="taxFooter">TWINZ COOPERATE SERVICES PTY LTD - Not VAT Registered - No VAT Charged - Reg: 2024/444303/07</span></div>
+        </div>
+      </div>
+
+      <!-- 3. FUNDING READINESS SCORE -->
+      <div id="tab-score" style="display:none">
+        <h3>🏦 Funding Readiness Score - For Bank Loan</h3>
+        <div id="scoreCircle" class="score-circle" style="background:#dfe6e9">0%</div>
+        <h4 style="text-align:center" id="scoreText">Calculating...</h4>
+        <div id="scoreChecklist"></div>
+        <div class="bank-info"><b>To get 100%:</b><br>1. Upload CIPC, ID, Proof of Address, Bank Statement 3 months<br>2. Have at least 10 Completed orders<br>3. Have R10k+ income this month<br>4. Keep notes up to date</div>
+        <button class="btn-purple" style="width:100%;margin-top:10px" onclick="downloadFundingReport()">📄 Download Funding Readiness PDF for Bank</button>
+      </div>
+
+      <!-- 4. DOCUMENT VAULT WITH PDF UPLOAD -->
+      <div id="tab-vault" style="display:none">
+        <h3>📁 Document Vault - Upload & Download PDF</h3>
+        <div class="bank-info">Upload real PDF files. Banks ask for these. Max 2MB per file (compress if bigger).</div>
+        <div class="admin" style="background:#f8f9fa">
+          <select id="docType">
+            <option>CIPC Certificate</option><option>ID Document</option><option>Proof of Address</option><option>Bank Statement 3 Months</option><option>Tax Clearance</option><option>Business Profile</option><option>Other</option>
+          </select>
+          <input type="text" id="docName" placeholder="Document Name e.g. CIPC 2024">
+          <input type="text" id="docLink" placeholder="Optional: Google Drive Link">
+          <label style="font-size:12px;font-weight:700;margin-top:8px;display:block">📄 Upload PDF/Image from phone:</label>
+          <input type="file" id="docFile" accept=".pdf,.jpg,.jpeg,.png">
+          <button class="btn-purple" style="width:100%;margin-top:10px" id="saveDocBtn" onclick="saveDocument()">💾 Save to Vault</button>
+        </div>
+        <div id="vaultList"></div>
+      </div>
+
+      <!-- 5. ADMIN NOTES WITH PIN EDIT DELETE -->
+      <div id="tab-notes" style="display:none">
+        <h3>📝 Admin Notes - What To Do Next</h3>
+        <div class="admin" style="background:#fffbe6">
+          <textarea id="noteText" placeholder="Write reminder: e.g. Call customer Thabo hasn't paid R1200, appointment tomorrow 10am..."></textarea>
+          <button class="btn" style="width:100%" onclick="saveNote()">+ Add Note</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <button class="btn-gray" style="font-size:11px" onclick="filterNotes('all')">All</button>
+          <button class="btn-purple" style="font-size:11px" onclick="filterNotes('pinned')">📌 Pinned Only</button>
+        </div>
+        <div id="notesList"></div>
+      </div>
+
       <div id="tab-products" style="display:none">
         <h3 id="formTitle">➕ Add Service</h3>
         <button class="btn-purple" onclick="seedDatabase()">⚡ Load Twinz Services</button>
@@ -251,7 +331,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getDatabase, ref, set, onValue, remove, get } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getDatabase, ref, set, onValue, remove, get, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getAnalytics } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
 const { jsPDF } = window.jspdf;
@@ -288,8 +368,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const auth = getAuth(app);
   const productsRef = ref(db, 'twinz_worldtier/categories');
   const ordersRef = ref(db, 'twinz_worldtier/requests');
+  const notesRef = ref(db, 'twinz_worldtier/notes');
+  const vaultRef = ref(db, 'twinz_worldtier/vault');
   let products = {}; let orders = {}; let cart = [];
-  let currentUser = {role:'reception'}; let currentFilter = 'Consulting'; let editingId = null; let deferredPrompt; let currentInvoiceId = null;
+  let vaultDocs = {}; let adminNotes = {}; let notesFilter='all';
+  let currentUser = {role:'reception'}; let currentFilter = 'Consulting'; let editingId = null; let editingNoteId = null; let deferredPrompt; let currentInvoiceId = null;
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -371,27 +454,175 @@ document.addEventListener('DOMContentLoaded', () => {
         seedDatabase();
       }
 
-      buildProductList(); buildStockList(); buildOrders(); updateDashboard(); setClientLink();// Auto click first category so it's active
-document.querySelector('.nav-cats button').click();
+      buildProductList(); buildStockList(); buildOrders(); updateDashboard(); setClientLink();
+      document.querySelector('.nav-cats button').click();
     } else { loginScreen.style.display = 'block'; appDiv.style.display = 'none'; }
   })
 
   window.showTab = (tab, el) => {
     document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
     el.classList.add('active');
-    ['dashboard','products','stock','orders','vin','users','reports'].forEach(t=>{
+    ['dashboard','income','tax','score','vault','notes','products','stock','orders','vin','users','reports'].forEach(t=>{
       document.getElementById('tab-'+t).style.display = t==tab?'block':'none'
     })
+    if(tab=='income') buildIncome(); if(tab=='tax') buildTaxHelper(); if(tab=='score') buildScore(); if(tab=='vault') buildVault(); if(tab=='notes') buildNotes();
   }
 
-  onValue(productsRef, snap => { products = snap.val() || {}; renderProducts(); renderClientProducts(); buildProductList(); buildStockList(); updateDashboard(); })
-  onValue(ordersRef, snap => { orders = snap.val() || {}; buildOrders(); updateDashboard(); })
+  onValue(productsRef, snap => { products = snap.val() || {}; renderProducts(); renderClientProducts(); buildProductList(); buildStockList(); updateDashboard(); buildIncome(); buildTaxHelper(); buildScore(); })
+  onValue(ordersRef, snap => { orders = snap.val() || {}; buildOrders(); updateDashboard(); buildIncome(); buildTaxHelper(); buildScore(); })
+  onValue(vaultRef, snap => { vaultDocs = snap.val() || {}; buildVault(); buildScore(); })
+  onValue(notesRef, snap => { adminNotes = snap.val() || {}; buildNotes(); buildScore(); })
 
   function updateDashboard(){
     document.getElementById('statProducts').innerText = Object.keys(products).length;
     document.getElementById('statStock').innerText = Object.values(products).reduce((a,b)=>a+(b.stock||0),0);
     document.getElementById('statOrders').innerText = Object.values(orders).filter(o=>o.status=='Pending').length;
   }
+
+  // === NEW: INCOME TRACKER ===
+  function buildIncome(){
+    if(!document.getElementById('incomeList')) return;
+    let today = new Date().toDateString(); let weekStart = new Date(); weekStart.setDate(weekStart.getDate()-7); let monthStart = new Date(); monthStart.setDate(1);
+    let t=0,w=0,m=0,all=0; let list=[];
+    Object.values(orders).forEach(o=>{
+      if(o.status!=='Completed') return;
+      let d = new Date(o.date); let total = Number(o.total)||0; all+=total;
+      if(d.toDateString()===today) t+=total;
+      if(d>=weekStart) w+=total;
+      if(d>=monthStart) m+=total;
+      list.push(o);
+    });
+    document.getElementById('incomeToday').innerText='R'+t.toLocaleString();
+    document.getElementById('incomeWeek').innerText='R'+w.toLocaleString();
+    document.getElementById('incomeMonth').innerText='R'+m.toLocaleString();
+    document.getElementById('incomeAll').innerText='R'+all.toLocaleString();
+    let div=document.getElementById('incomeList'); div.innerHTML='';
+    list.reverse().slice(0,20).forEach(o=>{
+      div.innerHTML+=`<div class="order-card"><b>${o.customerName||'Guest'}</b> - R${o.total} - ${new Date(o.date).toLocaleDateString()}<br><small>${o.items.map(i=>i.name).join(', ')}</small></div>`;
+    });
+    if(list.length===0) div.innerHTML='<p style="color:var(--muted)">No completed income yet. Mark requests as Completed or use Quick Invoice with PAID.</p>';
+  }
+  window.buildIncome = buildIncome;
+
+  // === NEW: TAX HELPER ===
+  function buildTaxHelper(){
+    if(!document.getElementById('taxTurnover')) return;
+    let all = Object.values(orders).filter(o=>o.status==='Completed').reduce((a,b)=>a+(Number(b.total)||0),0);
+    let vatMode = document.getElementById('vatMode').value;
+    document.getElementById('taxTurnover').innerText='R'+all.toLocaleString();
+    let statusEl=document.getElementById('taxStatus');
+    if(all<50000){ statusEl.innerHTML='<span style="color:var(--green);font-weight:700">✅ Small Business - No VAT needed (Under R50k)</span>'; }
+    else if(all<1000000){ statusEl.innerHTML='<span style="color:var(--blue);font-weight:700">ℹ️ Voluntary VAT - You CAN register but not forced (R50k - R1M)</span>'; }
+    else{ statusEl.innerHTML='<span style="color:var(--danger);font-weight:700">⚠️ MUST Register for VAT - Over R1M</span>'; }
+    let vat = vatMode==='yes'? all*0.15 : 0; let net = all - vat;
+    document.getElementById('taxBreakdown').innerHTML=`
+      Turnover: R${all.toLocaleString()}<br>
+      VAT 15%: R${vat.toLocaleString()} ${vatMode==='no'?'(R0 because Not Registered)':''}<br>
+      <b>Net Income: R${net.toLocaleString()}</b><br><br>
+      <small>For SARS: Small business under R1M does NOT charge VAT. Just keep this record for bank.</small>
+    `;
+    document.getElementById('taxFooter').innerText = vatMode==='yes'? `${COMPANY_NAME} - VAT Registered - VAT No: (Add yours) - Reg: ${COMPANY_REG}` : `${COMPANY_NAME} - Not VAT Registered - No VAT Charged - Reg: ${COMPANY_REG}`;
+  }
+  window.buildTaxHelper = buildTaxHelper;
+
+  // === NEW: FUNDING SCORE ===
+  function buildScore(){
+    if(!document.getElementById('scoreChecklist')) return;
+    let score=0; let checks=[];
+    let hasCIPC = Object.values(vaultDocs).some(d=>d.type==='CIPC Certificate');
+    let hasID = Object.values(vaultDocs).some(d=>d.type==='ID Document');
+    let hasAddress = Object.values(vaultDocs).some(d=>d.type==='Proof of Address');
+    let hasBank = Object.values(vaultDocs).some(d=>d.type==='Bank Statement 3 Months');
+    let completed = Object.values(orders).filter(o=>o.status==='Completed').length;
+    let monthIncome = (()=>{let s=new Date(); s.setDate(1); return Object.values(orders).filter(o=>o.status==='Completed' && new Date(o.date)>=s).reduce((a,b)=>a+(Number(b.total)||0),0)})();
+    let notesCount = Object.keys(adminNotes).length;
+
+    if(hasCIPC){score+=20; checks.push('✅ CIPC Certificate uploaded');} else checks.push('❌ CIPC Certificate missing');
+    if(hasID){score+=15; checks.push('✅ ID Document uploaded');} else checks.push('❌ ID Document missing');
+    if(hasAddress){score+=10; checks.push('✅ Proof of Address uploaded');} else checks.push('❌ Proof of Address missing');
+    if(hasBank){score+=20; checks.push('✅ Bank Statement uploaded');} else checks.push('❌ Bank Statement 3 months missing');
+    if(completed>=10){score+=20; checks.push(`✅ ${completed} Completed orders (10+ needed)`);} else checks.push(`❌ Only ${completed} Completed orders - Need 10+`);
+    if(monthIncome>=10000){score+=10; checks.push(`✅ R${monthIncome.toLocaleString()} this month income`);} else checks.push(`❌ R${monthIncome.toLocaleString()} this month - Need R10k+`);
+    if(notesCount>=3){score+=5; checks.push(`✅ ${notesCount} admin notes kept`);} else checks.push(`❌ Only ${notesCount} notes - Add more reminders`);
+
+    let circle=document.getElementById('scoreCircle');
+    circle.innerText=score+'%';
+    if(score<40) circle.style.background='var(--danger)'; else if(score<75) circle.style.background='#f39c12'; else circle.style.background='var(--green)';
+    document.getElementById('scoreText').innerText = score>=80? '🔥 Ready for Bank!' : score>=50? '🟡 Almost Ready' : '🔴 Not Ready Yet';
+    document.getElementById('scoreChecklist').innerHTML = checks.map(c=>`<div class="order-card">${c}</div>`).join('');
+  }
+  window.buildScore = buildScore;
+  window.downloadFundingReport = ()=>{
+    const doc=new jsPDF(); doc.text(`${COMPANY_NAME} - Funding Readiness Report`,10,15);
+    doc.text(`Score: ${document.getElementById('scoreCircle').innerText}`,10,25);
+    doc.text(`Date: ${new Date().toLocaleString()}`,10,35);
+    let y=45; document.getElementById('scoreChecklist').innerText.split('\n').forEach(l=>{doc.text(l,10,y); y+=8});
+    doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC} Branch ${COMPANY_BRANCH}`,10,y+10);
+    doc.save(`TWINZ-Funding-Score-${new Date().toISOString().split('T')[0]}.pdf`);
+  }
+
+  // === NEW: VAULT WITH PDF UPLOAD ===
+  window.saveDocument = ()=>{
+    let type=document.getElementById('docType').value; let name=document.getElementById('docName').value.trim();
+    let link=document.getElementById('docLink').value.trim(); let fileInput=document.getElementById('docFile'); let btn=document.getElementById('saveDocBtn');
+    if(!name) return alert('Enter document name');
+    if(fileInput.files.length>0){
+      let file=fileInput.files[0]; if(file.size>2*1024*1024) return alert('File too big! Max 2MB. Compress PDF.');
+      btn.innerText='⏳ Uploading...'; btn.disabled=true;
+      let reader=new FileReader();
+      reader.onload=(e)=>{
+        let id=Date.now().toString();
+        set(ref(db,'twinz_worldtier/vault/'+id),{type,name,link,fileData:e.target.result,fileName:file.name,fileType:file.type,date:new Date().toISOString()}).then(()=>{
+          document.getElementById('docName').value=''; document.getElementById('docLink').value=''; fileInput.value=''; btn.innerText='💾 Save to Vault'; btn.disabled=false; alert('✅ PDF uploaded!');
+        });
+      }; reader.readAsDataURL(file);
+    } else {
+      if(!link) return alert('Upload PDF OR paste link');
+      let id=Date.now().toString(); set(ref(db,'twinz_worldtier/vault/'+id),{type,name,link,date:new Date().toISOString()}); document.getElementById('docName').value=''; document.getElementById('docLink').value=''; alert('✅ Link saved');
+    }
+  }
+  function buildVault(){
+    let div=document.getElementById('vaultList'); if(!div) return; div.innerHTML='';
+    if(Object.keys(vaultDocs).length===0){div.innerHTML='<p style="color:var(--muted)">No documents yet. Upload CIPC, ID, Bank Statement PDF.</p>'; return;}
+    Object.entries(vaultDocs).reverse().forEach(([id,d])=>{
+      let fileBtn=d.fileData? `<button class="btn-green" style="padding:5px 10px;font-size:11px" onclick="downloadVaultFile('${id}')">📥 Download ${d.fileName||'PDF'}</button> `:'';
+      let linkBtn=d.link? `<a href="${d.link}" target="_blank" style="color:var(--accent);word-break:break-all;display:block;margin:5px 0;font-size:11px">${d.link}</a>`:'';
+      div.innerHTML+=`<div class="order-card"><b>${d.type}</b> - ${d.name}<br><small>${new Date(d.date).toLocaleString()}</small><br>${linkBtn}${fileBtn}<button class="btn-danger" style="padding:5px 10px;font-size:11px" onclick="deleteDoc('${id}')">Delete</button></div>`;
+    });
+  }
+  window.buildVault = buildVault;
+  window.downloadVaultFile=(id)=>{ let d=vaultDocs[id]; if(!d||!d.fileData) return; let a=document.createElement('a'); a.href=d.fileData; a.download=d.fileName||d.name+'.pdf'; a.click(); }
+  window.deleteDoc=(id)=>{ if(confirm('Delete document?')) remove(ref(db,'twinz_worldtier/vault/'+id)); }
+
+  // === NEW: ADMIN NOTES WITH PIN EDIT DELETE ===
+  window.saveNote=()=>{
+    let text=document.getElementById('noteText').value.trim(); if(!text) return alert('Write note');
+    if(editingNoteId){
+      update(ref(db,'twinz_worldtier/notes/'+editingNoteId),{text,date:new Date().toISOString()}); editingNoteId=null; document.getElementById('noteText').value=''; alert('✅ Note updated');
+    } else {
+      let id=Date.now().toString(); set(ref(db,'twinz_worldtier/notes/'+id),{text,pinned:false,date:new Date().toISOString()}); document.getElementById('noteText').value='';
+    }
+  }
+  function buildNotes(){
+    let div=document.getElementById('notesList'); if(!div) return; div.innerHTML='';
+    let entries=Object.entries(adminNotes);
+    if(notesFilter==='pinned') entries=entries.filter(([id,n])=>n.pinned);
+    entries.sort((a,b)=>{ if(a[1].pinned &&!b[1].pinned) return -1; if(!a[1].pinned && b[1].pinned) return 1; return new Date(b[1].date)-new Date(a[1].date); });
+    if(entries.length===0){div.innerHTML='<p style="color:var(--muted)">No notes yet. Add: appointments, customers not paid, to-do.</p>'; return;}
+    entries.forEach(([id,n])=>{
+      div.innerHTML+=`<div class="note-card ${n.pinned?'note-pinned':''}"><b>${n.pinned?'📌 PINNED - ':''}</b>${n.text}<br><small>${new Date(n.date).toLocaleString()}</small><br>
+      <div style="margin-top:6px;display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn-purple" style="padding:4px 8px;font-size:11px" onclick="pinNote('${id}')">${n.pinned?'Unpin':'📌 Pin'}</button>
+        <button class="btn-blue" style="padding:4px 8px;font-size:11px" onclick="editNote('${id}')">Edit</button>
+        <button class="btn-danger" style="padding:4px 8px;font-size:11px" onclick="deleteNote('${id}')">Delete</button>
+      </div></div>`;
+    });
+  }
+  window.buildNotes=buildNotes;
+  window.pinNote=(id)=>{ let n=adminNotes[id]; update(ref(db,'twinz_worldtier/notes/'+id),{pinned:!n.pinned}); }
+  window.editNote=(id)=>{ let n=adminNotes[id]; document.getElementById('noteText').value=n.text; editingNoteId=id; document.getElementById('tab-notes').scrollIntoView(); }
+  window.deleteNote=(id)=>{ if(confirm('Delete note?')) remove(ref(db,'twinz_worldtier/notes/'+id)); }
+  window.filterNotes=(f)=>{ notesFilter=f; buildNotes(); }
 
   function getImages(p){ if(!p.img) return [COMPANY_LOGO]; return p.img.split(',').map(s=>s.trim()).filter(s=>s); }
   window.switchImage = (cardId, imgUrl, thumb) => { document.getElementById('main_'+cardId).src = imgUrl; document.querySelectorAll(`#card_${cardId}.card-imgs img`).forEach(i=>i.classList.remove('active')); thumb.classList.add('active'); }
@@ -515,7 +746,6 @@ window.downloadFinalInvoice = () => {
     const doc = new jsPDF();
 
     loadImageToPDF(doc, COMPANY_LOGO, 14, 12, 18, 18, () => {
-      // HEADER
       doc.setFontSize(12); doc.setFont(undefined, 'bold');
       doc.text(COMPANY_NAME, 36, 16);
       doc.setFontSize(8); doc.setFont(undefined, 'normal');
@@ -523,24 +753,17 @@ window.downloadFinalInvoice = () => {
       doc.text(`${COMPANY_ADDRESS} | ${COMPANY_PO}`, 36, 25);
       doc.text(`Bank: ${COMPANY_BANK} | Acc: ${COMPANY_ACC}`, 36, 29);
       doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 36, 33);
-
-      // TAX INVOICE RIGHT
       doc.setFontSize(14); doc.setFont(undefined, 'bold');
       doc.text("TAX INVOICE", 160, 16, {align: "right"});
       doc.setFontSize(9); doc.setFont(undefined, 'normal');
       doc.text(`Invoice #: ${currentInvoiceId.slice(-6)}`, 160, 21, {align: "right"});
       doc.text(`Date: ${new Date(o.date).toLocaleDateString()}`, 160, 25, {align: "right"});
-
-      doc.line(14, 40, 196, 40); // line
-
-      // BILL TO
+      doc.line(14, 40, 196, 40);
       doc.setFontSize(10); doc.setFont(undefined, 'bold'); doc.text("BILL TO:", 14, 47);
       doc.setFontSize(9); doc.setFont(undefined, 'normal');
       doc.text(custName, 14, 52);
       doc.text(custPhone, 14, 56);
       doc.text(custEmail, 14, 60);
-
-      // TABLE HEADER
       let y = 72;
       doc.setFont(undefined, 'bold');
       doc.text("Service", 14, y);
@@ -549,8 +772,6 @@ window.downloadFinalInvoice = () => {
       doc.text("Amount", 195, y, {align: "right"});
       y += 3; doc.line(14, y, 196, y); y += 6;
       doc.setFont(undefined, 'normal');
-
-      // TABLE ROWS
       o.items.forEach(i=>{
         doc.text(i.name.substring(0,40), 14, y);
         doc.text(i.qty.toString(), 110, y, {align: "right"});
@@ -558,7 +779,6 @@ window.downloadFinalInvoice = () => {
         doc.text(`R${(i.price*i.qty).toLocaleString()}`, 195, y, {align: "right"});
         y += 7;
       });
-
       y += 2; doc.line(120, y, 196, y); y += 6;
       doc.text(`Subtotal: R${subtotal.toLocaleString()}.00`, 195, y, {align: "right"});
       y += 6;
@@ -568,20 +788,16 @@ window.downloadFinalInvoice = () => {
       }
       doc.setFont(undefined, 'bold');
       doc.text(`TOTAL: R${grandTotal.toLocaleString()}.00`, 195, y, {align: "right"});
-
-      // FOOTER
       doc.setFontSize(8); doc.setFont(undefined, 'normal');
       doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC} | WhatsApp: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 105, 280, {align: "center"});
       doc.text("Thank you for choosing TWINZ COOPERATE SERVICES", 105, 286, {align: "center"});
-      
-// PAID STAMP FOR NORMAL INVOICES
 let isPaidNormal = document.getElementById('invPaidToggle').checked;
 if(isPaidNormal) {
   doc.setFontSize(22);
-  doc.setTextColor(0, 184, 148); // green
+  doc.setTextColor(0, 184, 148);
   doc.setFont(undefined, 'bold');
   doc.text("PAID", 105, 120, {align: "center", angle: 45});
-  doc.setTextColor(0, 0, 0); // reset to black
+  doc.setTextColor(0, 0, 0);
   }
       doc.save(`TWINZ-Invoice-${currentInvoiceId.slice(-6)}.pdf`);
       document.getElementById('invoiceModal').style.display='none';
@@ -597,29 +813,23 @@ if(isPaidNormal) {
     let price = Number(document.getElementById('quickInvPrice').value) || 0;
     let addTax = document.getElementById('quickInvTax').checked;
     let isPaid = document.getElementById('quickInvPaid').checked;
-
     if(!name ||!item ||!price) return alert('Please fill Name, Service and Price');
-
     let subtotal = qty * price;
     let tax = addTax? subtotal * 0.15 : 0;
     let grandTotal = subtotal + tax;
     let invId = Date.now().toString();
-
-    // 1. SAVE TO FIREBASE FIRST so it shows in Admin + CSV
-    const order = { 
-      user: 'Walk-In', 
-      customerName: name, 
-      customerPhone: phone, 
-      customerEmail: email, 
-      items: [{name: item, price: price, qty: qty, category: 'Walk-In'}], 
-      total: grandTotal, 
-      date: new Date().toISOString(), 
-      status: isPaid ? 'Completed' : 'Pending',
-      type: 'Walk-In Invoice' 
+    const order = {
+      user: 'Walk-In',
+      customerName: name,
+      customerPhone: phone,
+      customerEmail: email,
+      items: [{name: item, price: price, qty: qty, category: 'Walk-In'}],
+      total: grandTotal,
+      date: new Date().toISOString(),
+      status: isPaid? 'Completed' : 'Pending',
+      type: 'Walk-In Invoice'
     };
     set(ref(db, 'twinz_worldtier/requests/' + invId), order);
-
-    // 2. THEN GENERATE PDF
     const doc = new jsPDF();
     loadImageToPDF(doc, COMPANY_LOGO, 14, 12, 18, 18, () => {
       doc.setFontSize(12); doc.setFont(undefined, 'bold');
@@ -627,27 +837,22 @@ if(isPaidNormal) {
       doc.setFontSize(8); doc.setFont(undefined, 'normal');
       doc.text(`Reg: ${COMPANY_REG}`, 36, 21);
       doc.text(`Tel: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 36, 25);
-
       doc.setFontSize(14); doc.setFont(undefined, 'bold');
       doc.text("TAX INVOICE", 160, 16, {align: "right"});
       doc.setFontSize(9);
       doc.text(`Invoice #: ${invId.slice(-6)}`, 160, 21, {align: "right"});
       doc.text(`Date: ${new Date().toLocaleDateString()}`, 160, 25, {align: "right"});
-
       doc.line(14, 32, 196, 32);
-
       doc.setFontSize(10); doc.setFont(undefined, 'bold'); doc.text("BILL TO:", 14, 39);
       doc.setFontSize(9); doc.setFont(undefined, 'normal');
       doc.text(`Name: ${name}`, 14, 44);
       doc.text(`Phone: ${phone}`, 14, 48);
       doc.text(`Email: ${email}`, 14, 52);
-
       let y = 64;
       doc.setFont(undefined, 'bold');
       doc.text("Service", 14, y); doc.text("Qty", 110, y, {align: "right"}); doc.text("Rate", 145, y, {align: "right"}); doc.text("Amount", 195, y, {align: "right"});
       y += 3; doc.line(14, y, 196, y); y += 6; doc.setFont(undefined, 'normal');
       doc.text(item.substring(0,40), 14, y); doc.text(qty.toString(), 110, y, {align: "right"}); doc.text(`R${price.toLocaleString()}`, 145, y, {align: "right"}); doc.text(`R${subtotal.toLocaleString()}`, 195, y, {align: "right"});
-
       y += 10; doc.line(120, y, 196, y); y += 6;
       if(addTax) {
         doc.text(`Subtotal: R${subtotal.toLocaleString()}.00`, 195, y, {align: "right"}); y += 6;
@@ -655,20 +860,16 @@ if(isPaidNormal) {
       }
       doc.setFont(undefined, 'bold');
       doc.text(`TOTAL: R${grandTotal.toLocaleString()}.00`, 195, y, {align: "right"});
-
       doc.setFontSize(8);
       doc.text(`Bank: ${COMPANY_BANK} ${COMPANY_ACC} | WhatsApp: ${COMPANY_PHONE1} | ${COMPANY_PHONE2}`, 105, 280, {align: "center"});
       doc.text("Thank you for choosing TWINZ COOPERATE SERVICES", 105, 286, {align: "center"});
-
-// PAID STAMP
 if(isPaid) {
   doc.setFontSize(22);
-  doc.setTextColor(0, 184, 148); // green
+  doc.setTextColor(0, 184, 148);
   doc.setFont(undefined, 'bold');
   doc.text("PAID", 105, 120, {align: "center", angle: 45});
-  doc.setTextColor(0, 0, 0); // reset to black
+  doc.setTextColor(0, 0, 0);
 }
-
       doc.save(`TWINZ-QuickInvoice-${invId.slice(-6)}.pdf`);
       document.getElementById('quickInvoiceModal').style.display='none';
       alert('✅ Walk-In Invoice saved to Admin & PDF downloaded!')
@@ -800,10 +1001,8 @@ if(isPaid) {
   if(localStorage.getItem('darkMode')==='true') document.body.classList.add('dark-mode');
 });
 
-// FORCE CLEAR CACHE ONCE
 if('caches' in window){ caches.keys().then(names => names.forEach(name => caches.delete(name))); }
 if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())); }
-localStorage.clear(); sessionStorage.clear(); console.log("Cache cleared");
 </script>
 </body>
 </html>
