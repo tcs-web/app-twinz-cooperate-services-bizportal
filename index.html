@@ -1037,20 +1037,39 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().the
   } 
 </script>
   <script>
-// FORCE TABS TO BLACK - FIX WHITE INVISIBLE ISSUE
+// FORCE ALL TABS TO VISIBLE - FIX WHITE INVISIBLE ISSUE
 setTimeout(function(){
   const tabs = document.querySelectorAll('button');
   tabs.forEach(btn => {
     const txt = btn.textContent.toLowerCase();
-    if(txt.includes('consulting') || txt.includes('admin') || txt.includes('projects') || txt.includes('tech')){
+    if(txt.includes('consulting') || txt.includes('admin') || txt.includes('projects') || txt.includes('tech') || txt.includes('products') || txt.includes('vin') || txt.includes('income') || txt.includes('ects')){
       btn.style.setProperty('color', '#000', 'important');
-      btn.style.setProperty('background', '#e2e8f0', 'important');
+      btn.style.setProperty('background', '#ffffff', 'important');
       btn.style.setProperty('font-weight', '700', 'important');
-      btn.style.setProperty('border', '1px solid #94a3b8', 'important');
+      btn.style.setProperty('border', '1px solid #cbd5e1', 'important');
+      btn.style.setProperty('border-radius', '20px', 'important');
       btn.style.setProperty('opacity', '1', 'important');
+      btn.style.setProperty('padding', '8px 16px', 'important');
+    }
+    // Keep active one extra bold
+    if(btn.classList.contains('active')){
+      btn.style.setProperty('background', '#ffffff', 'important');
+      btn.style.setProperty('color', '#000', 'important');
+      btn.style.setProperty('border', '2px solid #000', 'important');
     }
   });
 }, 300);
-  </script>
+
+// Re-run every 1 sec so Firebase doesn't turn them blue again
+setInterval(function(){
+  document.querySelectorAll('button').forEach(btn=>{
+    const txt = btn.textContent.toLowerCase();
+    if(txt.includes('products') || txt.includes('vin check')){
+      btn.style.setProperty('color', '#000', 'important');
+      btn.style.setProperty('background', '#ffffff', 'important');
+    }
+  });
+}, 1000);
+</script>
 </body>
 </html>
