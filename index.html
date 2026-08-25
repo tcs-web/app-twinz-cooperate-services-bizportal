@@ -1036,5 +1036,21 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().the
   window.open(link, '_blank');
   } 
 </script>
+  <script>
+// FORCE TABS TO BLACK - FIX WHITE INVISIBLE ISSUE
+setTimeout(function(){
+  const tabs = document.querySelectorAll('button');
+  tabs.forEach(btn => {
+    const txt = btn.textContent.toLowerCase();
+    if(txt.includes('consulting') || txt.includes('admin') || txt.includes('projects') || txt.includes('tech')){
+      btn.style.setProperty('color', '#000', 'important');
+      btn.style.setProperty('background', '#e2e8f0', 'important');
+      btn.style.setProperty('font-weight', '700', 'important');
+      btn.style.setProperty('border', '1px solid #94a3b8', 'important');
+      btn.style.setProperty('opacity', '1', 'important');
+    }
+  });
+}, 300);
+  </script>
 </body>
 </html>
