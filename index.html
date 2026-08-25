@@ -845,6 +845,7 @@ if(isPaidNormal) {
     let tax = addTax? subtotal * 0.15 : 0;
     let grandTotal = subtotal + tax;
     let invId = Date.now().toString();
+        let vatStatusText = addTax? "VAT Included (15%)" : "No VAT";
     const order = {
       user: 'Walk-In',
       customerName: name,
@@ -852,6 +853,11 @@ if(isPaidNormal) {
       customerEmail: email,
       items: [{name: item, price: price, qty: qty, category: 'Walk-In'}],
       total: grandTotal,
+      subtotal: subtotal,
+      vatStatus: vatStatusText,
+      addTax: addTax,
+      vatAmount: tax,
+      exclAmount: subtotal,
       date: new Date().toISOString(),
       status: isPaid? 'Completed' : 'Pending',
       type: 'Walk-In Invoice'
@@ -1012,13 +1018,46 @@ if(isPaid) {
 
   window.downloadCSV = () => {
     if(Object.keys(orders).length === 0) return alert('No requests to export');
-    let csv = 'Request ID,Date,Customer Name,Phone,Email,Services,Total R,Status\n';
+    // BANK PRO V2 - VAT OPTIONAL - 13 COLUMNS
+    let csv = 'Date,Invoice No,Customer,Phone,Email,Service,VAT Status,Amount Excl VAT,VAT Amount,Total ZAR,Bank Account,Branch,Payment Ref,Status\n';
     Object.entries(orders).forEach(([id,o])=>{
-      let items = o.items.map(i=>`${i.name} x${i.qty}`).join('; '); let date = new Date(o.date).toLocaleDateString();
-      csv += `"${id.slice(-6)}","${date}","${o.customerName||'Guest'}","${o.customerPhone||''}","${o.customerEmail||''}","${items}",${o.total},"${o.status}"\n`;
+      let date = new Date(o.date).toISOString().split('T')[0];
+      let invNo = "TWINZ-" + id.slice(-6);
+      let customer = (o.customerName||'Guest').replace(/"/g,'');
+      let phone = (o.customerPhone||'').replace(/"/g,'');
+      let email = (o.customerEmail||'').replace(/"/g,'');
+      let services = o.items.map(i=>`${i.name} x${i.qty}`).join('; ').replace(/"/g,'');
+      let total = Number(o.total)||0;
+
+      // VAT OPTIONAL LOGIC - Check if saved with VAT flag, else auto-detect
+      let vatApplicable = true;
+      if(o.vatStatus!== undefined){
+        vatApplicable = o.vatStatus.includes('VAT Included');
+      } else if(o.addTax!== undefined){
+        vatApplicable = o.addTax;
+      } else {
+        // Auto: R50 brand / < R300 = No VAT, else VAT
+        vatApplicable = total > 300;
+      }
+
+      let vatStatus = vatApplicable? "VAT Included (15%)" : "No VAT";
+      let excl = vatApplicable? (total / 1.15) : total;
+      let vat = vatApplicable? (total - excl) : 0;
+
+      csv += `"${date}","${invNo}","${customer}","${phone}","${email}","${services}","${vatStatus}",${excl.toFixed(2)},${vat.toFixed(2)},${total.toFixed(2)},"Standard Bank 10264594434","006145","${invNo}","${o.status}"\n`;
     });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob); link.download = `TWINZ-Requests-${new Date().toISOString().split('T')[0]}.csv`; link.click();
+
+    // Add summary at bottom
+    let totalSum = Object.values(orders).reduce((a,b)=>a+(Number(b.total)||0),0);
+    csv += `\nSUMMARY,,,,"Grand Total",,,,"${totalSum.toFixed(2)}"\n`;
+    csv += `BANK DETAILS,,,,"Standard Bank 10264594434 Branch 006145",,,,"Generated: ${new Date().toLocaleString()}"\n`;
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `TWINZ-BANK-READY-PRO-V2-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    alert('✅ BANK READY PRO CSV Downloaded - VAT Optional - 13 Columns');
   }
 
   function setClientLink(){ let link = window.location.origin + window.location.pathname + '?client=1'; if(document.getElementById('clientShareLink')) document.getElementById('clientShareLink').value = link; }
