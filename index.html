@@ -219,7 +219,7 @@ input,select,textarea{width:100%;padding:10px;margin:6px 0;border:1px solid var(
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <input type="text" id="clientShareLink" readonly style="flex:1;min-width:200px">
             <button class="btn" onclick="copyClientLink()">Copy</button>
-            <button class="btn-green" onclick="shareClientWhatsApp()">WhatsApp</button>
+            <button class="btn-green" onclick="shareClientWhatsApp()">WhatsApp</button><button onclick="previewLink()" style="background:white;color:#0056b3;padding:8px 14px;border:2px solid #0056b3;border-radius:8px;font-weight:600;margin-left:8px;cursor:pointer">👁️ Preview</button>
           </div>
         </div>
       </div>
@@ -1019,6 +1019,11 @@ if(isPaid) {
 
 if('caches' in window){ caches.keys().then(names => names.forEach(name => caches.delete(name))); }
 if('serviceWorker' in navigator){ navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister())); }
+
+ function previewLink(){
+  const link = document.getElementById('serviceLink')?.value || "https://tcs-web.github.io/a/client.html";
+  window.open(link, '_blank');
+  } 
 </script>
 </body>
 </html>
